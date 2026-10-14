@@ -13,3 +13,5 @@
 #livres .books-romans .book-cover > a{display:block;width:100%;max-width:210px}@media(max-width:460px){#livres .books-romans .book-cover > a{max-width:240px}}
 
 #livres .children-shelf{grid-template-columns:repeat(2,minmax(0,1fr));max-width:720px;margin:auto}#livres .children-shelf .book-cover>a{display:block;width:100%;max-width:240px}#livres .children-shelf .book-cover img{width:100%;max-width:240px;height:auto}@media(max-width:460px){#livres .children-shelf{grid-template-columns:1fr}}
+
+#livres .book-description{font-size:.95rem;line-height:1.6;text-align:left;color:#ccc;margin:14px 0 0}
