@@ -58,3 +58,6 @@ article,#livres .book-block{background:#38332f;border-color:#62594f}
 .links a{border-radius:3px}
 @media(max-width:700px){.section-intro{margin-top:0;margin-bottom:1.5em}#livres .books-layout{gap:20px}#livres .book-block{padding:20px 0}.gallery-links{margin-top:24px}#jeux>article,#anonymat>article{padding:0}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+@media(min-width:901px){#livres .cocasse-shelf{width:calc(100% - 46px);margin-inline:auto}}
+#livres .book-cover .book-cta{margin-top:auto;padding-top:18px}
