@@ -25,3 +25,14 @@
 #jeux .game-gallery{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;max-width:1000px}#jeux .game-gallery figure{width:100%;max-width:145px;justify-self:center}#jeux .game-gallery figcaption{font-size:.8rem;margin-top:8px}#jeux .game-gallery-title{margin-bottom:6px}#jeux .game-gallery-hint{font-size:.9rem;color:#aaa;margin:0 0 20px}@media(max-width:900px){#jeux .game-gallery{grid-template-columns:repeat(3,minmax(0,1fr));max-width:520px}}@media(max-width:460px){#jeux .game-gallery{grid-template-columns:repeat(2,minmax(0,1fr));max-width:330px;gap:16px}}
 
 #apropos{max-width:950px}section[id],#apropos{scroll-margin-top:90px}.monographs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px}.monograph-item{min-width:0}.limited-cover{position:relative;max-width:260px;width:100%}#livres .sold-out-badge{position:absolute;left:0;right:0;bottom:18px;padding:10px 8px;background:rgba(110,30,30,.96);color:#fff;text-align:center;font-size:.9rem;font-weight:bold;letter-spacing:.04em}.game-details{padding:12px 0;border-top:1px solid #333;border-bottom:1px solid #333}@media(max-width:700px){.monographs-grid{grid-template-columns:1fr}section[id],#apropos{scroll-margin-top:20px}}
+
+/* Encadrés : gris chaud pour une présentation plus douce. */
+article,#livres .book-block{background:#38332f;border-color:#62594f}
+#livres .book-cover{background:#2c2825;border-color:#514a43}
+#livres .book-cover img,#livres .book-feature-cover{background:#2c2825}
+#livres .book-cover figcaption span,#livres .book-kicker{color:#c8bfb2}
+#jeux .game-cover figcaption,#jeux .game-gallery figcaption,#jeux .game-gallery-hint{color:#c8bfb2}
+.links a{border-color:#817365}
+.links a:hover,.links a:focus-visible{background:#484039}
+.game-details{border-color:#62594f}
+#anonymat .book-kicker{color:#c8bfb2;text-transform:uppercase;letter-spacing:.1em;font-size:.78rem}
