@@ -36,3 +36,25 @@ article,#livres .book-block{background:#38332f;border-color:#62594f}
 .links a:hover,.links a:focus-visible{background:#484039}
 .game-details{border-color:#62594f}
 #anonymat .book-kicker{color:#c8bfb2;text-transform:uppercase;letter-spacing:.1em;font-size:.78rem}
+
+/* Finition : une lecture plus aérée, sans modifier les grilles des couvertures. */
+.section-intro{max-width:820px;margin:-.4em 0 2em;color:#d2cbc0;font-size:clamp(1.05rem,1.5vw,1.25rem);line-height:1.65}
+#livres .books-layout{gap:36px}
+#livres .book-block{background:transparent;border:0;padding:24px 0}
+#livres .book-block + .book-block{border-top:1px solid #484039}
+#livres .book-intro{margin-bottom:22px}
+#livres .book-cover{border-radius:5px}
+#livres .book-cover .book-cta{display:inline-block;align-self:center;margin-top:18px;padding:8px 2px;color:#f3f0e9;font-size:.85rem;line-height:1.45;text-decoration:underline;text-underline-offset:4px}
+#livres .book-cover .book-cta:hover{color:#dfc49d}
+#livres .book-feature .book-cta{display:inline-block;margin-top:12px;color:#f3f0e9;text-underline-offset:4px}
+#livres .book-cta:focus-visible{outline:2px solid #dfc49d;outline-offset:5px}
+#oeuvres article{border-radius:5px}
+.gallery-links{margin-top:30px;padding-top:22px;border-top:1px solid #484039}
+.gallery-links .gallery-label{margin:0 0 14px;font-weight:600}
+#jeux>article,#anonymat>article{background:transparent;border:0;padding:8px 0}
+#jeux .game-intro{gap:clamp(24px,4vw,56px)}
+#jeux .game-gallery-title{margin-top:42px}
+#disponibilite .grid>article{background:transparent;border:0;border-top:1px solid #62594f;padding:22px 0}
+.links a{border-radius:3px}
+@media(max-width:700px){.section-intro{margin-top:0;margin-bottom:1.5em}#livres .books-layout{gap:20px}#livres .book-block{padding:20px 0}.gallery-links{margin-top:24px}#jeux>article,#anonymat>article{padding:0}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
