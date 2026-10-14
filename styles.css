@@ -5,3 +5,5 @@
 @media(max-width:460px){#livres .book-shelf{grid-template-columns:1fr}#livres .book-cover img{max-width:240px;height:auto}}
 
 #livres .books-cocasse{grid-column:1/-1}#livres .cocasse-shelf{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:24px}#livres .cocasse-shelf .book-cover a{display:block;width:100%}#livres .cocasse-shelf .book-cover img{max-width:none;height:auto;aspect-ratio:1.25;object-fit:contain}#livres .cocasse-text-link{color:#f3f0e9}#livres .book-cover a:focus-visible{outline:2px solid #f3f0e9;outline-offset:5px}@media(max-width:900px){#livres .cocasse-shelf{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:460px){#livres .cocasse-shelf{grid-template-columns:1fr}}
+
+#livres .book-info-grid > .book-block{grid-column:1/-1}
