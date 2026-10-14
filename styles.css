@@ -61,3 +61,6 @@ article,#livres .book-block{background:#38332f;border-color:#62594f}
 
 @media(min-width:901px){#livres .cocasse-shelf{width:calc(100% - 46px);margin-inline:auto}}
 #livres .book-cover .book-cta{margin-top:auto;padding-top:18px}
+
+/* Localized novel summaries */
+#livres .roman-description{text-align:start;}
