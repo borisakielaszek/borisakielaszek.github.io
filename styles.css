@@ -21,3 +21,5 @@
 .atelier-logo{display:block;width:110px;height:110px;object-fit:contain;border-radius:50%;margin:0 0 20px}.atelier-card h3{margin-top:0}
 
 #disponibilite .atelier-card{min-width:0;overflow:hidden}#disponibilite .atelier-logo{display:block;width:96px;height:96px;max-width:100%;object-fit:contain;clip-path:circle(49% at 50% 50%);margin:0 0 18px}#disponibilite .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+
+#jeux .game-gallery{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;max-width:1000px}#jeux .game-gallery figure{width:100%;max-width:145px;justify-self:center}#jeux .game-gallery figcaption{font-size:.8rem;margin-top:8px}#jeux .game-gallery-title{margin-bottom:6px}#jeux .game-gallery-hint{font-size:.9rem;color:#aaa;margin:0 0 20px}@media(max-width:900px){#jeux .game-gallery{grid-template-columns:repeat(3,minmax(0,1fr));max-width:520px}}@media(max-width:460px){#jeux .game-gallery{grid-template-columns:repeat(2,minmax(0,1fr));max-width:330px;gap:16px}}
