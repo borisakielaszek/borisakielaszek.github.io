@@ -64,3 +64,11 @@ article,#livres .book-block{background:#38332f;border-color:#62594f}
 
 /* Localized novel summaries */
 #livres .roman-description{text-align:start;}
+
+/* Zétwal artwork preview */
+#livres .zetwal-gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;max-width:1040px;margin:24px auto 30px}
+#livres .zetwal-artwork{max-width:none;min-width:0;height:100%;margin:0;padding:14px}
+#livres .zetwal-artwork img{display:block;width:100%;max-width:none;height:auto;aspect-ratio:2/3;object-fit:contain;background:#0c0c0c;box-shadow:0 12px 28px rgba(0,0,0,.35)}
+#livres .zetwal-artwork figcaption{padding-top:12px}
+@media(max-width:900px){#livres .zetwal-gallery{grid-template-columns:repeat(2,minmax(0,1fr));max-width:620px}}
+@media(max-width:460px){#livres .zetwal-gallery{gap:12px}#livres .zetwal-artwork{padding:10px}}
