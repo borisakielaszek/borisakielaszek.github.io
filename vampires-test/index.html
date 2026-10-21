@@ -1486,7 +1486,15 @@ async function humanCardClick(i){
 }
 async function playAttackFromHand(p,i){const id=p.hand[i];if(!canPlayAttack(p,id)){toast('Aucune cible valable pour cette attaque.');return false}removeHandIndex(p,i,false);discardCard(id);log(`${pName(p)} joue <strong>${cardName(id)}</strong>.`,'important');const ok=await executeAttack(p,id);if(!ok){const di=S.discard.lastIndexOf(id);if(di>=0)S.discard.splice(di,1);p.hand.splice(i,0,id);render();toast('Action annulée.');return false;}await finishAction(p,true);return true}
 async function playRegenFromHand(p,i){const id=removeHandIndex(p,i,false);discardCard(id);log(`${pName(p)} joue <strong>${cardName(id)}</strong>.`,'important');await executeRegen(p,id);await finishAction(p,true);return true}
-async function finishAction(p,drawAfter){await maybeGameOver();if(p.alive&&drawAfter){log(`Fin du tour de ${pName(p)} : ${p.human?'tu pioches':'il pioche'} 1 carte.`,'important');await drawOneToHand(p,p.human?'endturn':'normal');}await maybeGameOver();render()}
+async function finishAction(p,drawAfter){
+ const game=S;
+ await maybeGameOver();
+ // A winning action ends the turn immediately; never draw into a finished or replaced game.
+ if(!game||S!==game||game.gameOver)return;
+ if(p.alive&&drawAfter){log(`Fin du tour de ${pName(p)} : ${p.human?'tu pioches':'il pioche'} 1 carte.`,'important');await drawOneToHand(p,p.human?'endturn':'normal');}
+ if(S!==game)return;
+ await maybeGameOver();render();
+}
 function endHumanTurn(){if(humanTurnResolve)humanTurnResolve()}
 
 function canPlayAttack(p,id){
