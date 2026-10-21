@@ -12,16 +12,16 @@
 <meta property="og:title" content="Les Vampires de Sarrebruck — Le jeu">
 <meta property="og:description" content="Entrez dans la nuit ! Jouez gratuitement contre les vampires sur téléphone ou ordinateur.">
 <meta property="og:url" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/">
-<meta property="og:image" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/assets/logo-partage-vampires.png">
-<meta property="og:image:secure_url" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/assets/logo-partage-vampires.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="988">
-<meta property="og:image:height" content="907">
+<meta property="og:image" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/assets/partage-vampires-grand.jpg">
+<meta property="og:image:secure_url" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/assets/partage-vampires-grand.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Logo Les Vampires de Sarrebruck : vampire, chauve-souris et croissant de lune">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Les Vampires de Sarrebruck — Le jeu">
 <meta name="twitter:description" content="Entrez dans la nuit ! Jouez gratuitement contre les vampires.">
-<meta name="twitter:image" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/assets/logo-partage-vampires.png">
+<meta name="twitter:image" content="https://borisakielaszek.github.io/jeu-vampires-de-sarrebruck/assets/partage-vampires-grand.jpg">
 <meta name="twitter:image:alt" content="Logo Les Vampires de Sarrebruck">
 
 <style>
@@ -1107,7 +1107,7 @@ const VAMP_PORTRAITS={'draco':'assets/1232fd02579d5b19fc1b.png','rudiger':'asset
 const VAMP_POWERS={"draco": "Cumule les bonus des deux familles.|Lever du jour : +1 goutte.", "rudiger": "Attaques de lycanthropes : immunisé ; peut les convertir en 1 goutte (2 pour une Meute).|Château de Sarrebruck : +3 gouttes au lieu de +2.", "ilsa": "Gewürztraminer au Sang Noir : +2 gouttes au lieu de +1.|Chasseurs de vampires : sans effet.", "manfred": "Régénération partielle : une fois par partie, gagne 1 goutte à tout moment.|Ignore les dégâts de Chute dans la Sarre.", "draculito": "Vigueur de la jeunesse : joue avec 6 gouttes.|Lever du jour : +1 goutte.", "elisabetta": "Ne passe jamais son tour.|Immunisée à l’Hypnose.|Lorsqu’elle joue Hypnose : peut voler 2 gouttes (1 à chacun de deux adversaires différents).|Main maximale : 7 cartes.", "ermanno": "Impôts et taxes Del Rattello : prend 2 gouttes dans la réserve commune ; si elle est insuffisante, vole le complément. Ne paie pas l’impôt joué par un adversaire.|Poche de sang expirée : immunisé ; s’il la joue sur lui-même, +1 goutte."};
 const CARD_EXPLAIN={
  impots:"Tous les autres vampires perdent 1 goutte de sang et défaussent 1 carte. Ermanno applique en plus son pouvoir spécial.",
- marche_noel:"Effet immédiat : tous les joueurs piochent 2 cartes.",
+ marche_noel:"Effet immédiat : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus au-delà de sa limite de main. Aucune carte n’est prise à un voisin.",
  cercueil:"La cible perd 1 goutte. Défense normalement impossible, sauf exception écrite sur une carte.",
  aube:"La cible perd 2 gouttes. Draculito est immunisé ; Draco gagne 1 goutte à la place.",
  morsure:"La cible perd 1 goutte. Si elle est exactement à 1 goutte, elle peut défausser 1 carte pour survivre à 1.",
@@ -1267,6 +1267,7 @@ async function showTurnNotice(p){
 
 
 async function startGame(){
+ actionBusy=false;humanTurnResolve=null;
  const count=Number(el('playerCount').value), chosen=el('vampireChoice').value, humanName=getSetupPlayerName();let vids=shuffle(Object.keys(VAMPIRES).slice());let hv=chosen==='random'?vids.shift():chosen;if(chosen!=='random')vids=vids.filter(v=>v!==chosen);
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
@@ -1284,9 +1285,9 @@ function removeHandIndex(p,i,toDiscard=true){const [id]=p.hand.splice(i,1);if(to
 function removeOneFromHand(p,id,toDiscard=true){const i=p.hand.indexOf(id);if(i<0)return false;removeHandIndex(p,i,toDiscard);return true}
 
 async function gainBlood(p,n,why=''){
- if(!p.alive||n<=0)return 0;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0){log(`${pName(p)} est déjà au maximum de sang.`);return 0}const take=Math.min(n,room,S.pool);p.hp+=take;S.pool-=take;if(take)log(`${pName(p)} gagne ${take} goutte${take>1?'s':''} de sang${why?` (${why})`:''}.`,'good');if(take<n&&room>take)log(`La réserve commune ne contient pas assez de sang.`);render();return take}
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0){log(`${pName(p)} est déjà au maximum de sang.`);return 0}const take=Math.min(n,room,S.pool);p.hp+=take;S.pool-=take;if(take)log(`${pName(p)} gagne ${take} goutte${take>1?'s':''} de sang${why?` (${why})`:''}.`,'good');if(take<n&&room>take)log(`La réserve commune ne contient pas assez de sang.`);render();return take}
 async function loseBlood(p,n,why=''){
- if(!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
 async function showHumanEliminationScene(p){
  playEndgameMusic('defeatMusic');
  const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${ENDGAME_LOSE_ART}" alt="Éliminé ! Tu as succombé à la nuit"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
@@ -1295,46 +1296,59 @@ async function showHumanEliminationScene(p){
  stopEndgameMusic({resumeGame:gameContinues});
 }
 async function eliminate(p){if(!p.alive)return;p.alive=false;for(const id of p.hand)discardCard(id);p.hand=[];if(p.witches){p.witches=false;discardCard('sorcieres')}log(`☠ ${pName(p)} — ${VAMPIRES[p.vampire].name} — est éliminé.`,'bad');render();if(p.human&&!p.eliminationShown){p.eliminationShown=true;await showHumanEliminationScene(p)}}
-async function stealBlood(from,to,n=1){for(let k=0;k<n;k++){if(!from.alive||from.hp<=0)break;from.hp--;const room=VAMPIRES[to.vampire].maxHp-to.hp;if(room>0)to.hp++;else S.pool++;log(`${pName(to)} vole 1 goutte à ${pName(from)}.`,'good');if(from.hp<=0)await eliminate(from)}render()}
+async function stealBlood(from,to,n=1){const game=S;for(let k=0;k<n;k++){if(!game||S!==game||game.gameOver||!game.players.includes(from)||!game.players.includes(to))return;if(!from.alive||from.hp<=0)break;from.hp--;const room=VAMPIRES[to.vampire].maxHp-to.hp;if(room>0)to.hp++;else S.pool++;log(`${pName(to)} vole 1 goutte à ${pName(from)}.`,'good');if(from.hp<=0)await eliminate(from)}render()}
 
 async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
  const isHuman=!!player?.human;
  const witchesBonus=reason==='witchesBonus';
- const kicker=witchesBonus
+ const christmasDraw=reason==='marche_noel';
+ const kicker=christmasDraw ? `MARCHÉ DE NOËL — ${pName(player).toUpperCase()} PIOCHE DANS LA PIOCHE COMMUNE` : witchesBonus
    ? (immediate
       ? (isHuman?"LA CARTE SUPPLÉMENTAIRE DES SORCIÈRES RÉVÈLE UN EFFET IMMÉDIAT":`${pName(player).toUpperCase()} — CARTE SUPPLÉMENTAIRE DES SORCIÈRES`)
       : (isHuman?"LES SORCIÈRES T’ACCORDENT UNE CARTE SUPPLÉMENTAIRE :":`${pName(player).toUpperCase()} — CARTE SUPPLÉMENTAIRE DES SORCIÈRES :`))
    : (immediate
       ? (isHuman?"TA PIOCHE DE FIN DE TOUR RÉVÈLE UNE CARTE À EFFET IMMÉDIAT":`FIN DU TOUR DE ${pName(player).toUpperCase()} — CARTE À EFFET IMMÉDIAT`)
       : (isHuman?"TON TOUR S’ACHÈVE AVEC LA PIOCHE DE :":`FIN DU TOUR DE ${pName(player).toUpperCase()} — PIOCHE DE :`));
- const info=immediate
+ const info=christmasDraw
+   ? (immediate?"Cette carte à effet immédiat vient de la pioche commune pendant le Marché de Noël. Son propre effet se résout maintenant, puis la pioche du Marché de Noël reprend.":"Cette carte vient de la pioche commune. Après tes deux pioches du Marché de Noël, tu défausseras le surplus si ta main dépasse sa limite.")
+   : immediate
    ? "⚡ Regarde bien la carte : son effet s’appliquera lorsque tu continueras."
    : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
- const title=witchesBonus?"Carte supplémentaire":(immediate?"Carte Éclair révélée !":"Carte piochée");
+ const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":(immediate?"Carte Éclair révélée !":"Carte piochée");
  const content=`<div class="immediate-scene draw-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-kicker draw-kicker">${kicker}</div><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"Son effet se déclenchera quand tu continueras.":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
  if(immediate)setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
  await openTapDismissInfo({title,content});
 }
 async function drawOneToHand(p,reason='normal'){
- if(!p.alive)return null;for(let guard=0;guard<100;guard++){
+ const game=S;
+ if(!game||game.gameOver||!game.players.includes(p)||!p.alive)return null;for(let guard=0;guard<100&&S===game&&!game.gameOver;guard++){
    if(!refillDeck())return null;const id=S.deck.pop();
-   const revealDraw=p.human&&(reason==='endturn'||reason==='exchange'||reason==='witchesBonus');
+   const revealDraw=(p.human&&(reason==='endturn'||reason==='exchange'||reason==='witchesBonus'||reason==='marche_noel'))||(reason==='marche_noel'&&CARDS[id].kind==='immediate');
    if(CARDS[id].kind==='immediate'){
      // Une seule révélation visuelle. La pioche bonus des Sorcières est distinguée de la pioche normale de fin de tour.
      if(revealDraw)await showDrawScene(p,id,{immediate:true,reason});
+     if(S!==game||game.gameOver)return null;
      log(`${pName(p)} pioche ${cardName(id)}.`,'important');
      // L'effet se résout ensuite sans rouvrir une seconde fenêtre de révélation.
      await resolveImmediate(p,id,{skipScene:true,drawReason:reason});
+     if(S!==game||game.gameOver)return null;
      if(id!=='sorcieres'||!p.witches)discardCard(id);render();if(!p.alive)return null;continue;
    }
    p.hand.push(id);log(`${pName(p)} pioche une carte.`);render();
    if(revealDraw)await showDrawScene(p,id,{immediate:false,reason});
+   if(S!==game||game.gameOver)return null;
    await enforceHandLimit(p);render();return id;
  }
  return null;
 }
-async function drawCards(p,n){for(let i=0;i<n&&p.alive;i++)await drawOneToHand(p)}
-async function enforceHandLimit(p){while(p.alive&&p.hand.length>maxHand(p)){let idx;if(p.human)idx=await chooseCardFromHand(p,`Main maximale : ${maxHand(p)} cartes — choisissez une carte à défausser.`);else idx=aiWorstCardIndex(p);const id=removeHandIndex(p,idx,true);log(`${pName(p)} défausse ${cardName(id)} pour respecter sa limite de main.`)}}
+async function drawCards(p,n,reason='normal'){
+ const game=S;if(!game||game.gameOver||!game.players.includes(p))return;
+ const batch=reason==='marche_noel';
+ if(batch)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
+ try{for(let i=0;i<n&&p.alive&&S===game&&!game.gameOver;i++)await drawOneToHand(p,reason);}
+ finally{if(batch){p.deferredHandLimits--;if(S===game&&!game.gameOver)await enforceHandLimit(p);}}
+}
+async function enforceHandLimit(p){const game=S;if(!game||game.gameOver||!game.players.includes(p)||p.deferredHandLimits>0)return;while(S===game&&!game.gameOver&&p.alive&&p.hand.length>maxHand(p)){let idx;if(p.human)idx=await chooseCardFromHand(p,`Main maximale : ${maxHand(p)} cartes — choisissez une carte à défausser.`);else idx=aiWorstCardIndex(p);if(S!==game||game.gameOver)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} défausse ${cardName(id)} pour respecter sa limite de main.`)}}
 async function discardRandomOrChosen(p,n,reason=''){
  const discarded=[];
  for(let k=0;k<n&&p.alive&&p.hand.length;k++){
@@ -1356,15 +1370,16 @@ function logTurnStart(p){
 }
 
 async function gameLoop(){
- while(S&&!S.gameOver){
-   await maybeGameOver();if(S.gameOver)break;
+ const game=S;
+ while(S===game&&!game.gameOver){
+   await maybeGameOver();if(S!==game||game.gameOver)break;
    let p=S.players[S.turnIndex];if(!p.alive){advanceTurn();continue}
    logTurnStart(p);render();await showTurnNotice(p);
    if(p.skipTurns>0&&p.vampire!=='elisabetta'){p.skipTurns--;log(`${pName(p)} passe son tour.`,'important');render();await sleep(p.human?600:900);advanceTurn();continue}
-   if(p.hand.length<3){log(`${pName(p)} complète sa main jusqu’à 3 cartes.`);while(p.alive&&p.hand.length<3)await drawOneToHand(p);if(!p.alive){await maybeGameOver();advanceTurn();continue}}
+   if(p.hand.length<3){log(`${pName(p)} complète sa main jusqu’à 3 cartes.`);while(S===game&&!game.gameOver&&p.alive&&p.hand.length<3)await drawOneToHand(p);if(S!==game||game.gameOver)return;if(!p.alive){await maybeGameOver();if(S!==game||game.gameOver)return;advanceTurn();continue}}
    if(p.vampire==='manfred'&&!p.manfredUsed&&!p.human&&p.hp<VAMPIRES[p.vampire].maxHp&&S.pool>0&&(p.hp<=2||Math.random()<.22))await useManfred(p);
-   if(p.human){S.awaitingHuman=true;render();await new Promise(r=>humanTurnResolve=r);humanTurnResolve=null;S.awaitingHuman=false;render()}else{await sleep(1800);await aiTurn(p);await sleep(1200)}
-   await maybeGameOver();if(!S.gameOver)advanceTurn();
+   if(p.human){S.awaitingHuman=true;render();await new Promise(r=>humanTurnResolve=r);if(S!==game)return;humanTurnResolve=null;S.awaitingHuman=false;render()}else{await sleep(1800);if(S!==game||game.gameOver)return;await aiTurn(p);if(S!==game)return;await sleep(1200)}
+   if(S!==game)return;await maybeGameOver();if(S!==game)return;if(!game.gameOver)advanceTurn();
  }
 }
 function advanceTurn(){if(!S)return;S.turnIndex=(S.turnIndex+1)%S.players.length;render()}
@@ -1478,7 +1493,7 @@ function defenseStrategySummary(eligible,incoming){
 }
 
 async function humanCardClick(i){
- if(!S||actionBusy)return;
+ if(!S||actionBusy)return;const game=S;
  const p=S.players.find(x=>x.human);if(!p||!p.alive||i<0||i>=p.hand.length)return;
  const id=p.hand[i],c=CARDS[id],canAct=S.awaitingHuman&&S.players[S.turnIndex]===p;
  let buttons=[];
@@ -1494,19 +1509,20 @@ async function humanCardClick(i){
  }else buttons.push({label:"Ce n’est pas ton tour",value:'info'});
  buttons.push({label:'Retour à ma main',value:'cancel'});
  const v=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}"><div class="card-detail-side">${cardActionCopy(p,id,c,canAct)}</div></div>`,buttons,closable:true});
- if(!v||v==='cancel'||v==='info')return;
+ if(S!==game||game.gameOver||!v||v==='cancel'||v==='info')return;
  actionBusy=true;closeHand();render();let ok=false;
  try{
   if(v==='attack'){toast('Choisis maintenant la cible de ta carte.');ok=await playAttackFromHand(p,i);}
   else if(v==='regen'){toast('La carte est en train d’être jouée…');ok=await playRegenFromHand(p,i);}
   else if(v==='convert1'||v==='convert2'){const cid=removeHandIndex(p,i,true);await gainBlood(p,v==='convert1'?1:2,'conversion de Rüdiger');log(`${pName(p)} convertit ${cardName(cid)} en sang.`);await finishAction(p,true);ok=true}
   else if(v==='ermanno_self'){removeHandIndex(p,i,true);await gainBlood(p,1,'Poche périmée sur lui-même');await finishAction(p,true);ok=true}
- }finally{actionBusy=false;render()}
- if(ok)endHumanTurn();
+ }finally{if(S===game){actionBusy=false;render()}}
+ if(ok&&S===game)endHumanTurn();
 }
 async function playAttackFromHand(p,i){const id=p.hand[i];if(!canPlayAttack(p,id)){toast('Aucune cible valable pour cette attaque.');return false}removeHandIndex(p,i,false);discardCard(id);log(`${pName(p)} joue <strong>${cardName(id)}</strong>.`,'important');const ok=await executeAttack(p,id);if(!ok){const di=S.discard.lastIndexOf(id);if(di>=0)S.discard.splice(di,1);p.hand.splice(i,0,id);render();toast('Action annulée.');return false;}await finishAction(p,true);return true}
 async function playRegenFromHand(p,i){const id=removeHandIndex(p,i,false);discardCard(id);log(`${pName(p)} joue <strong>${cardName(id)}</strong>.`,'important');await executeRegen(p,id);await finishAction(p,true);return true}
 async function finishAction(p,drawAfter){
+ if(!S||S.gameOver||!S.players.includes(p))return;
  const game=S;
  await maybeGameOver();
  // A winning action ends the turn immediately; never draw into a finished or replaced game.
@@ -1861,9 +1877,11 @@ async function executeRegen(p,id){
 async function poisonSkip(p,id){let cancel=false;if(p.hand.includes('tablettes')){if(p.human)cancel=await openModal({title:'Carte Poison',text:`${cardName(id)} te ferait passer ton prochain tour. Utiliser les Comprimés d’hémoglobine à la camomille ?`,buttons:[{label:'Utiliser les comprimés',value:true,className:'good'},{label:'Subir le poison',value:false}]});else cancel=true}if(cancel){removeOneFromHand(p,'tablettes',true);log(`${pName(p)} annule ${cardName(id)} avec les Comprimés.`,'good')}else if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour à cause de ${cardName(id)}.`,'bad')}}
 
 async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
- if(!p.alive)return;
+ const game=S;
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive)return;
  if(!skipScene)await showImmediateScene(p,id);
- if(id==='marche_noel'){log('Joyeux Noël : tous les vampires piochent 2 cartes !','important');for(const x of alivePlayers().slice())await drawCards(x,2);return}
+ if(S!==game||game.gameOver)return;
+ if(id==='marche_noel'){log('Marché de Noël : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus. Aucune carte n’est prise au voisin.','important');for(const x of alivePlayers().slice()){if(S!==game||game.gameOver)break;if(!x.alive)continue;log(`${pName(x)} : pioche de 2 cartes dans la pioche commune (Marché de Noël).`,'important');await drawCards(x,2,'marche_noel');}return}
  if(id==='hexennacht'){await resolveHexennacht(p);return}
  if(id==='fossoyeur'){await loseBlood(p,1,cardName(id));return}
  if(id==='mortetrouille'){await resolveMortetrouille(p);return}
@@ -2008,7 +2026,7 @@ function aiRegenScore(p,id){const missing=VAMPIRES[p.vampire].maxHp-p.hp;if(id==
 function aiWorstCardIndex(p){let worst=Infinity,wi=0;p.hand.forEach((id,i)=>{let v=CARDS[id].kind==='defense'?5:CARDS[id].kind==='regen'?4:6;if(id==='lame')v=10;if(id==='fuite_chauve')v=8;if(id==='plasma')v=7;if(id==='poche_aplus')v=6;if(id==='tablettes')v=4;if(v<worst){worst=v;wi=i}});return wi}
 function aiBestDiscardEffect(cards){let bi=0,bs=-99;cards.forEach((id,i)=>{let s=0;if(CARDS[id].kind==='attack'||CARDS[id].kind==='hybrid')s=aiAttackScore({vampire:'draco'},id);if(CARDS[id].kind==='regen')s=4;if(CARDS[id].kind==='immediate')s=5;if(CARDS[id].kind==='defense')s=-2;if(s>bs){bs=s;bi=i}});return bi}
 
-async function humanExchange(){if(!S?.awaitingHuman||actionBusy)return;const p=S.players.find(x=>x.human);actionBusy=true;try{const idx=await chooseCardFromHand(p,'Choisis la carte à changer',()=>true,true);if(idx==null)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} change ${cardName(id)}.`);log(`Fin du tour de ${pName(p)} : tu pioches 1 carte.`,'important');await drawOneToHand(p,'exchange');endHumanTurn()}finally{actionBusy=false;render()}}
+async function humanExchange(){if(!S?.awaitingHuman||actionBusy)return;const game=S;const p=S.players.find(x=>x.human);actionBusy=true;try{const idx=await chooseCardFromHand(p,'Choisis la carte à changer',()=>true,true);if(S!==game||game.gameOver||idx==null)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} change ${cardName(id)}.`);log(`Fin du tour de ${pName(p)} : tu pioches 1 carte.`,'important');await drawOneToHand(p,'exchange');if(S===game)endHumanTurn()}finally{if(S===game){actionBusy=false;render()}}}
 
 function showRules(){openModal({title:'Règles du jeu',content:`<div class="rules"><h3>But</h3><p>Être le dernier vampire encore en vie.</p><h3>Tour</h3><p>Une seule action : attaquer, se régénérer ou changer une carte. Après une attaque ou une régénération, tu pioches une carte. Une défense jouée hors de ton tour ne fait pas repiocher.</p><h3>Main</h3><p>Maximum 6 cartes, 7 pour Elisabetta ou le propriétaire des Sorcières d’Oeting. Quand les Sorcières sont piochées, leur propriétaire pioche immédiatement 1 carte supplémentaire ; cette carte ne remplace pas la pioche normale de fin de tour. Au début de ton tour, si tu as moins de 3 cartes, tu complètes jusqu’à 3.</p><h3>Sang</h3><p>5 gouttes au départ, sauf Draculito : 6. À 0 goutte, le vampire meurt immédiatement.</p><h3>Règle d’or</h3><p>Le texte d’une carte ou d’un pouvoir particulier prime sur les règles générales. Le texte d’une carte ou d’un pouvoir particulier reste prioritaire sur les règles générales.</p></div>`,buttons:[{label:'Fermer',value:true}],closable:true})}
 
