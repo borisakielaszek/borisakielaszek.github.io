@@ -94,3 +94,8 @@ body{width:100%;min-width:0;overflow-x:hidden}
 }
 /* Keep drawer close controls above the music switch. */
 #musicToggle{z-index:70}
+
+/* V5.62 — combat artwork and report occupy separate blocks. */
+.combat-result-card{aspect-ratio:auto!important;max-height:none!important;overflow:visible!important}
+.combat-result-card .combat-art{position:static!important;inset:auto!important;width:100%!important;height:auto!important;max-height:55vh;max-height:55dvh;object-fit:contain!important;border-radius:18px 18px 0 0}
+.combat-result-card .combat-dynamic{position:static!important;inset:auto!important;min-height:0!important;margin:10px!important;padding:12px!important;border-radius:12px!important;box-shadow:none!important}
