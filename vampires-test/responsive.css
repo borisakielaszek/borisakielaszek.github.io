@@ -99,3 +99,17 @@ body{width:100%;min-width:0;overflow-x:hidden}
 .combat-result-card{aspect-ratio:auto!important;max-height:none!important;overflow:visible!important}
 .combat-result-card .combat-art{position:static!important;inset:auto!important;width:100%!important;height:auto!important;max-height:55vh;max-height:55dvh;object-fit:contain!important;border-radius:18px 18px 0 0}
 .combat-result-card .combat-dynamic{position:static!important;inset:auto!important;min-height:0!important;margin:10px!important;padding:12px!important;border-radius:12px!important;box-shadow:none!important}
+/* V5.64 — readable portrait notifications, with large cards above their text. */
+.modal-card:has(.immediate-scene){width:min(620px,calc(100vw - 20px))!important;padding:16px!important}
+.modal-card .immediate-scene{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:16px!important;min-width:0}
+.modal-card .immediate-scene>img,.modal-card.tap-dismiss-info .immediate-scene>img{width:100%!important;max-width:360px!important;height:auto!important;max-height:55vh!important;max-height:55dvh!important;object-fit:contain!important;align-self:center;margin:0 auto!important}
+.modal-card .immediate-scene-copy{min-width:0;overflow-wrap:break-word}
+.modal-card .immediate-scene-copy .scene-title{font-size:clamp(1.35rem,4.8vw,1.8rem)!important;line-height:1.18!important}
+.modal-card .immediate-scene-copy .scene-text{font-size:1.1rem!important;line-height:1.5!important}
+@media(max-width:900px),(pointer:coarse) and (orientation:portrait){
+ .modal:has(.immediate-scene){padding:8px!important}
+ .modal-card:has(.immediate-scene){width:100%!important;max-width:620px!important;max-height:calc(100dvh - 16px)!important;border-radius:16px!important}
+ .modal-card.tap-dismiss-info:has(.immediate-scene) h2{font-size:1.45rem!important;margin:0 0 14px!important;padding:0!important}
+ .modal-card .immediate-scene-copy .scene-kicker{font-size:.88rem!important}
+ .modal-card .immediate-scene-copy .scene-small,.modal-card .immediate-scene .tap-dismiss-note{font-size:1rem!important;line-height:1.4!important}
+}
