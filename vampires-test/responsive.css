@@ -1,0 +1,96 @@
+/* V5.61 — automatic layout for viewport size and orientation. */
+html{width:100%;min-height:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{width:100%;min-width:0;overflow-x:hidden}
+#app{width:100%;min-width:0}
+#introScreen{height:100vh!important;height:100dvh!important;min-height:0!important;width:100%;padding:0!important}
+#introScreen .intro-art-final{width:100%;height:100%;min-width:0;min-height:0}
+#introScreen .intro-art-final img{display:block;width:auto!important;height:auto!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;flex:0 1 auto}
+#startScreen{width:100%;min-height:100vh!important;min-height:100dvh!important;height:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(300px,480px)!important;gap:24px!important;align-items:center!important;padding:24px!important}
+#startScreen.hidden{display:none!important}
+#startScreen .start-art{width:100%!important;height:min(75vh,650px)!important;min-height:0!important;max-height:none!important;background:transparent!important}
+#startScreen .start-art img{width:100%!important;height:100%!important;object-fit:contain!important}
+#startScreen .start-panel{width:100%!important;min-width:0;max-width:480px!important;padding:24px!important;margin:0 auto!important;border-radius:20px!important}
+#startScreen h1{font-size:clamp(1.7rem,3vw,2.5rem);line-height:1.12;overflow-wrap:break-word}
+#startScreen input,#startScreen select{font-size:16px;max-width:100%}
+#gameScreen{height:100vh;height:100dvh;min-height:0!important;overflow:hidden}
+#gameScreen .duel-screen{width:100%;height:100vh;height:100dvh;min-height:0;max-width:760px;margin:0 auto;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 60px minmax(140px,1.05fr) 60px minmax(0,1fr)!important}
+#gameScreen .vamp-stage{min-width:0;min-height:0}
+#gameScreen .featured-portrait{object-fit:contain!important;object-position:center!important}
+#gameScreen .vamp-info-bar{min-width:0;min-height:0!important;height:100%;padding:6px 10px!important}
+#gameScreen .vamp-info-main{flex:1;min-width:0}
+#gameScreen .vamp-info-main strong{font-size:clamp(1rem,3.8vw,1.2rem)!important}
+#gameScreen .vamp-info-main span{font-size:clamp(.8rem,3vw,.94rem)!important}
+#gameScreen .vamp-info-blood{font-size:1.1rem!important;padding:6px 9px!important}
+#gameScreen .action-stage{min-width:0;min-height:0;padding:5px 8px 48px!important}
+#gameScreen .journal-live{font-size:clamp(.88rem,2.8vw,1rem)!important}
+#gameScreen .action-tools{left:8px;right:8px;bottom:5px;justify-content:flex-end;flex-wrap:wrap}
+#gameScreen .ghost-btn{min-height:36px;padding:6px 9px;font-size:.76rem}
+#musicToggle{top:max(8px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right));font-size:.8rem;padding:8px 11px;min-height:36px}
+.card-drawer{max-height:100vh;max-height:100dvh;overscroll-behavior:contain}
+.card-drawer>*{max-width:1000px;margin-left:auto;margin-right:auto}
+.card-drawer .hand{grid-template-columns:repeat(3,minmax(0,1fr));width:100%;max-width:720px}
+.modal{padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+.modal-card{min-width:0;max-width:100%;max-height:calc(100vh - 24px)!important;max-height:calc(100dvh - 24px)!important;overscroll-behavior:contain}
+.modal-card img{max-width:100%}
+.image-viewer-card{max-height:calc(100dvh - 24px);max-width:calc(100vw - 24px);overflow:auto!important}
+.image-viewer-card img{max-height:calc(100dvh - 90px)}
+.combat-result-card{max-height:calc(100dvh - 24px)!important;max-width:calc(100vw - 24px)!important}
+.endgame-art{max-height:65dvh!important}
+@media(max-width:767px){
+ #startScreen{grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding:0 0 max(16px,env(safe-area-inset-bottom))!important;align-content:start!important}
+ #startScreen .start-art{height:30vh!important;height:30svh!important;max-height:280px!important;min-height:0!important}
+ #startScreen .start-panel{padding:20px 18px!important;max-width:600px!important;border-radius:0!important}
+ #startScreen h1{font-size:clamp(1.55rem,6vw,2rem)}
+ #startScreen .start-panel label{margin-top:14px}
+ .drawer-head{font-size:1.05rem;padding-right:48px;min-height:54px}
+ .drawer-close{position:absolute;right:0;top:3px;width:44px;height:44px}
+ .card-drawer .drawer-powers{font-size:.9rem!important;padding:10px!important}
+ .drawer-help{padding:10px}.drawer-help li{padding:8px}.drawer-help .action-key{font-size:.95rem}.drawer-help .action-detail{font-size:.88rem}
+ .drawer-actions{flex-wrap:wrap}.drawer-actions button{min-height:44px;flex:1 1 180px}
+ .card-preview{grid-template-columns:minmax(0,1fr)!important}
+ .card-preview>img{max-height:42dvh!important}
+ .journal-head span{display:none!important}
+}
+@media(max-width:360px){
+ #gameScreen .duel-screen{grid-template-rows:minmax(0,1fr) 54px minmax(140px,1.1fr) 54px minmax(0,1fr)!important}
+ #gameScreen .vamp-info-main strong{font-size:.95rem!important}
+ #gameScreen .vamp-info-main span{font-size:.76rem!important}
+ .card-drawer .hand{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* Wide screens: opposing portraits flank the readable journal. */
+@media(min-width:900px),(min-width:600px) and (max-height:500px) and (orientation:landscape){
+ #gameScreen .duel-screen{max-width:1440px;grid-template-columns:minmax(0,1fr) minmax(260px,.85fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) 72px!important;gap:0;padding:48px 12px max(12px,env(safe-area-inset-bottom))}
+ #opponentStage{grid-column:1;grid-row:1!important}
+ #opponentInfoBar{grid-column:1;grid-row:2!important}
+ #gameScreen .action-stage{grid-column:2;grid-row:1 / 3!important;margin:0 10px;padding:6px 8px 48px!important}
+ #humanStage{grid-column:3;grid-row:1!important}
+ #humanInfoBar{grid-column:3;grid-row:2!important}
+ #gameScreen .vamp-info-main strong{font-size:1rem!important}
+ #gameScreen .vamp-info-main span{font-size:.8rem!important}
+ #gameScreen .vamp-info-blood{font-size:1rem!important}
+ .card-drawer .hand{max-width:1050px;grid-template-columns:repeat(6,minmax(0,1fr))}
+}
+@media(min-width:600px) and (max-height:500px) and (orientation:landscape){
+ #startScreen{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:12px!important;padding:12px!important}
+ #startScreen .start-art{height:80dvh!important;max-height:none!important}
+ #startScreen .start-panel{padding:14px!important}
+ #startScreen h1{font-size:1.5rem}
+ #gameScreen .duel-screen{grid-template-columns:minmax(0,1fr) minmax(240px,1.2fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) 68px!important;padding:40px 4px 4px}
+ #gameScreen .action-stage{margin:0 3px}
+ #gameScreen .vamp-info-bar{padding:4px!important;gap:3px}
+ #gameScreen .vamp-info-main strong{font-size:.82rem!important}
+ #gameScreen .vamp-info-main span{font-size:.7rem!important}
+ #gameScreen .vamp-info-blood{font-size:.85rem!important;padding:4px!important}
+ #gameScreen .journal-head strong{font-size:.85rem!important}
+ #gameScreen .journal-live{font-size:.82rem!important}
+ #gameScreen .ghost-btn{font-size:.68rem;padding:5px}
+ .card-drawer .hand{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+ .combat-result-card{width:min(330px,52vw)!important}
+ .card-preview{grid-template-columns:minmax(120px,35%) minmax(0,1fr)!important}
+}
+@media(min-width:900px){
+ #gameScreen{display:grid;place-items:center}
+ #gameScreen .duel-screen{height:min(100dvh,620px);padding-top:12px}
+}
+/* Keep drawer close controls above the music switch. */
+#musicToggle{z-index:70}
