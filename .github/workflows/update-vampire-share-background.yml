@@ -1,0 +1,61 @@
+name: Update vampire share background
+
+on:
+  push:
+    paths:
+      - '.github/workflows/update-vampire-share-background.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  recolor-share-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Pillow
+        run: python -m pip install --quiet pillow
+
+      - name: Recolor outside of the circular logo
+        shell: python
+        run: |
+          from PIL import Image, ImageEnhance, ImageFilter, ImageOps, ImageDraw
+
+          path = 'jeu-vampires-de-sarrebruck/assets/partage-vampires-grand.jpg'
+          image = Image.open(path).convert('RGB')
+          w, h = image.size
+
+          # Keep the circular cream logo untouched. Only the exterior receives
+          # the approved dark, matte, slightly desaturated burgundy-brown tint.
+          radius = h * 0.455
+          cx, cy = w / 2, h / 2
+
+          outside_mask = Image.new('L', (w, h), 255)
+          draw = ImageDraw.Draw(outside_mask)
+          draw.ellipse(
+              (cx - radius, cy - radius, cx + radius, cy + radius),
+              fill=0,
+          )
+          outside_mask = outside_mask.filter(ImageFilter.GaussianBlur(10))
+
+          gray = ImageOps.grayscale(image).convert('RGB')
+          gray = ImageEnhance.Brightness(gray).enhance(0.50)
+          burgundy = Image.new('RGB', image.size, (72, 44, 42))
+          tinted = Image.blend(gray, burgundy, 0.70)
+
+          result = Image.composite(tinted, image, outside_mask)
+          result.save(path, 'JPEG', quality=93, subsampling=0, optimize=True)
+
+      - name: Commit updated sharing image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/assets/partage-vampires-grand.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "Apply approved dark burgundy share-logo background"
+            git push
+          fi
