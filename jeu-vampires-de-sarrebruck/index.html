@@ -1607,6 +1607,8 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
+ van_helsing_mirror:{name:'Miroir d’Erzulie Freda',img:'assets/van-helsing-miroir-erzulie-freda.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_medkit:{name:'Sacoche de soins',img:'assets/van-helsing-sacoche-soins.webp',qty:0,kind:'regen',secretPower:true},
  van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
  van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
@@ -1813,6 +1815,8 @@ function render(){
    const hc=el('drawerHandCount');if(hc)hc.textContent=isVanHelsing(h)?' — Van Helsing — Arsenal':` — ${playerVampireName(h)} — ${h.hand.length} / ${maxHand(h)} cartes`;
   const hpw=el('humanPowers'); if(hpw){
      hpw.innerHTML=isVanHelsing(h)?secretPowersHTML(h):`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
+     el('medkitBtn')?.addEventListener('click',useHelsingMedkit);
+     el('mirrorInfoBtn')?.addEventListener('click',showMirrorInfo);
      el('elixirBtn')?.addEventListener('click',useHelsingElixir);
      el('blessedBulletBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bullet'));
      el('helsingResupplyBtn')?.addEventListener('click',helsingResupply);
@@ -1907,7 +1911,7 @@ function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function isVanHelsing(p){return !!(p?.human&&S?.secretMode==='van_helsing')}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?true:false));
+ (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?true:false));
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
@@ -1917,6 +1921,8 @@ function secretPowersHTML(p){
 }
 
  const gear=[
+ ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / 2 utilisations','Annule une attaque défendable · −1 goutte à l’attaquant'],
+ ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
  ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / 2 doses','Rend jusqu’à 2 gouttes · maximum 10'],
  ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
  ['blessedBulletBtn','van_helsing_bullet','Balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
@@ -1930,7 +1936,7 @@ function secretPowersHTML(p){
  return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum · Aucune carte de vampire</div>'+
  '<div class="secret-power-grid">'+gear.map(([button,id,title,stock,effect])=>{
  const art=id==='van_helsing_bullet'?'<div class="helsing-ammo-art" aria-hidden="true">✝</div>':'<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="" loading="lazy">';
- return '<button type="button" id="'+button+'" class="secret-power helsing-gear" '+(id==='van_helsing_rosary'||secretPowerAvailable(p,id)?'':'disabled')+'>'+art+'<strong>'+title+'</strong><span class="helsing-stock">'+stock+'</span><small>'+effect+'</small></button>';
+ return '<button type="button" id="'+button+'" class="secret-power helsing-gear" '+((id==='van_helsing_rosary'||id==='van_helsing_mirror')||secretPowerAvailable(p,id)?'':'disabled')+'>'+art+'<strong>'+title+'</strong><span class="helsing-stock">'+stock+'</span><small>'+effect+'</small></button>';
  }).join('')+'</div><p class="tiny">Une arme utilisée remplace ton action. En fin de tour : 50 % un carreau, 35 % une balle consacrée, 15 % un pieu. Les attaques peuvent être défendues.</p>'+
  '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'>Passer l’action et chercher une munition</button>';
 
@@ -1939,6 +1945,16 @@ function canUseRosary(target,attacker,id,uncounterable=false){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&target?.human&&target.alive&&
  S.players.includes(target)&&S.players.includes(attacker)&&attacker!==target&&!attacker.human&&
  (target.rosaryCharges||0)>0&&!uncounterable&&!CARDS[id]?.unblockable);
+}
+function canUseMirror(target,attacker,id,uncounterable=false){
+ return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&target?.human&&target.alive&&
+ S.players.includes(target)&&S.players.includes(attacker)&&attacker!==target&&!attacker.human&&
+ (target.mirrorCharges||0)>0&&!uncounterable&&!CARDS[id]?.unblockable);
+}
+function showMirrorInfo(){
+ const p=S?.players.find(x=>x.human);
+ if(!isVanHelsing(p))return;
+ return openModal({title:cardName('van_helsing_mirror'),content:`<div class="card-preview"><img src="${imgCard('van_helsing_mirror')}" alt="Miroir d’Erzulie Freda"><div><p>Le vampire ne voit pas son reflet : il abandonne son attaque défendable et perd 1 goutte.</p><p>${p.mirrorCharges||0} / 2 utilisations restantes. Le miroir sera proposé pendant une attaque adverse. Il ne consomme ni ton action ni de munition.</p></div></div>`,buttons:[{label:'Fermer',value:true}],closable:true});
 }
 function showRosaryInfo(){
  const p=S?.players.find(t=>t.human);
@@ -2081,7 +2097,7 @@ async function startGame(){
  const secretMode=secretModeForName(humanName);
  const human=players[0];
  if(secretMode==='van_helsing'){Object.defineProperty(VAMPIRES,'van_helsing',{value:{name:'Van Helsing',maxHp:10,family:'human',img:'assets/van-helsing-portrait-steampunk.webp'},configurable:true});
- human.vampire='van_helsing';human.elixirDoses=2;human.blessedBullets=1;human.gepettoStakes=1;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
+ human.vampire='van_helsing';human.mirrorCharges=2;human.medkitUses=1;human.elixirDoses=2;human.blessedBullets=1;human.gepettoStakes=1;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
@@ -2302,6 +2318,7 @@ function cardActionCopy(p,id,c,canAct){
  return `<div class="action-copy"><div class="action-main">${CARD_EXPLAIN[id]||'Effet indiqué sur la carte.'}</div></div>`;
 }
 function defenseCopy(id,incoming){
+ if(id==='van_helsing_mirror')return 'Annule cette attaque défendable et retire 1 goutte à l’attaquant, horrifié de ne pas voir son reflet. Deux utilisations, sans consommer ton action.';
  if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Consomme 1 des 5 utilisations, sans défausser de carte ni utiliser ton action du tour.';
  if(id==='fuite_chauve') return `Transforme-toi en chauve-souris et <strong>esquive complètement l’attaque</strong>.`;
  if(id==='fuite_warndt') return `Disparais dans la forêt du Warndt et <strong>échappe à l’attaque</strong>.`;
@@ -2317,7 +2334,7 @@ function defenseCopy(id,incoming){
 
 function defenseActionFamily(id){
  if(['plasma','poche_aplus'].includes(id))return 'recover';
- if(['van_helsing_rosary','fuite_chauve','fuite_warndt','tablettes','brume','furie','empalement'].includes(id))return 'escape';
+ if(['van_helsing_mirror','van_helsing_rosary','fuite_chauve','fuite_warndt','tablettes','brume','furie','empalement'].includes(id))return 'escape';
  if(['lame'].includes(id))return 'counter';
  return 'other';
 }
@@ -2392,6 +2409,19 @@ async function useHelsingElixir(){
   if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.elixirDoses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
   p.elixirDoses--;used=true;closeHand();
   await gainBlood(p,2,cardName(id));
+  if(S===game&&!game.gameOver)await finishAction(p,true);
+ }finally{if(S===game){actionBusy=false;render();if(used)endHumanTurn();}}
+}
+async function useHelsingMedkit(){
+ const game=S,p=game?.players.find(x=>x.human),id='van_helsing_medkit';
+ if(!secretPowerAvailable(p,id))return;
+ actionBusy=true;render();let used=false;
+ try{
+  const amount=Math.min(1,playerMaxHp(p)-p.hp,game.pool);
+  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère 1 goutte, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.medkitUses} soin restant. Se soigner remplace ton action. Tu récupères ensuite une munition au hasard.</p></div></div>`,buttons:[{label:'Utiliser la sacoche',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
+  if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.medkitUses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
+  p.medkitUses--;used=true;closeHand();
+  await gainBlood(p,1,cardName(id));
   if(S===game&&!game.gameOver)await finishAction(p,true);
  }finally{if(S===game){actionBusy=false;render();if(used)endHumanTurn();}}
 }
@@ -2524,6 +2554,7 @@ function combatSceneLine(attacker,target,attackId,defenseId,mode){
    if(defenseId==='poche_aplus')return `<strong>${vamp}</strong> encaisse ${atk}, puis récupère une goutte grâce à <strong>${def}</strong>.`;
  }
  if(mode==='countered'){
+   if(defenseId==='van_helsing_mirror')return `<strong>${aName}</strong> ne voit pas son reflet dans le Miroir d’Erzulie Freda : il abandonne son attaque et perd 1 goutte.`;
    if(defenseId==='van_helsing_rosary')return `<strong>${vamp}</strong> présente le chapelet de sainte Marguerite : l’attaque de <strong>${aName}</strong> est annulée.`;
    if(defenseId==='fuite_chauve')return `<strong>${vamp}</strong> se transforme en chauve-souris et échappe à <strong>${atk}</strong>.`;
    if(defenseId==='fuite_warndt')return `<strong>${vamp}</strong> disparaît dans la forêt du Warndt et évite <strong>${atk}</strong>.`;
@@ -2683,7 +2714,7 @@ async function chooseDefense(target,attacker,id,eligible){
    const danger=dmg>0?`Cette attaque peut te faire perdre <strong>${dmg} goutte${dmg>1?'s':''} de sang</strong>.`:'Cette attaque ne retire pas forcément de sang, mais elle peut avoir un effet dangereux.';
    const help=`Possibilité de défense : regarde plus bas.`;
    const previewText=CARD_EXPLAIN[id]||attackPreviewText(attacker,id)||'Effet indiqué sur la carte.';
-   const content=`<div class="defense-intro">⚠️ <strong>${pName(attacker)} t’attaque avec ${cardName(id)}.</strong><div class="defense-hint">${danger}</div><div class="defense-help-note">${help}</div></div><div class="defense-attack-preview"><img id="defenseAttackCard" src="${imgCard(id)}" alt="${cardName(id)}"><div class="defense-attack-copy"><div class="attack-kicker">Carte jouée</div><div class="attack-title">${cardName(id)}</div><div class="attack-main">${previewText}</div></div></div><div class="defense-choice-title">Tes actions possibles :</div><div class="choice-grid">${eligible.map(d=>`<div class="choice-card" data-def="${d}"><img src="${imgCard(d)}" alt="${cardName(d)}"><b>${cardName(d)}${d==='van_helsing_rosary'?' — '+target.rosaryCharges+' / 5':''}</b></div>`).join('')}</div><div id="defenseDetailPanel" class="defense-detail-panel empty">Touche une carte pour lire son effet, ou choisis « Subir l’attaque ».</div>`;
+   const content=`<div class="defense-intro">⚠️ <strong>${pName(attacker)} t’attaque avec ${cardName(id)}.</strong><div class="defense-hint">${danger}</div><div class="defense-help-note">${help}</div></div><div class="defense-attack-preview"><img id="defenseAttackCard" src="${imgCard(id)}" alt="${cardName(id)}"><div class="defense-attack-copy"><div class="attack-kicker">Carte jouée</div><div class="attack-title">${cardName(id)}</div><div class="attack-main">${previewText}</div></div></div><div class="defense-choice-title">Tes actions possibles :</div><div class="choice-grid">${eligible.map(d=>`<div class="choice-card" data-def="${d}"><img src="${imgCard(d)}" alt="${cardName(d)}"><b>${cardName(d)}${d==='van_helsing_mirror'?' — '+target.mirrorCharges+' / 2':d==='van_helsing_rosary'?' — '+target.rosaryCharges+' / 5':''}</b></div>`).join('')}</div><div id="defenseDetailPanel" class="defense-detail-panel empty">Touche une carte pour lire son effet, ou choisis « Subir l’attaque ».</div>`;
    const pr=openModal({title:'Défends-toi !',content,buttons:[{label:'Subir l’attaque',value:null,className:'danger'}]});
    setTimeout(()=>{
      const attackImg=el('defenseAttackCard');
@@ -2693,7 +2724,7 @@ async function chooseDefense(target,attacker,id,eligible){
      const selectDefense=(defId,node)=>{
        cards.forEach(c=>c.classList.toggle('selected',c===node));
        panel.classList.remove('empty');
-       panel.innerHTML=`<img class="defense-detail-thumb" src="${imgCard(defId)}" alt="${cardName(defId)}"><div class="defense-detail-copy"><h3>${cardName(defId)}</h3><p>${defenseCopy(defId,id)}</p><button type="button" class="use-defense-btn">${defId==='van_helsing_rosary'?'Présenter le chapelet':'Utiliser cette carte'}</button></div>`;
+       panel.innerHTML=`<img class="defense-detail-thumb" src="${imgCard(defId)}" alt="${cardName(defId)}"><div class="defense-detail-copy"><h3>${cardName(defId)}</h3><p>${defenseCopy(defId,id)}</p><button type="button" class="use-defense-btn">${defId==='van_helsing_mirror'?'Présenter le miroir':defId==='van_helsing_rosary'?'Présenter le chapelet':'Utiliser cette carte'}</button></div>`;
        const thumb=panel.querySelector('.defense-detail-thumb');
        if(thumb)thumb.onclick=()=>openImageViewer(imgCard(defId),cardName(defId));
        const useBtn=panel.querySelector('.use-defense-btn');
@@ -2745,6 +2776,7 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
  await maybeManfredBeforeHit(target,attackBaseDamage(id,target));
  const defs=eligibleDefenses(target,id,uncounterable);
  if(canUseRosary(target,attacker,id,uncounterable))defs.unshift('van_helsing_rosary');
+ if(canUseMirror(target,attacker,id,uncounterable))defs.unshift('van_helsing_mirror');
  if(target.human&&target!==attacker&&defs.length===0){
    const imparable=uncounterable||!!CARDS[id].unblockable;
    const explanation=imparable
@@ -2759,6 +2791,16 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
  }
  const defense=await chooseDefense(target,attacker,id,defs);let postHeal=0;
  if(defense){
+   if(defense==='van_helsing_mirror'){
+     if(!canUseMirror(target,attacker,id,uncounterable))return;
+     target.mirrorCharges--;
+     log(pName(target)+' présente le Miroir d’Erzulie Freda : le vampire ne voit pas son reflet et abandonne son attaque.','good');
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     await loseBlood(attacker,1,'effroi devant le Miroir d’Erzulie Freda');
+     await maybeGameOver();
+     return;
+   }
    if(defense==='van_helsing_rosary'){
      if(!canUseRosary(target,attacker,id,uncounterable))return;
      target.rosaryCharges--;
