@@ -1,0 +1,28 @@
+name: Vampire immediate effect copy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vampire-immediate-copy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Harmonize immediate-effect messages
+        run: python3 .github/scripts/patch-vampire-immediate-copy.py
+      - name: Commit immediate-effect copy
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Harmonize immediate-effect draw messages"
+            git push
+          fi
