@@ -1529,8 +1529,8 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
- van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/8e717dfc6c59c6edec3a.png',qty:0,kind:'attack',secretPower:true},
- van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/8e717dfc6c59c6edec3a.png',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix.webp',qty:0,kind:'attack',secretPower:true},
  impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
  marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
  cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
@@ -1822,11 +1822,15 @@ async function useSecretPower(id){
  if(!secretPowerAvailable(p,id))return;
  actionBusy=true;render();let used=false;
  try{
+   const confirmed=await openModal({
+     title:cardName(id),
+     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Ce pouvoir remplace ton action du tour. Tu pioches ensuite une carte.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div>`,
+     buttons:[{label:'Choisir la cible',value:true,className:'secret-power'},{label:'Retour à ma main',value:false}],closable:true
+   });
+   if(S!==game||game.gameOver||!confirmed||!p.alive)return;
    const targets=alivePlayers().filter(t=>t!==p);
    const target=await choosePlayer('Choisis la cible — '+cardName(id),targets,true);
    if(S!==game||game.gameOver||!target?.alive||!p.alive)return;
-   const confirmed=await openModal({title:cardName(id),text:(id==='van_helsing_bolt'?'La cible perd 1 goutte et 1 carte au hasard.':'La cible perd 2 gouttes, sans perdre de carte.')+' Cette attaque est défendable et remplace ton action du tour.',buttons:[{label:'Utiliser le pouvoir',value:true,className:'secret-power'},{label:'Annuler',value:false}],closable:true});
-   if(S!==game||game.gameOver||!confirmed||!target.alive||!p.alive)return;
    if(id==='van_helsing_bolt')p.silverBolts--;else p.crucifixUsed=true;
    used=true;closeHand();
    log(pName(p)+' utilise '+cardName(id)+'.','important');
