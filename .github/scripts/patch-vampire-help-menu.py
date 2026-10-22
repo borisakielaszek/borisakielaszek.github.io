@@ -64,4 +64,41 @@ if old_notice in text:
 elif 'async function showTurnNotice(p)' in text and 'Touchez pour continuer' not in text:
     raise SystemExit('showTurnNotice exists but no longer matches the expected old version')
 
+# V5.65 — la bannière rouge de pioche devient l'en-tête visuel de la fenêtre.
+draw_css = r'''
+<style id="v565-endturn-draw-header">
+.draw-scene .draw-kicker{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  width:100%!important;
+  margin:0 0 6px!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:640px){
+  .draw-scene .draw-kicker{margin-bottom:2px!important}
+}
+</style>
+'''
+draw_style_pattern = re.compile(r'<style id="v565-endturn-draw-header">.*?</style>', re.S)
+if draw_style_pattern.search(text):
+    text = draw_style_pattern.sub(draw_css.strip(), text, count=1)
+else:
+    if '</head>' not in text:
+        raise SystemExit('Missing </head>')
+    text = text.replace('</head>', draw_css + '\n</head>', 1)
+
+old_title = 'const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":(immediate?"Carte Éclair révélée !":"Carte piochée");'
+new_title = 'const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":"";'
+if old_title in text:
+    text = text.replace(old_title, new_title, 1)
+elif new_title not in text:
+    raise SystemExit('draw scene title line not found')
+
+old_content = 'const content=`<div class="immediate-scene draw-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-kicker draw-kicker">${kicker}</div><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"Son effet se déclenchera quand tu continueras.":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;'
+new_content = 'const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"Son effet se déclenchera quand tu continueras.":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;'
+if old_content in text:
+    text = text.replace(old_content, new_content, 1)
+elif new_content not in text:
+    raise SystemExit('draw scene content block not found')
+
 path.write_text(text, encoding='utf-8')
