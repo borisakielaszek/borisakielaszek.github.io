@@ -7,6 +7,24 @@ text = path.read_text(encoding='utf-8')
 # V5.69 — harmonise le panneau des actions au tutoiement.
 text = text.replace('1 ACTION POSSIBLE DURANT VOTRE TOUR :', 'TES ACTIONS POSSIBLES :')
 
+# Harmonise les derniers textes d'interface et descriptions au tutoiement.
+tutoiement = {
+    'La musique accompagne vos choix et pourra être coupée une fois la partie lancée.': 'La musique accompagne tes choix et pourra être coupée une fois la partie lancée.',
+    'Ton vampire — toucher pour voir vos cartes': 'Ton vampire — toucher pour voir tes cartes',
+    'Effet immédiat : choisissez une carte parmi les 5 premières de la défausse et appliquez son effet.': 'Effet immédiat : choisis une carte parmi les 5 premières de la défausse et applique son effet.',
+    'Effet immédiat : gagnez 2 gouttes de sang.': 'Effet immédiat : gagne 2 gouttes de sang.',
+    'Effet immédiat : gagnez 1 goutte de sang.': 'Effet immédiat : gagne 1 goutte de sang.',
+    'Effet immédiat : gagnez 1 goutte et piochez 2 cartes.': 'Effet immédiat : gagne 1 goutte et pioche 2 cartes.',
+    "${vampireName}${vampireName?' • ':''}Touchez pour continuer": "${vampireName}${vampireName?' • ':''}Touche pour continuer",
+    ' commence. Touchez pour continuer.': ' commence. Touche pour continuer.',
+    'Main maximale : ${maxHand(p)} cartes — choisissez une carte à défausser.': 'Main maximale : ${maxHand(p)} cartes — choisis une carte à défausser.',
+    'Vos actions possibles :': 'Tes actions possibles :',
+    'La réserve est insuffisante : choisissez un vampire à qui voler le complément.': 'La réserve est insuffisante : choisis un vampire à qui voler le complément.',
+    'Mortetrouille — choisissez 1 carte parmi les 5 premières de la défausse': 'Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',
+}
+for old, new in tutoiement.items():
+    text = text.replace(old, new)
+
 # Rend les trois actions du haut tactiles et leur associe leur section.
 replacements = {
     '<li class="action-option action-option-attack">': '<li class="action-option action-option-attack" data-scroll-target="attackSection" role="button" tabindex="0" aria-label="Voir les cartes d’attaque">',
@@ -76,11 +94,11 @@ else:
 
 path.write_text(text, encoding='utf-8')
 
-# Audit informatif : repère les restes de vouvoiement dans le code/textes.
-pattern = re.compile(r'\b(vous|votre|vos|veuillez|choisissez|touchez|cliquez|pouvez|devez|voulez|êtes|avez)\b', re.I)
+# Audit informatif : repère les restes probables de vouvoiement dans le code/textes.
+pattern = re.compile(r'\b(vous|votre|vos|veuillez|choisissez|touchez|cliquez|pouvez|devez|voulez|êtes|avez|gagnez|piochez|appliquez|récupérez|défaussez|utilisez|gardez|lancez|sélectionnez|regardez)\b', re.I)
 print('--- AUDIT VOUVOIEMENT RESTANT ---')
 for no, line in enumerate(text.splitlines(), 1):
     if pattern.search(line):
         snippet = re.sub(r'\s+', ' ', line.strip())
-        print(f'{no}: {snippet[:300]}')
+        print(f'{no}: {snippet[:350]}')
 print('--- FIN AUDIT ---')
