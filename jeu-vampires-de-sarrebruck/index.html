@@ -1321,6 +1321,16 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
 }
 </style>
 <!-- Van Helsing background reference: Stork M, Historischer Brunnen St Johann, Wikimedia Commons, CC BY-SA 3.0. Adapted with AI: portrait, night atmosphere and composition. https://commons.wikimedia.org/wiki/File:Historischer_Brunnen_St_Johann.JPG https://creativecommons.org/licenses/by-sa/3.0/ -->
+<style id="setup-spacing-fix">
+#startScreen .start-art{height:auto!important;min-height:0!important;max-height:none!important}
+#startScreen .start-art img{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important}
+#startScreen .start-panel .blood-title{margin:0 auto 8px!important}
+#startScreen .start-panel .blood-title+label{margin-top:8px!important}
+@media(max-width:900px){
+ #startScreen.start-screen{display:block!important;padding:0!important}
+ #startScreen .start-panel{padding-top:8px!important}
+}
+</style>
 </head>
 <body>
 <div id="app">
