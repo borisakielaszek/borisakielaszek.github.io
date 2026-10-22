@@ -1,0 +1,28 @@
+name: Vampire draw flow
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vampire-draw-flow.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch draw flow
+        run: python3 .github/scripts/patch-vampire-draw-flow.py
+      - name: Commit draw flow fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Clarify Christmas Market and immediate draw flow"
+            git push
+          fi
