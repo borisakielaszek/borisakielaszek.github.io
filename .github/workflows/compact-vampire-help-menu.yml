@@ -23,7 +23,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add jeu-vampires-de-sarrebruck/index.html
           if ! git diff --cached --quiet; then
-            git commit -m "Add tap-to-continue turn transitions"
+            git commit -m "Move end-turn draw banner to top"
             git push
           fi
-# v5.64 turn transition fix
+# v5.65 end-turn draw header
