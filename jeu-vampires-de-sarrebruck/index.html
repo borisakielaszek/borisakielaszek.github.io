@@ -873,11 +873,21 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 </style>
 
 <style id="v557-intro-storm">
-/* V5.60 — souffle + éclairs sur la page d’intro, avant toute transition */
-.storm-flash.choice-storm{background:radial-gradient(circle at 50% 20%,rgba(255,255,255,.58) 0,rgba(214,234,255,.38) 22%,rgba(124,171,245,.20) 48%,transparent 76%)!important;mix-blend-mode:screen!important;}
-.storm-flash.choice-storm.flash{animation:choiceStormFlash .24s ease-out both!important;}
-.storm-flash.choice-storm .storm-bolt{width:34px!important;height:92vh!important;background:linear-gradient(180deg,#fff 0%,#eef7ff 28%,#fff 54%,#c8e0ff 100%)!important;filter:drop-shadow(0 0 7px #fff) drop-shadow(0 0 20px #d5e8ff) drop-shadow(0 0 42px #76a8ff)!important;}
-@keyframes choiceStormFlash{0%{opacity:0;background-color:rgba(255,255,255,0)}10%{opacity:1;background-color:rgba(255,255,255,.94)}30%{opacity:.32;background-color:rgba(190,220,255,.35)}52%{opacity:.98;background-color:rgba(250,253,255,.82)}72%{opacity:.22;background-color:rgba(140,185,245,.24)}100%{opacity:0;background-color:rgba(255,255,255,0)}}
+/* V5.72 — tonnerre utilisateur + éclairs blancs lumineux */
+.storm-flash.choice-storm{
+  background:radial-gradient(circle at 50% 18%,rgba(255,255,255,.78) 0,rgba(247,252,255,.46) 18%,rgba(205,228,255,.22) 42%,transparent 72%)!important;
+  mix-blend-mode:screen!important;overflow:hidden!important;
+}
+.storm-flash.choice-storm.flash{animation:choiceStormFlashV572 .26s ease-out both!important}
+.storm-flash.choice-storm .storm-bolt{
+  width:24px!important;height:96vh!important;background:#fff!important;opacity:0;
+  filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 9px #fff) drop-shadow(0 0 22px rgba(232,244,255,.98)) drop-shadow(0 0 48px rgba(181,216,255,.90)) drop-shadow(0 0 80px rgba(118,174,255,.62))!important;
+  animation:choiceBoltV572 .24s steps(1,end) both!important;
+}
+.storm-flash.choice-storm .storm-bolt::before{content:"";position:absolute;inset:-8px -12px;background:#fff;clip-path:inherit;opacity:.82;filter:blur(6px)}
+.storm-flash.choice-storm .storm-bolt::after{content:"";position:absolute;inset:-18px -26px;background:#eaf5ff;clip-path:inherit;opacity:.48;filter:blur(18px)}
+@keyframes choiceBoltV572{0%{opacity:0}7%{opacity:1}30%{opacity:1}31%{opacity:.18}49%{opacity:.96}70%{opacity:.34}100%{opacity:0}}
+@keyframes choiceStormFlashV572{0%{opacity:0;background-color:rgba(255,255,255,0)}8%{opacity:1;background-color:rgba(255,255,255,.98)}26%{opacity:.34;background-color:rgba(225,240,255,.34)}48%{opacity:.92;background-color:rgba(255,255,255,.74)}70%{opacity:.20;background-color:rgba(195,222,255,.18)}100%{opacity:0;background-color:rgba(255,255,255,0)}}
 </style>
 <link rel="stylesheet" href="responsive.css?v=564">
 
@@ -1236,7 +1246,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 <body>
 <div id="app">
   
-  <audio id="introHissSfx" preload="auto" src="assets/42702e67a9abc0b99695.mp3"></audio>
+  <audio id="introHissSfx" preload="auto" src="assets/thunder-intro.mp3"></audio>
   <audio id="bgMusic" preload="auto" loop src="assets/ac039663553f45fe699c.mp3"></audio>
   <audio id="gameMusic" preload="auto" loop src="assets/a5d06f735fd7a028bc0d.mp3"></audio>
   <audio id="victoryMusic" preload="auto" src="assets/62afe0b10c2c1aeee1fa.mp3"></audio>
@@ -2573,28 +2583,31 @@ function stormBurst(){
 function choiceStormBurst(){
  const flash=el('stormFlash');if(!flash)return;
  flash.classList.add('choice-storm');
- const strikes=[
-  {t:0,x:24,rot:-5},{t:170,x:72,rot:4},{t:350,x:46,rot:-2},{t:570,x:82,rot:5},
-  {t:790,x:34,rot:-4},{t:1010,x:61,rot:2},{t:1240,x:17,rot:-6},{t:1480,x:76,rot:3},
-  {t:1740,x:43,rot:-2},{t:1980,x:66,rot:4}
- ];
  const shapes=[
-  'polygon(45% 0,72% 0,54% 19%,78% 19%,45% 42%,66% 42%,31% 68%,52% 68%,18% 100%,30% 61%,12% 61%,38% 34%,20% 34%)',
-  'polygon(40% 0,67% 0,50% 16%,76% 17%,43% 38%,65% 39%,28% 61%,51% 62%,15% 100%,27% 70%,8% 69%,36% 48%,17% 47%)',
-  'polygon(47% 0,72% 0,55% 18%,80% 18%,48% 36%,68% 37%,34% 58%,57% 59%,21% 82%,43% 82%,14% 100%,27% 72%,9% 71%,37% 49%,18% 48%)'
+  'polygon(46% 0,71% 0,53% 15%,78% 16%,45% 36%,67% 37%,31% 59%,54% 60%,18% 100%,29% 69%,10% 68%,38% 47%,19% 46%)',
+  'polygon(42% 0,68% 0,51% 18%,75% 19%,44% 39%,65% 40%,30% 63%,52% 64%,17% 100%,27% 73%,9% 72%,36% 50%,18% 49%)',
+  'polygon(48% 0,73% 0,56% 17%,80% 18%,47% 40%,69% 41%,34% 63%,56% 64%,20% 100%,31% 74%,11% 72%,39% 50%,21% 49%)'
+ ];
+ const strikes=[
+  {t:0,x:27,rot:-5,scale:1.02},
+  {t:115,x:70,rot:4,scale:.88},
+  {t:430,x:48,rot:-2,scale:1.12},
+  {t:930,x:78,rot:5,scale:.82},
+  {t:1510,x:34,rot:-4,scale:.92},
+  {t:2240,x:63,rot:3,scale:.78}
  ];
  strikes.forEach((st,i)=>setTimeout(()=>{
+   if(!flash.classList.contains('choice-storm'))return;
    flash.classList.remove('flash');void flash.offsetWidth;flash.classList.add('flash');
-   const bolt=document.createElement('div');
-   bolt.className='storm-bolt';
-   bolt.style.left=`calc(${st.x}% - 17px)`;
-   bolt.style.transform=`rotate(${st.rot}deg)`;
+   const bolt=document.createElement('div');bolt.className='storm-bolt';
+   bolt.style.left=`calc(${st.x}% - 12px)`;
+   bolt.style.transform=`rotate(${st.rot}deg) scale(${st.scale})`;
    bolt.style.clipPath=shapes[i%shapes.length];
    flash.appendChild(bolt);
-   setTimeout(()=>bolt.remove(),280);
-   setTimeout(()=>flash.classList.remove('flash'),235);
+   setTimeout(()=>bolt.remove(),330);
+   setTimeout(()=>flash.classList.remove('flash'),285);
  },st.t));
- setTimeout(()=>{flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt')].forEach(n=>n.remove());},2160);
+ setTimeout(()=>{flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt')].forEach(n=>n.remove());},3150);
 }
 
 function enterNight(e){
@@ -2604,10 +2617,10 @@ function enterNight(e){
  if(btn){btn.dataset.entered='1';btn.disabled=true;btn.classList.add('pressed');}
  haptic(30);
  musicEnabled=true;musicStarted=true;
- // V5.60 : on reste sur la première page pendant tout le souffle.
- // Les éclairs se jouent sur cette même page pendant la durée du son 256999.
+ // V5.72 : tonnerre utilisateur coupé juste avant l’impact.
+ // Les éclairs blancs restent sur la première page pendant l’effet.
  choiceStormBurst();
- if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=.82;const hp=hiss.play();if(hp&&hp.catch)hp.catch(()=>{});}catch(_){} }
+ if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=.92;const hp=hiss.play();if(hp&&hp.catch)hp.catch(()=>{});}catch(_){} }
  // On amorce la musique du menu à volume nul dans le geste utilisateur pour préserver l'autoplay Android.
  if(a){try{a.loop=true;a.currentTime=0;a.volume=0;const mp=a.play();if(mp&&mp.catch)mp.catch(()=>{});}catch(_){} }
  let transitioned=false;
@@ -2621,8 +2634,8 @@ function enterNight(e){
    refreshMusicButton();
  };
  if(hiss){try{hiss.addEventListener('ended',finishIntro,{once:true});}catch(_){} }
- // Sécurité : le fichier 256999 dure ~2,14 s ; la transition n'arrive jamais avant sa fin normale.
- setTimeout(finishIntro,2200);
+ // Sécurité : le tonnerre monté dure ~3,25 s ; ended reste prioritaire.
+ setTimeout(finishIntro,3400);
 }
 
 function openHand(){if(!S)return;el('humanPanel').classList.remove('hidden');render()}
