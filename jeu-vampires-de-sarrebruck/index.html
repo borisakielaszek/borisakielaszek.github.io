@@ -1311,10 +1311,13 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
  display:block;width:100%;max-width:800px;margin:12px auto 24px!important;
  padding:0;font-size:0!important;line-height:0!important;text-align:center;
 }
-#startScreen .blood-title img{
+#startScreen .blood-title video,#startScreen .blood-title img{
  display:block;width:100%;height:auto;max-width:100%;margin:0 auto;
-
- mix-blend-mode:screen;
+}
+#startScreen .blood-title .blood-title-still{display:none}
+@media(prefers-reduced-motion:reduce){
+ #startScreen .blood-title .blood-title-animation{display:none}
+ #startScreen .blood-title .blood-title-still{display:block}
 }
 </style>
 <!-- Van Helsing background reference: Stork M, Historischer Brunnen St Johann, Wikimedia Commons, CC BY-SA 3.0. Adapted with AI: portrait, night atmosphere and composition. https://commons.wikimedia.org/wiki/File:Historischer_Brunnen_St_Johann.JPG https://creativecommons.org/licenses/by-sa/3.0/ -->
@@ -1339,7 +1342,7 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
     <div class="start-art"><img src="assets/064b137135d7a152bee5.png" alt="Les Vampires de Sarrebruck"></div>
     <div class="start-panel">
       
-      <h1 class="blood-title"><img src="assets/titre-bain-de-sang-rouge.webp" alt="Que le bain de sang commence !" width="2172" height="724" fetchpriority="high"></h1>
+      <h1 class="blood-title" aria-label="Que le bain de sang commence !"><video class="blood-title-animation" autoplay muted loop playsinline preload="auto" poster="assets/titre-sang-anime-v2.webp" width="1200" height="404" aria-hidden="true"><source src="assets/titre-sang-anime-v2.mp4" type="video/mp4"></video><img class="blood-title-still" src="assets/titre-sang-anime-v2.webp" alt="" width="1200" height="404" aria-hidden="true"></h1>
       <label>Nombre total de joueurs
         <select id="playerCount">
           <option value="2">2 joueurs (1 humain + 1 IA)</option><option value="3">3 joueurs (1 humain + 2 IA)</option><option value="4">4 joueurs (1 humain + 3 IA)</option><option value="5" selected>5 joueurs (1 humain + 4 IA)</option>
