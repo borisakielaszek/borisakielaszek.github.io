@@ -1015,6 +1015,14 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 }
 </style>
 
+
+<style id="v564-turn-transition">
+.turn-notice{display:flex!important;cursor:pointer!important;touch-action:manipulation!important}
+.turn-notice-card{cursor:pointer!important;user-select:none!important;-webkit-user-select:none!important}
+.turn-notice-text{margin-top:10px!important;font-weight:700!important}
+.turn-notice-vamp{margin-top:12px!important;color:#d7c5a9!important;font-weight:700!important}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1416,9 +1424,34 @@ function aiDifficultyFactor(){return aiDifficulty()==='hard'?1.35:aiDifficulty()
 function haptic(ms=18){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
 function pressFeedback(node){if(!node||node.disabled)return;node.classList.add('tap-pressed');setTimeout(()=>node.classList.remove('tap-pressed'),125)}
 async function showTurnNotice(p){
- // V5.27 : aucune seconde annonce de tour ici.
- // logTurnStart() écrit déjà l'unique ligne « Au tour de … » dans le Journal nocturne.
- return;
+ const notice=el('turnNotice');
+ if(!notice)return;
+ const nameEl=el('turnNoticeName'),textEl=el('turnNoticeText'),vampEl=el('turnNoticeVamp');
+ const vampireName=VAMPIRES[p.vampire]?.name||'';
+ if(nameEl)nameEl.textContent=`Le tour de ${pName(p)}`;
+ if(textEl)textEl.textContent='commence…';
+ if(vampEl)vampEl.textContent=`${vampireName}${vampireName?' • ':''}Touchez pour continuer`;
+ notice.setAttribute('aria-hidden','false');
+ notice.setAttribute('role','button');
+ notice.setAttribute('tabindex','0');
+ notice.setAttribute('aria-label',`Le tour de ${pName(p)} commence. Touchez pour continuer.`);
+ notice.classList.add('show');
+ await new Promise(resolve=>{
+   let closed=false;
+   const finish=()=>{
+     if(closed)return;
+     closed=true;
+     notice.classList.remove('show');
+     notice.setAttribute('aria-hidden','true');
+     notice.removeEventListener('click',finish);
+     notice.removeEventListener('keydown',onKey);
+     setTimeout(resolve,140);
+   };
+   const onKey=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();finish();}};
+   notice.addEventListener('click',finish);
+   notice.addEventListener('keydown',onKey);
+   try{notice.focus({preventScroll:true});}catch(e){}
+ });
 }
 
 
