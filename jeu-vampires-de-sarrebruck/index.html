@@ -1743,10 +1743,10 @@ async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
    : (immediate
       ? (isHuman?"TA PIOCHE DE FIN DE TOUR RÉVÈLE UNE CARTE À EFFET IMMÉDIAT":`FIN DU TOUR DE ${pName(player).toUpperCase()} — CARTE À EFFET IMMÉDIAT`)
       : (isHuman?"TON TOUR S’ACHÈVE AVEC LA PIOCHE DE :":`FIN DU TOUR DE ${pName(player).toUpperCase()} — PIOCHE DE :`));
- const info=christmasDraw
-   ? (immediate?"Cette carte à effet immédiat vient de la pioche commune pendant le Marché de Noël. Son propre effet se résout maintenant, puis la pioche du Marché de Noël reprend.":"Cette carte vient de la pioche commune. Après tes deux pioches du Marché de Noël, tu défausseras le surplus si ta main dépasse sa limite.")
-   : immediate
+ const info=immediate
    ? "Effet immédiat : applique l’action de cette carte maintenant."
+   : christmasDraw
+   ? "Cette carte vient de la pioche commune. Après tes deux pioches du Marché de Noël, tu défausseras le surplus si ta main dépasse sa limite."
    : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
  const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":"";
  const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
@@ -1754,7 +1754,7 @@ async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
  await openTapDismissInfo({title,content});
 }
 async function showImmediateRepickNotice(){
- const content=`<div class="immediate-repick-notice"><div class="immediate-repick-icon">✦</div><div><strong>Effet immédiat effectué</strong><span>Tu repioches.</span></div><div class="tap-dismiss-note">Touche pour continuer</div></div>`;
+ const content=`<div class="immediate-repick-notice"><div class="immediate-repick-icon">✦</div><div><strong>Effet immédiat effectué — tu repioches.</strong></div><div class="tap-dismiss-note">Touche pour continuer</div></div>`;
  await openTapDismissInfo({title:'',content});
 }
 async function drawOneToHand(p,reason='normal'){
