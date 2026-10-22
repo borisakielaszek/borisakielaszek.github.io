@@ -1,0 +1,28 @@
+name: Vampire immunity-aware attack targeting
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vampire-immunity-targets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch immunity-aware targeting
+        run: python3 .github/scripts/patch-vampire-immunity-targets.py
+      - name: Commit game targeting fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Improve attack targeting for immune vampires"
+            git push
+          fi
