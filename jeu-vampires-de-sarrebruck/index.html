@@ -1171,6 +1171,23 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 }
 </style>
 
+
+<style id="v569-action-navigation">
+.drawer-help .action-option[data-scroll-target]{
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+  transition:transform .15s ease,filter .15s ease,box-shadow .15s ease!important;
+}
+.drawer-help .action-option[data-scroll-target]:active{transform:scale(.985)!important;filter:brightness(1.12)!important}
+.drawer-help .action-option[data-scroll-target]:focus-visible{outline:2px solid #f2d38d!important;outline-offset:2px!important}
+.action-card-section.action-section-pulse{animation:actionSectionPulse .7s ease!important}
+@keyframes actionSectionPulse{
+  0%{filter:brightness(1)}
+  45%{filter:brightness(1.32);box-shadow:0 0 0 2px #f1d287aa,0 8px 28px #0008}
+  100%{filter:brightness(1)}
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1251,11 +1268,11 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
       </div>
       <div id="humanPowers" class="drawer-powers"></div>
       <div class="drawer-help">
-        <div class="drawer-help-title">1 ACTION POSSIBLE DURANT VOTRE TOUR :</div>
+        <div class="drawer-help-title">TES ACTIONS POSSIBLES :</div>
         <ul>
-          <li class="action-option action-option-attack"><span class="action-number">1.</span><span class="action-key">ATTAQUER</span></li>
-          <li class="action-option action-option-regen"><span class="action-number">2.</span><span class="action-key">RÉCUPÉRER</span></li>
-          <li class="action-option action-option-discard"><span class="action-number">3.</span><span class="action-key">DÉFAUSSER</span><span class="action-detail">défausser 1 carte pour en piocher une nouvelle.</span></li>
+          <li class="action-option action-option-attack" data-scroll-target="attackSection" role="button" tabindex="0" aria-label="Voir les cartes d’attaque"><span class="action-number">1.</span><span class="action-key">ATTAQUER</span></li>
+          <li class="action-option action-option-regen" data-scroll-target="regenSection" role="button" tabindex="0" aria-label="Voir les cartes de récupération"><span class="action-number">2.</span><span class="action-key">RÉCUPÉRER</span></li>
+          <li class="action-option action-option-discard" data-scroll-target="discardSection" role="button" tabindex="0" aria-label="Aller à l’action défausser"><span class="action-number">3.</span><span class="action-key">DÉFAUSSER</span><span class="action-detail">défausser 1 carte pour en piocher une nouvelle.</span></li>
         </ul>
       </div>
       <div class="drawer-choice-title">Choisis ton action :</div>
@@ -2590,5 +2607,33 @@ init();
 wireUI();
 
 </script>
+
+<script id="v569-action-navigation-script">
+(function(){
+  function goToAction(option){
+    if(!option)return;
+    const targetId=option.getAttribute('data-scroll-target');
+    const target=targetId&&document.getElementById(targetId);
+    if(!target || target.classList.contains('hidden'))return;
+    target.scrollIntoView({behavior:'smooth',block:'start'});
+    target.classList.remove('action-section-pulse');
+    void target.offsetWidth;
+    target.classList.add('action-section-pulse');
+    setTimeout(()=>target.classList.remove('action-section-pulse'),800);
+  }
+  document.addEventListener('click',function(e){
+    const option=e.target.closest('#humanPanel .action-option[data-scroll-target]');
+    if(option)goToAction(option);
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'&&e.key!==' ')return;
+    const option=e.target.closest&&e.target.closest('#humanPanel .action-option[data-scroll-target]');
+    if(!option)return;
+    e.preventDefault();
+    goToAction(option);
+  });
+})();
+</script>
+
 </body>
 </html>
