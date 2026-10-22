@@ -1331,6 +1331,21 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
  #startScreen .start-panel{padding-top:8px!important}
 }
 </style>
+<style id="helsing-inventory-style">
+body.van-helsing-mode #humanPanel .drawer-help,
+body.van-helsing-mode #humanPanel .drawer-choice-title,
+body.van-helsing-mode #humanHand{display:none!important}
+body.van-helsing-mode #humanPanel{overflow-y:auto!important;max-height:90dvh!important;inset:5dvh 0 auto!important;margin:0 auto!important;width:min(1100px,96vw)!important;padding:0 16px 20px!important}
+body.van-helsing-mode #humanPanel .drawer-head{position:sticky!important;top:0!important;z-index:5;background:#101720!important}
+body.van-helsing-mode #humanPowers{margin:12px 0 0!important;padding:14px!important;width:100%!important}
+body.van-helsing-mode .secret-power-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;gap:14px!important}
+body.van-helsing-mode .helsing-gear{display:flex!important;flex-direction:column;gap:8px;text-align:left!important;min-width:0;overflow:hidden;padding:10px!important}
+body.van-helsing-mode .helsing-gear:disabled{opacity:.65}
+body.van-helsing-mode .helsing-gear-image,body.van-helsing-mode .helsing-ammo-art{display:block;width:100%;height:170px;object-fit:contain;background:#0a1015;border-radius:8px}
+body.van-helsing-mode .helsing-ammo-art{display:grid;place-items:center;font-size:72px;color:#d9bf74}
+body.van-helsing-mode .helsing-stock{font-weight:bold;color:#ffe3a0}
+@media(max-width:550px){body.van-helsing-mode .secret-power-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}body.van-helsing-mode .helsing-gear-image,body.van-helsing-mode .helsing-ammo-art{height:130px}body.van-helsing-mode #humanPanel{padding:0 8px 16px!important}}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1557,6 +1572,7 @@ const pick=a=>a[Math.floor(randomUnit()*a.length)];
 const CARDS={
  van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bullet:{name:'Balle consacrée de Gluckenburne',img:'assets/van-helsing-portrait-steampunk.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
@@ -1719,7 +1735,7 @@ function imgCard(id){return A+CARDS[id].img}
 function playerMaxHp(p){return p.maxHp??VAMPIRES[p.vampire].maxHp}
 function playerVampireName(p){return p.profileName||VAMPIRES[p.vampire].name}
 function imgVamp(p){return p.portrait||VAMP_PORTRAITS[p.vampire]||A+VAMPIRES[p.vampire].img}
-function vampPowerHTML(p){return (p.profileName?'<div class="power-line">Héritage : '+VAMPIRES[p.vampire].name+'</div>':'')+(VAMP_POWERS[p.vampire]||'').split('|').filter(Boolean).map(x=>`<div class="power-line">✦ ${x}</div>`).join('')}
+function vampPowerHTML(p){if(isVanHelsing(p))return '';return (p.profileName?'<div class="power-line">Héritage : '+VAMPIRES[p.vampire].name+'</div>':'')+(VAMP_POWERS[p.vampire]||'').split('|').filter(Boolean).map(x=>`<div class="power-line">✦ ${x}</div>`).join('')}
 function effectClassFor(v){return ''}
 
 function render(){
@@ -1739,6 +1755,10 @@ function render(){
  const dots=el('opponentDots');if(dots){dots.innerHTML=enemies.length>1?enemies.map(p=>`<span class="opponent-dot ${p.id===S.featuredOpponentId?'active':''}" data-opponent-id="${p.id}"></span>`).join(''):''; [...dots.querySelectorAll('[data-opponent-id]')].forEach(n=>n.onclick=(e)=>{e.stopPropagation(); S.featuredOpponentId=n.dataset.opponentId; render();});}
  const h=S.players.find(p=>p.human);
  if(h){
+   document.body.classList.toggle('van-helsing-mode',isVanHelsing(h));
+   el('humanPanel')?.setAttribute('aria-label',isVanHelsing(h)?'Équipement de Van Helsing':'Ta main');
+   el('humanStage')?.setAttribute('aria-label',isVanHelsing(h)?'Van Helsing — ouvrir ton équipement':'Ton vampire — ouvrir tes cartes');
+   const drawerTitle=document.querySelector('#humanPanel .drawer-head b');if(drawerTitle)drawerTitle.textContent=isVanHelsing(h)?'Ton équipement':'Ton vampire';
    if(humanStage){humanStage.className=`vamp-stage human-stage ${effectClassFor(h.vampire)}`.trim();humanStage.dataset.vamp=h.vampire;}
    el('humanInfo').innerHTML=playerCardHTML(h,current,true);
    const hb=el('humanInfoBar');if(hb)hb.innerHTML=playerInfoBarHTML(h,true);
@@ -1748,13 +1768,15 @@ function render(){
    h.hand.forEach((cid,i)=>{const kind=CARDS[cid]?.kind;if(kind==='attack'||kind==='hybrid')attackCards.push([cid,i]);else if(kind==='regen')regenCards.push([cid,i]);else if(kind==='defense')defenseCards.push([cid,i]);else otherCards.push([cid,i]);});
    const fillHand=(handId,sectionId,cards,force=false)=>{const hand=el(handId),section=el(sectionId);if(hand)hand.innerHTML=cards.map(([cid,i])=>handCardHTML(cid,i)).join('');if(section)section.classList.toggle('hidden',!force&&!cards.length);};
    fillHand('attackHand','attackSection',attackCards);
-   fillHand('regenHand','regenSection',regenCards,h.vampire==='manfred');
+   fillHand('regenHand','regenSection',regenCards,!isVanHelsing(h)&&h.vampire==='manfred');
    fillHand('defenseHand','defenseSection',defenseCards);
    fillHand('otherHand','otherSection',otherCards);
    [...document.querySelectorAll('#humanPanel .hand-card')].forEach(n=>n.addEventListener('click',()=>humanCardClick(Number(n.dataset.index))));
-   const hc=el('drawerHandCount');if(hc)hc.textContent=` — ${playerVampireName(h)} — ${h.hand.length} / ${maxHand(h)} cartes`;
+   const hc=el('drawerHandCount');if(hc)hc.textContent=isVanHelsing(h)?' — Van Helsing — Arsenal':` — ${playerVampireName(h)} — ${h.hand.length} / ${maxHand(h)} cartes`;
   const hpw=el('humanPowers'); if(hpw){
-     hpw.innerHTML=`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
+     hpw.innerHTML=isVanHelsing(h)?secretPowersHTML(h):`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
+     el('blessedBulletBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bullet'));
+     el('helsingResupplyBtn')?.addEventListener('click',helsingResupply);
      el('silverBoltBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bolt'));
      el('crucifixBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_cross'));
      el('consecratedWhipBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_whip'));
@@ -1763,7 +1785,8 @@ function render(){
      el('dawnLanternBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_dawn'));
      el('rosaryInfoBtn')?.addEventListener('click',showRosaryInfo);
    }
-   el('exchangeBtn').disabled=!playable;
+   el('exchangeBtn').disabled=!playable||isVanHelsing(h);
+   el('exchangeBtn').classList.toggle('hidden',isVanHelsing(h));
    const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
    el('manfredBtn').classList.toggle('hidden',h.vampire!=='manfred');
    el('manfredBtn').disabled=!manfredAvailable;
@@ -1842,9 +1865,10 @@ function secretModeForName(name){
 }
 function aiDifficulty(){return S?.secretMode==='van_helsing'?'hard':S?.secretMode==='dracula'?'easy':S?.difficulty||'normal'}
 function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
+function isVanHelsing(p){return !!(p?.human&&S?.secretMode==='van_helsing')}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?!p.gepettoUsed:id==='van_helsing_dawn'?true:false));
+ (id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?true:false));
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
@@ -1852,15 +1876,24 @@ function secretPowersHTML(p){
  const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
  return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
 }
- return '<div class="secret-mode-info">✦ Van Helsing — 10 gouttes de sang maximum. Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
- '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
- '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button>'+
- '<button type="button" id="consecratedWhipBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_whip')?'':'disabled')+'><strong>Fouet consacré</strong><span>'+(p.whipUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−1 goutte à tous les adversaires · aucune défausse</small></button>'+
- '<button type="button" id="holyWaterBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_water')?'':'disabled')+'><strong>Eau bénite de Gluckenburne</strong><span>'+(p.holyWaterUsed?'Déjà utilisée':'1 utilisation par partie')+'</span><small>Jusqu’à 2 adversaires · chacun −1 goutte et −1 carte au hasard</small></button>'+
- '<button type="button" id="gepettoBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_stake')?'':'disabled')+'><strong>Pieu pneumatique Gepetto</strong><span>'+(p.gepettoUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>Retire la moitié du sang de la cible, arrondie au supérieur · fonctionne sans marteau</small></button>'+
- '<button type="button" id="dawnLanternBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'><strong>L’Aube du jour</strong><span>Capturée sur le mont Rose</span><small>−2 cartes à chaque vampire vivant · aucune perte de sang</small></button>'+
- '<button type="button" id="rosaryInfoBtn" class="secret-power"><strong>Chapelet de sainte Marguerite</strong><span>Du Habsterdick · '+(p.rosaryCharges||0)+' / 5 utilisations restantes</span><small>Défense : annule une attaque · à présenter pendant l’attaque adverse</small></button></div>'+
- '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
+
+ const gear=[
+ ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
+ ['blessedBulletBtn','van_helsing_bullet','Balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
+ ['gepettoBtn','van_helsing_stake','Pieu pneumatique Gepetto',p.gepettoStakes+' pieu(x)','Retire la moitié des gouttes, arrondie au supérieur'],
+ ['crucifixBtn','van_helsing_cross','Crucifix',p.crucifixUsed?'Déjà utilisé':'1 utilisation','−2 gouttes'],
+ ['consecratedWhipBtn','van_helsing_whip','Fouet consacré',p.whipUsed?'Déjà utilisé':'1 utilisation','−1 goutte à tous les adversaires'],
+ ['holyWaterBtn','van_helsing_water','Eau bénite de Gluckenburne',p.holyWaterUsed?'Déjà utilisée':'1 utilisation','Jusqu’à 2 adversaires : −1 goutte et −1 carte chacun'],
+ ['dawnLanternBtn','van_helsing_dawn','L’Aube du jour','Lanterne du mont Rose','−2 cartes à chaque vampire'],
+ ['rosaryInfoBtn','van_helsing_rosary','Chapelet de sainte Marguerite',(p.rosaryCharges||0)+' / 5 utilisations','Annule une attaque défendable']
+ ];
+ return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum · Aucune carte de vampire</div>'+
+ '<div class="secret-power-grid">'+gear.map(([button,id,title,stock,effect])=>{
+ const art=id==='van_helsing_bullet'?'<div class="helsing-ammo-art" aria-hidden="true">✝</div>':'<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="" loading="lazy">';
+ return '<button type="button" id="'+button+'" class="secret-power helsing-gear" '+(id==='van_helsing_rosary'||secretPowerAvailable(p,id)?'':'disabled')+'>'+art+'<strong>'+title+'</strong><span class="helsing-stock">'+stock+'</span><small>'+effect+'</small></button>';
+ }).join('')+'</div><p class="tiny">Une arme utilisée remplace ton action. En fin de tour : 50 % un carreau, 35 % une balle consacrée, 15 % un pieu. Les attaques peuvent être défendues.</p>'+
+ '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'>Passer l’action et chercher une munition</button>';
+
 }
 function canUseRosary(target,attacker,id,uncounterable=false){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&target?.human&&target.alive&&
@@ -1885,8 +1918,8 @@ async function chooseSecretPowerTarget(game,p,id){
    const dawn=id==='van_helsing_dawn';
    const confirmed=await openModal({
      title:cardName(id),
-     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>${dawn?'':'Une seule utilisation par partie. '}Remplace ton action, puis tu pioches une carte.</p></div></div>`,
-     buttons:[{label:dawn?'Libérer la clarté':'Frapper tous les adversaires',value:true,className:'secret-power'},{label:'Retour à ma main',value:false}],closable:true
+     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>${dawn?'':'Une seule utilisation par partie. '}Remplace ton action. Tu récupères ensuite une munition au hasard.</p></div></div>`,
+     buttons:[{label:dawn?'Libérer la clarté':'Frapper tous les adversaires',value:true,className:'secret-power'},{label:'Retour à l’équipement',value:false}],closable:true
    });
    return S===game&&!game.gameOver&&confirmed===true&&secretPowerTargets(game,p).length>0?true:null;
  }
@@ -1894,8 +1927,8 @@ async function chooseSecretPowerTarget(game,p,id){
  const portraits=targets.map(t=>`<button type="button" class="choice-card" data-secret-target="${t.id}" aria-label="Viser ${VAMPIRES[t.vampire].name}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('');
  const promise=openModal({
    title:cardName(id),
-   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Ce pouvoir remplace ton action du tour. Tu pioches ensuite une carte.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
-   buttons:[{label:'Retour à ma main',value:null}],closable:true
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Ce pouvoir remplace ton action du tour. Tu récupères ensuite une munition au hasard.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':id==='van_helsing_bullet'?p.blessedBullets+' balle(s) restante(s).':id==='van_helsing_stake'?p.gepettoStakes+' pieu(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
+   buttons:[{label:'Retour à l’équipement',value:null}],closable:true
  });
  for(const button of el('modalContent').querySelectorAll('[data-secret-target]')){
    button.addEventListener('click',()=>{
@@ -1912,8 +1945,8 @@ async function chooseHolyWaterTargets(game,p,targets){
  if(limit===1)selected.add(targets[0].id);
  const promise=openModal({
    title:cardName('van_helsing_water'),
-   content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_water')}" alt="Vaporisateur d’eau bénite de Gluckenburne l’Ancien"><div class="card-detail-side"><p>${attackPreviewText(p,'van_helsing_water')}</p><p>Une utilisation par partie. Remplace ton action, puis tu pioches une carte.</p></div></div><p>${limit===1?'Ton unique adversaire est sélectionné.':'Sélectionne deux adversaires différents.'}</p><div class="choice-grid">${targets.map(t=>`<button type="button" class="choice-card ${selected.has(t.id)?'selected':''}" data-water-target="${t.id}" aria-pressed="${selected.has(t.id)}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('')}</div><button type="button" id="confirmHolyWater" class="secret-power" ${selected.size===limit?'':'disabled'}>Vaporiser sur ${limit} adversaire(s)</button>`,
-   buttons:[{label:'Retour à ma main',value:null}],closable:true
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_water')}" alt="Vaporisateur d’eau bénite de Gluckenburne l’Ancien"><div class="card-detail-side"><p>${attackPreviewText(p,'van_helsing_water')}</p><p>Une utilisation par partie. Remplace ton action. Tu récupères ensuite une munition au hasard.</p></div></div><p>${limit===1?'Ton unique adversaire est sélectionné.':'Sélectionne deux adversaires différents.'}</p><div class="choice-grid">${targets.map(t=>`<button type="button" class="choice-card ${selected.has(t.id)?'selected':''}" data-water-target="${t.id}" aria-pressed="${selected.has(t.id)}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('')}</div><button type="button" id="confirmHolyWater" class="secret-power" ${selected.size===limit?'':'disabled'}>Vaporiser sur ${limit} adversaire(s)</button>`,
+   buttons:[{label:'Retour à l’équipement',value:null}],closable:true
  });
  const confirm=el('confirmHolyWater');
  for(const button of el('modalContent').querySelectorAll('[data-water-target]')){
@@ -1941,14 +1974,18 @@ async function useSecretPower(id){
  if(!secretPowerAvailable(p,id))return;
  actionBusy=true;render();let used=false;
  try{
-   const target=await chooseSecretPowerTarget(game,p,id);
+   let target=await chooseSecretPowerTarget(game,p,id);
+   if(target&&id!=='van_helsing_whip'&&id!=='van_helsing_dawn'&&id!=='van_helsing_water'){
+    const confirmed=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>${attackPreviewText(p,id)}</p><p>Cible : <strong>${playerVampireName(target)}</strong></p></div></div>`,buttons:[{label:'Utiliser',value:true,className:'secret-power'},{label:'Retour à l’équipement',value:false}],closable:true});
+    if(!confirmed)return;
+   }
    if(S!==game||game.gameOver||!p.alive)return;
    const collective=id==='van_helsing_whip'||id==='van_helsing_dawn',water=id==='van_helsing_water';
    const available=secretPowerTargets(game,p);
    if(water){
      if(!Array.isArray(target)||target.length!==Math.min(2,available.length)||new Set(target).size!==target.length||!target.every(t=>available.includes(t)))return;
    }else if(collective?target!==true||!available.length:!available.includes(target))return;
-   if(id==='van_helsing_bolt')p.silverBolts--;else if(id==='van_helsing_cross')p.crucifixUsed=true;else if(id==='van_helsing_whip')p.whipUsed=true;else if(id==='van_helsing_water')p.holyWaterUsed=true;else if(id==='van_helsing_stake')p.gepettoUsed=true;else if(id==='van_helsing_dawn')p.dawnUses=(p.dawnUses||0)+1;
+   if(id==='van_helsing_bullet')p.blessedBullets--;else if(id==='van_helsing_bolt')p.silverBolts--;else if(id==='van_helsing_cross')p.crucifixUsed=true;else if(id==='van_helsing_whip')p.whipUsed=true;else if(id==='van_helsing_water')p.holyWaterUsed=true;else if(id==='van_helsing_stake')p.gepettoStakes--;else if(id==='van_helsing_dawn')p.dawnUses=(p.dawnUses||0)+1;
    used=true;closeHand();
    log(pName(p)+' utilise '+cardName(id)+'.','important');
    await executeAttack(p,id,{forcedTarget:collective||water?null:target,forcedTargets:water?target:null});
@@ -2003,13 +2040,14 @@ async function startGame(){
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const secretMode=secretModeForName(humanName);
  const human=players[0];
- if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
+ if(secretMode==='van_helsing'){Object.defineProperty(VAMPIRES,'van_helsing',{value:{name:'Van Helsing',maxHp:10,family:'human',img:'assets/van-helsing-portrait-steampunk.webp'},configurable:true});
+ human.vampire='van_helsing';human.blessedBullets=1;human.gepettoStakes=1;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
  if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
- for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
+ for(let r=0;r<6;r++)for(const p of players)if(!isVanHelsing(p))p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');switchToGameMusic();refreshMusicButton();
  if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires (4 gouttes rouges) et des adversaires indulgents.','good');
  if(secretMode==='van_helsing')log('✦ Van Helsing : 10 gouttes de sang, '+human.silverBolts+' carreau(x) d’argent, un crucifix, un fouet consacré et une pression stratégique renforcée de 10 %.','important');
@@ -2064,6 +2102,7 @@ async function showImmediateRepickNotice(){
 }
 async function drawOneToHand(p,reason='normal'){
  const game=S;
+ if(isVanHelsing(p))return null;
  if(!game||game.gameOver||!game.players.includes(p)||!p.alive)return null;for(let guard=0;guard<100&&S===game&&!game.gameOver;guard++){
    if(!refillDeck())return null;const id=S.deck.pop();
    const revealDraw=p.human&&(reason==='endturn'||reason==='exchange'||reason==='witchesBonus'||reason==='marche_noel');
@@ -2127,7 +2166,7 @@ async function gameLoop(){
    let p=S.players[S.turnIndex];if(!p.alive){advanceTurn();continue}
    logTurnStart(p);render();await showTurnNotice(p);
    if(p.skipTurns>0&&p.vampire!=='elisabetta'){p.skipTurns--;log(`${pName(p)} passe son tour.`,'important');render();await sleep(p.human?600:900);advanceTurn();continue}
-   if(p.hand.length<3){log(`${pName(p)} complète sa main jusqu’à 3 cartes.`);while(S===game&&!game.gameOver&&p.alive&&p.hand.length<3)await drawOneToHand(p);if(S!==game||game.gameOver)return;if(!p.alive){await maybeGameOver();if(S!==game||game.gameOver)return;advanceTurn();continue}}
+   if(!isVanHelsing(p)&&p.hand.length<3){log(`${pName(p)} complète sa main jusqu’à 3 cartes.`);while(S===game&&!game.gameOver&&p.alive&&p.hand.length<3)await drawOneToHand(p);if(S!==game||game.gameOver)return;if(!p.alive){await maybeGameOver();if(S!==game||game.gameOver)return;advanceTurn();continue}}
    if(p.vampire==='manfred'&&!p.manfredUsed&&!p.human&&p.hp<playerMaxHp(p)&&S.pool>0&&(p.hp<=2||Math.random()<.22))await useManfred(p);
    if(p.human){S.awaitingHuman=true;render();await new Promise(r=>humanTurnResolve=r);if(S!==game)return;humanTurnResolve=null;S.awaitingHuman=false;render()}else{await sleep(1800);if(S!==game||game.gameOver)return;await aiTurn(p);if(S!==game)return;await sleep(1200)}
    if(S!==game)return;await maybeGameOver();if(S!==game)return;if(!game.gameOver)advanceTurn();
@@ -2137,7 +2176,7 @@ function advanceTurn(){if(!S)return;S.turnIndex=(S.turnIndex+1)%S.players.length
 function returnToSetupAfterGame(){
  stopAllMusic(true);
  endgameMusicId=null;
- document.body.classList.remove('game-active');
+ document.body.classList.remove('game-active','van-helsing-mode');
  el('introScreen')?.classList.add('hidden');
  el('gameScreen')?.classList.add('hidden');
  el('humanPanel')?.classList.add('hidden');
@@ -2172,10 +2211,11 @@ async function maybeGameOver(){
 function attackPreviewText(p,id){
  const dmg=attackBaseDamage(id);
  if(id==='van_helsing_dawn')return 'La clarté de l’aube fait défausser 2 cartes à chaque vampire adverse vivant (ou toutes ses cartes s’il lui en reste moins). Aucune goutte de sang n’est retirée. Chaque vampire peut se défendre.';
- if(id==='van_helsing_stake')return 'Gepetto retire la moitié des gouttes actuelles de la cible, arrondie au supérieur (5 gouttes → 3 perdues). Aucune carte à défausser. Attaque défendable, utilisable une fois par partie. Fonctionne sans marteau.';
+ if(id==='van_helsing_stake')return 'Gepetto retire la moitié des gouttes actuelles de la cible, arrondie au supérieur (5 gouttes → 3 perdues). Aucune carte à défausser. Attaque défendable. Consomme un pieu de ton stock. Fonctionne sans marteau.';
  if(id==='van_helsing_water')return 'Les émanations touchent deux adversaires différents : chacun perd 1 goutte et 1 carte au hasard, sauf s’il se défend. En duel, seul l’adversaire présent est touché.';
  if(id==='van_helsing_whip')return 'Tous les adversaires vivants perdent 1 goutte de sang lors de la même attaque. Aucune carte à défausser. Chaque adversaire peut se défendre.';
  if(id==='van_helsing_bolt')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
+ if(id==='van_helsing_bullet')return 'La balle consacrée fait perdre 2 gouttes de sang, sans carte perdue. Une balle du stock est consommée. Cette attaque est défendable.';
  if(id==='van_helsing_cross')return 'La cible perd 2 gouttes de sang. Cette attaque est défendable.';
  if(id==='hypnose'){
    if(p.vampire==='elisabetta') return `Tu peux hypnotiser un adversaire et <strong>lui voler une carte</strong>. Avec Elisabetta, tu peux aussi choisir de voler <strong>2 gouttes</strong>, une à deux vampires différents.`;
@@ -2270,7 +2310,7 @@ async function humanCardClick(i){
    if(c.kind==='defense')buttons.push({label:'Carte de défense — garder en main',value:'info'});
    if(c.kind==='immediate')buttons.push({label:'Effet automatique à la pioche',value:'info'});
  }else buttons.push({label:"Ce n’est pas ton tour",value:'info'});
- buttons.push({label:'Retour à ma main',value:'cancel'});
+ buttons.push({label:'Retour à l’équipement',value:'cancel'});
  const v=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}"><div class="card-detail-side">${cardActionCopy(p,id,c,canAct)}</div></div>`,buttons,closable:true});
  if(S!==game||game.gameOver||!v||v==='cancel'||v==='info')return;
  actionBusy=true;closeHand();render();let ok=false;
@@ -2290,9 +2330,25 @@ async function finishAction(p,drawAfter){
  await maybeGameOver();
  // A winning action ends the turn immediately; never draw into a finished or replaced game.
  if(!game||S!==game||game.gameOver)return;
- if(p.alive&&drawAfter){log(`Fin du tour de ${pName(p)} : ${p.human?'tu pioches':'il pioche'} 1 carte.`,'important');await drawOneToHand(p,p.human?'endturn':'normal');}
+ if(p.alive&&drawAfter&&isVanHelsing(p)){recoverHelsingAmmo(p);}
+ else if(p.alive&&drawAfter){log(`Fin du tour de ${pName(p)} : ${p.human?'tu pioches':'il pioche'} 1 carte.`,'important');await drawOneToHand(p,p.human?'endturn':'normal');}
  if(S!==game)return;
  await maybeGameOver();render();
+}
+function recoverHelsingAmmo(p,roll=Math.random()){
+ if(!isVanHelsing(p)||!p.alive||S.gameOver)return;
+ const field=roll<.5?'silverBolts':roll<.85?'blessedBullets':'gepettoStakes';
+ p[field]=(p[field]||0)+1;
+ const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle consacrée':'un pieu Gepetto';
+ log('Fin de ton tour : tu récupères '+label+'.','good');render();
+}
+async function helsingResupply(){
+ const p=S?.players.find(x=>x.human);
+ if(!secretPowerAvailable(p,'van_helsing_dawn'))return;
+ const ok=await openModal({title:'Chercher des munitions',text:'Passer ton action pour récupérer une munition au hasard en fin de tour ?',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
+ if(!ok||!secretPowerAvailable(p,'van_helsing_dawn'))return;
+ actionBusy=true;
+ try{closeHand();await finishAction(p,true);}finally{actionBusy=false;render();endHumanTurn();}
 }
 function endHumanTurn(){if(humanTurnResolve)humanTurnResolve()}
 
@@ -2394,7 +2450,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,forcedTar
 async function maybeManfredBeforeHit(target,expectedDamage){if(expectedDamage<=0)return;if(target.vampire!=='manfred'||target.manfredUsed||target.hp>=playerMaxHp(target)||S.pool<=0)return;if(target.human){const v=await openModal({title:'Régénération partielle',text:`Tu peux utiliser maintenant le pouvoir de Manfred et gagner 1 goutte avant de subir l’attaque.`,buttons:[{label:'Utiliser +1 goutte',value:true,className:'good'},{label:'Pas maintenant',value:false}]});if(v)await useManfred(target)}else if(expectedDamage>=target.hp)await useManfred(target)}
 async function useManfred(p){if(p.vampire!=='manfred'||p.manfredUsed||S.pool<=0||p.hp>=playerMaxHp(p))return false;p.manfredUsed=true;await gainBlood(p,1,'régénération partielle de Manfred');return true}
 
-function attackBaseDamage(id,target=null){if(id==='van_helsing_stake')return target?Math.ceil(Math.max(0,target.hp)/2):1;return({van_helsing_water:1,van_helsing_bolt:1,van_helsing_cross:2,van_helsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function attackBaseDamage(id,target=null){if(id==='van_helsing_stake')return target?Math.ceil(Math.max(0,target.hp)/2):1;return({van_helsing_bullet:2,van_helsing_water:1,van_helsing_bolt:1,van_helsing_cross:2,van_helsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
 function combatOutcomeMode(defense,id){
  if(!defense)return 'hit';
  if(defense==='lame')return 'reflect';
@@ -2797,7 +2853,7 @@ async function chooseHexennachtBack(victim){
  return await promise;
 }
 async function resolveHexennacht(starter){
- const alive=alivePlayers();let start=alive.indexOf(starter);if(start<0)start=0;
+ const alive=alivePlayers().filter(p=>!isVanHelsing(p));let start=alive.indexOf(starter);if(start<0)start=0;
  const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
  for(const thief of order){
    if(!thief.alive)continue;
