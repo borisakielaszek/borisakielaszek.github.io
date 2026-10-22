@@ -23,6 +23,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add jeu-vampires-de-sarrebruck/index.html
           if ! git diff --cached --quiet; then
-            git commit -m "Compact game controls into help menu"
+            git commit -m "Center Journal nocturne and fill middle panel"
             git push
           fi
+# v5.62 journal layout fix
