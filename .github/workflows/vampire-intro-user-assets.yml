@@ -29,20 +29,21 @@ jobs:
             .github/tmp/thunder06.b64 \
             .github/tmp/thunder07.b64 \
             .github/tmp/thunder08.b64 \
-            .github/tmp/thunder09.b64 \
+            .github/tmp/fix09a.b64 \
+            .github/tmp/fix09b.b64 \
             .github/tmp/thunder10.b64 \
             .github/tmp/thunder11.b64 \
-            .github/tmp/thunder12.b64 \
+            .github/tmp/fix12a.b64 \
+            .github/tmp/fix12b.b64 \
             | tr -d '\r\n' > /tmp/thunder.b64
           base64 -d /tmp/thunder.b64 > jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
-          test "$(stat -c%s jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3)" -gt 20000
+          echo '5673fad35411ebf933c574d22e5770718f476d677aa5a68f264d407239c68e1a  jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3' | sha256sum -c -
+          test "$(stat -c%s jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3)" = "58349"
           python3 - <<'PY'
           p='jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3'
           data=open(p,'rb').read(16)
-          size=__import__('os').path.getsize(p)
           print('Audio bytes:', data)
-          print('Audio size:', size)
-          assert data[:3] == b'ID3' or data[:2] in (b'\xff\xfb', b'\xff\xf3', b'\xff\xf2')
+          assert data[:3] == b'ID3'
           PY
 
       - name: Replace intro with user thunder and lightning
