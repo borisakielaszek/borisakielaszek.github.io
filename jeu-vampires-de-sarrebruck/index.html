@@ -1266,6 +1266,9 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .immediate-repick-notice .tap-dismiss-note{margin-top:14px;font-size:.9rem;opacity:.72}
 </style>
 
+<style>.intro-art-final.intro-pressing::before,.intro-art-final.intro-pressing::after{display:none!important}.storm-flash.choice-storm::before{display:none!important}</style>
+<link rel="preload" as="image" href="assets/user-lightning-1.svg">
+<link rel="preload" as="image" href="assets/user-lightning-2.svg">
 </head>
 <body>
 <div id="app">
@@ -2631,7 +2634,7 @@ function choiceStormBurst(){
  setTimeout(()=>{
    flash.classList.remove('flash','choice-storm');
    [...flash.querySelectorAll('.intro-user-lightning')].forEach(n=>n.remove());
- },4900);
+ },6500);
 }
 
 function enterNight(e){
@@ -2643,8 +2646,11 @@ function enterNight(e){
  musicEnabled=true;musicStarted=true;
  // V5.72 : tonnerre utilisateur coupé juste avant l’impact.
  // Les éclairs blancs restent sur la première page pendant l’effet.
- choiceStormBurst();
- if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=1;const hp=hiss.play();if(hp&&hp.catch)hp.catch(()=>{});}catch(_){}}
+ let stormStarted=false;
+ const startIntroStorm=()=>{if(stormStarted)return;stormStarted=true;choiceStormBurst();};
+ if(hiss)hiss.addEventListener('playing',startIntroStorm,{once:true});
+ setTimeout(startIntroStorm,700);
+ if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=1;const hp=hiss.play();if(hp&&hp.catch)hp.catch(startIntroStorm);}catch(_){}}
  // On amorce la musique du menu à volume nul dans le geste utilisateur pour préserver l'autoplay Android.
  if(a){try{a.loop=true;a.currentTime=0;a.volume=0;const mp=a.play();if(mp&&mp.catch)mp.catch(()=>{});}catch(_){} }
  let transitioned=false;
@@ -2658,8 +2664,8 @@ function enterNight(e){
    refreshMusicButton();
  };
  if(hiss){try{hiss.addEventListener('ended',finishIntro,{once:true});}catch(_){} }
- // Sécurité : le fichier monté dure environ 4,8 s ; l’événement ended reste prioritaire.
- setTimeout(finishIntro,5100);
+ // Sécurité : le fichier monté dure environ 6,4 s ; l’événement ended reste prioritaire.
+ setTimeout(finishIntro,7200);
 }
 
 function openHand(){if(!S)return;el('humanPanel').classList.remove('hidden');render()}
