@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-vh-aube">
+<meta name="game-build" content="20261022-vh-chapelet">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1546,6 +1546,7 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
@@ -1751,6 +1752,7 @@ function render(){
      el('holyWaterBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_water'));
      el('gepettoBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_stake'));
      el('dawnLanternBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_dawn'));
+     el('rosaryInfoBtn')?.addEventListener('click',showRosaryInfo);
    }
    el('exchangeBtn').disabled=!playable;
    const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
@@ -1847,8 +1849,19 @@ function secretPowersHTML(p){
  '<button type="button" id="consecratedWhipBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_whip')?'':'disabled')+'><strong>Fouet consacré</strong><span>'+(p.whipUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−1 goutte à tous les adversaires · aucune défausse</small></button>'+
  '<button type="button" id="holyWaterBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_water')?'':'disabled')+'><strong>Eau bénite de Gluckenburne</strong><span>'+(p.holyWaterUsed?'Déjà utilisée':'1 utilisation par partie')+'</span><small>Jusqu’à 2 adversaires · chacun −1 goutte et −1 carte au hasard</small></button>'+
  '<button type="button" id="gepettoBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_stake')?'':'disabled')+'><strong>Pieu pneumatique Gepetto</strong><span>'+(p.gepettoUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>Retire la moitié du sang de la cible, arrondie au supérieur · fonctionne sans marteau</small></button>'+
- '<button type="button" id="dawnLanternBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'><strong>L’Aube du jour</strong><span>Capturée sur le mont Rose</span><small>−2 cartes à chaque vampire vivant · aucune perte de sang</small></button></div>'+
+ '<button type="button" id="dawnLanternBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'><strong>L’Aube du jour</strong><span>Capturée sur le mont Rose</span><small>−2 cartes à chaque vampire vivant · aucune perte de sang</small></button>'+
+ '<button type="button" id="rosaryInfoBtn" class="secret-power"><strong>Chapelet de sainte Marguerite</strong><span>Du Habsterdick · '+(p.rosaryCharges||0)+' / 5 utilisations restantes</span><small>Défense : annule une attaque · à présenter pendant l’attaque adverse</small></button></div>'+
  '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
+}
+function canUseRosary(target,attacker,id,uncounterable=false){
+ return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&target?.human&&target.alive&&
+ S.players.includes(target)&&S.players.includes(attacker)&&attacker!==target&&!attacker.human&&
+ (target.rosaryCharges||0)>0&&!uncounterable&&!CARDS[id]?.unblockable);
+}
+function showRosaryInfo(){
+ const p=S?.players.find(t=>t.human);
+ if(!p||S.secretMode!=='van_helsing')return;
+ return openModal({title:cardName('van_helsing_rosary'),content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_rosary')}" alt="${cardName('van_helsing_rosary')}"><div class="card-detail-side"><p>Présente ce chapelet à un vampire pour annuler son attaque défendable.</p><p><strong>${p.rosaryCharges||0} / 5 utilisations restantes.</strong></p><p>Le jeu te le proposera quand tu seras attaqué. Cette défense ne consomme pas ton action du tour et ne fait pas piocher de carte.</p></div></div>`,buttons:[{label:'Fermer',value:true}],closable:true});
 }
 function secretPowerTargets(game,p){
  if(!game||S!==game||game.gameOver||!game.players.includes(p))return [];
@@ -1981,7 +1994,7 @@ async function startGame(){
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const secretMode=secretModeForName(humanName);
  const human=players[0];
- if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;}
+ if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
@@ -2200,6 +2213,7 @@ function cardActionCopy(p,id,c,canAct){
  return `<div class="action-copy"><div class="action-main">${CARD_EXPLAIN[id]||'Effet indiqué sur la carte.'}</div></div>`;
 }
 function defenseCopy(id,incoming){
+ if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Consomme 1 des 5 utilisations, sans défausser de carte ni utiliser ton action du tour.';
  if(id==='fuite_chauve') return `Transforme-toi en chauve-souris et <strong>esquive complètement l’attaque</strong>.`;
  if(id==='fuite_warndt') return `Disparais dans la forêt du Warndt et <strong>échappe à l’attaque</strong>.`;
  if(id==='tablettes') return `Neutralise l’effet avec tes comprimés d’hémoglobine.`;
@@ -2214,7 +2228,7 @@ function defenseCopy(id,incoming){
 
 function defenseActionFamily(id){
  if(['plasma','poche_aplus'].includes(id))return 'recover';
- if(['fuite_chauve','fuite_warndt','tablettes','brume','furie','empalement'].includes(id))return 'escape';
+ if(['van_helsing_rosary','fuite_chauve','fuite_warndt','tablettes','brume','furie','empalement'].includes(id))return 'escape';
  if(['lame'].includes(id))return 'counter';
  return 'other';
 }
@@ -2392,6 +2406,7 @@ function combatSceneLine(attacker,target,attackId,defenseId,mode){
    if(defenseId==='poche_aplus')return `<strong>${vamp}</strong> encaisse ${atk}, puis récupère une goutte grâce à <strong>${def}</strong>.`;
  }
  if(mode==='countered'){
+   if(defenseId==='van_helsing_rosary')return `<strong>${vamp}</strong> présente le chapelet de sainte Marguerite : l’attaque de <strong>${aName}</strong> est annulée.`;
    if(defenseId==='fuite_chauve')return `<strong>${vamp}</strong> se transforme en chauve-souris et échappe à <strong>${atk}</strong>.`;
    if(defenseId==='fuite_warndt')return `<strong>${vamp}</strong> disparaît dans la forêt du Warndt et évite <strong>${atk}</strong>.`;
    if(defenseId==='tablettes')return `<strong>${vamp}</strong> neutralise <strong>${atk}</strong> grâce à <strong>${def}</strong>.`;
@@ -2550,7 +2565,7 @@ async function chooseDefense(target,attacker,id,eligible){
    const danger=dmg>0?`Cette attaque peut te faire perdre <strong>${dmg} goutte${dmg>1?'s':''} de sang</strong>.`:'Cette attaque ne retire pas forcément de sang, mais elle peut avoir un effet dangereux.';
    const help=`Possibilité de défense : regarde plus bas.`;
    const previewText=CARD_EXPLAIN[id]||attackPreviewText(attacker,id)||'Effet indiqué sur la carte.';
-   const content=`<div class="defense-intro">⚠️ <strong>${pName(attacker)} t’attaque avec ${cardName(id)}.</strong><div class="defense-hint">${danger}</div><div class="defense-help-note">${help}</div></div><div class="defense-attack-preview"><img id="defenseAttackCard" src="${imgCard(id)}" alt="${cardName(id)}"><div class="defense-attack-copy"><div class="attack-kicker">Carte jouée</div><div class="attack-title">${cardName(id)}</div><div class="attack-main">${previewText}</div></div></div><div class="defense-choice-title">Tes actions possibles :</div><div class="choice-grid">${eligible.map(d=>`<div class="choice-card" data-def="${d}"><img src="${imgCard(d)}" alt="${cardName(d)}"><b>${cardName(d)}</b></div>`).join('')}</div><div id="defenseDetailPanel" class="defense-detail-panel empty">Touche une carte pour lire son effet, ou choisis « Subir l’attaque ».</div>`;
+   const content=`<div class="defense-intro">⚠️ <strong>${pName(attacker)} t’attaque avec ${cardName(id)}.</strong><div class="defense-hint">${danger}</div><div class="defense-help-note">${help}</div></div><div class="defense-attack-preview"><img id="defenseAttackCard" src="${imgCard(id)}" alt="${cardName(id)}"><div class="defense-attack-copy"><div class="attack-kicker">Carte jouée</div><div class="attack-title">${cardName(id)}</div><div class="attack-main">${previewText}</div></div></div><div class="defense-choice-title">Tes actions possibles :</div><div class="choice-grid">${eligible.map(d=>`<div class="choice-card" data-def="${d}"><img src="${imgCard(d)}" alt="${cardName(d)}"><b>${cardName(d)}${d==='van_helsing_rosary'?' — '+target.rosaryCharges+' / 5':''}</b></div>`).join('')}</div><div id="defenseDetailPanel" class="defense-detail-panel empty">Touche une carte pour lire son effet, ou choisis « Subir l’attaque ».</div>`;
    const pr=openModal({title:'Défends-toi !',content,buttons:[{label:'Subir l’attaque',value:null,className:'danger'}]});
    setTimeout(()=>{
      const attackImg=el('defenseAttackCard');
@@ -2560,7 +2575,7 @@ async function chooseDefense(target,attacker,id,eligible){
      const selectDefense=(defId,node)=>{
        cards.forEach(c=>c.classList.toggle('selected',c===node));
        panel.classList.remove('empty');
-       panel.innerHTML=`<img class="defense-detail-thumb" src="${imgCard(defId)}" alt="${cardName(defId)}"><div class="defense-detail-copy"><h3>${cardName(defId)}</h3><p>${defenseCopy(defId,id)}</p><button type="button" class="use-defense-btn">Utiliser cette carte</button></div>`;
+       panel.innerHTML=`<img class="defense-detail-thumb" src="${imgCard(defId)}" alt="${cardName(defId)}"><div class="defense-detail-copy"><h3>${cardName(defId)}</h3><p>${defenseCopy(defId,id)}</p><button type="button" class="use-defense-btn">${defId==='van_helsing_rosary'?'Présenter le chapelet':'Utiliser cette carte'}</button></div>`;
        const thumb=panel.querySelector('.defense-detail-thumb');
        if(thumb)thumb.onclick=()=>openImageViewer(imgCard(defId),cardName(defId));
        const useBtn=panel.querySelector('.use-defense-btn');
@@ -2611,6 +2626,7 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
  }
  await maybeManfredBeforeHit(target,attackBaseDamage(id,target));
  const defs=eligibleDefenses(target,id,uncounterable);
+ if(canUseRosary(target,attacker,id,uncounterable))defs.unshift('van_helsing_rosary');
  if(target.human&&target!==attacker&&defs.length===0){
    const imparable=uncounterable||!!CARDS[id].unblockable;
    const explanation=imparable
@@ -2625,6 +2641,14 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
  }
  const defense=await chooseDefense(target,attacker,id,defs);let postHeal=0;
  if(defense){
+   if(defense==='van_helsing_rosary'){
+     if(!canUseRosary(target,attacker,id,uncounterable))return;
+     target.rosaryCharges--;
+     log(pName(target)+' présente le chapelet de sainte Marguerite du Habsterdick : attaque annulée. '+target.rosaryCharges+' / 5 utilisations restantes.','good');
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     return;
+   }
    removeOneFromHand(target,defense,true);
    log(`${pName(target)} joue ${cardName(defense)} en défense.`,'important');
    const mode=combatOutcomeMode(defense,id);
