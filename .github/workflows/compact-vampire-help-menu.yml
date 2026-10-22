@@ -23,7 +23,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add jeu-vampires-de-sarrebruck/index.html
           if ! git diff --cached --quiet; then
-            git commit -m "Remove lingering attack target toast"
+            git commit -m "Redesign player action drawer"
             git push
           fi
-# v5.67b remove attack target toast
+# v5.68 grouped action drawer redesign
