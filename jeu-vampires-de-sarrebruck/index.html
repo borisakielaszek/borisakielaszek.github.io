@@ -1731,7 +1731,7 @@ async function humanCardClick(i){
  if(S!==game||game.gameOver||!v||v==='cancel'||v==='info')return;
  actionBusy=true;closeHand();render();let ok=false;
  try{
-  if(v==='attack'){toast('Choisis maintenant la cible de ta carte.');ok=await playAttackFromHand(p,i);}
+  if(v==='attack'){ok=await playAttackFromHand(p,i);}
   else if(v==='regen'){toast('La carte est en train d’être jouée…');ok=await playRegenFromHand(p,i);}
   else if(v==='convert1'||v==='convert2'){const cid=removeHandIndex(p,i,true);await gainBlood(p,v==='convert1'?1:2,'conversion de Rüdiger');log(`${pName(p)} convertit ${cardName(cid)} en sang.`);await finishAction(p,true);ok=true}
   else if(v==='ermanno_self'){removeHandIndex(p,i,true);await gainBlood(p,1,'Poche périmée sur lui-même');await finishAction(p,true);ok=true}
