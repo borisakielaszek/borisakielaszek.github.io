@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-vh-chapelet">
+<meta name="game-build" content="20261022-origines-jeu-cartes">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1289,6 +1289,13 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .clan-story h2{color:#e7c989;margin-top:30px;font-size:1.45rem}
 .story-cover{display:block;width:min(100%,480px);height:auto;margin:24px auto;border-radius:12px;box-shadow:0 12px 45px #0008}
 .story-invitation{padding:20px;border-left:3px solid #a8804a;background:#161b27;border-radius:8px}
+.origin-figure{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(190px,.95fr);align-items:center;gap:20px;margin:26px 0;padding:12px;border:1px solid #383b48;border-radius:16px;background:linear-gradient(135deg,#11141c,#0b0d12);box-shadow:0 12px 32px #0007}
+.origin-figure.reverse{grid-template-columns:minmax(190px,.95fr) minmax(0,1.05fr)}
+.origin-figure.reverse img{grid-column:2;grid-row:1}.origin-figure.reverse figcaption{grid-column:1;grid-row:1}
+.origin-figure img{display:block;width:100%;height:auto;max-height:430px;object-fit:cover;filter:grayscale(1);border-radius:10px;box-shadow:0 8px 24px #0008}
+.origin-figure figcaption{padding:12px 14px;color:#c9c1b5;font-family:system-ui,sans-serif;font-size:.98rem;line-height:1.5}
+.origin-figure figcaption strong{display:block;margin-bottom:6px;color:#f0dfc1;font-family:Georgia,serif;font-size:1.2rem}
+@media(max-width:650px){.origin-figure,.origin-figure.reverse{grid-template-columns:1fr;gap:8px;margin:20px 0}.origin-figure.reverse img,.origin-figure.reverse figcaption{grid-column:auto;grid-row:auto}.origin-figure img{max-height:340px;object-fit:contain;background:#08090d}.origin-figure figcaption{padding:8px 6px 10px}}
 .guide-step{font-family:system-ui,sans-serif;line-height:1.65;font-size:1.05rem}
 .guide-step h3{font-family:Georgia,serif;color:#e7c989;font-size:1.5rem}
 .guide-step li{margin:12px 0}
@@ -1389,7 +1396,7 @@ body.van-helsing-mode .helsing-stock{font-weight:bold;color:#ffe3a0}
       </label>
       <button id="startBtn" type="button" class="primary big">Commencer la partie</button>
       <button id="quickGuideBtn" type="button" class="big">Comprendre le jeu en une minute</button>
-      <button id="clanStoryBtn" type="button" class="big">Découvrir l’histoire des Vampires de Sarrebruck</button>
+      <button id="clanStoryBtn" type="button" class="big">Les origines du jeu de cartes</button>
       <p class="tiny">La musique accompagne tes choix et pourra être coupée une fois la partie lancée.</p>
     </div>
   </section>
@@ -1397,19 +1404,32 @@ body.van-helsing-mode .helsing-stock{font-weight:bold;color:#ffe3a0}
   <section id="clanStoryScreen" class="screen hidden" aria-labelledby="clanStoryTitle">
     <article class="clan-story">
       <p class="eyebrow">Aux origines de la nuit</p>
-      <h1 id="clanStoryTitle" tabindex="-1">Deux clans. Une même soif.</h1>
+      <h1 id="clanStoryTitle" tabindex="-1">Les origines du jeu de cartes</h1>
       <img class="story-cover" src="/assets/livres/vampires-sarrebruck.webp" alt="Le livre illustré Les Vampires de Sarrebruck">
-      <p>De part et d’autre de la frontière, deux familles de vampires ont chacune leur idée de la bonne manière de vivre… et de mordre.</p>
+      <p>Le jeu de cartes prolonge l’univers du livre illustré <em>Les Vampires de Sarrebruck</em>. Tout commence à la frontière franco-allemande, entre Sarrebruck et Forbach, où deux familles de vampires défendent chacune leur façon de vivre… et de mordre.</p>
+      <figure class="origin-figure">
+        <img src="assets/origines-deux-clans.webp" alt="Les deux clans de vampires réunis sous la pleine lune">
+        <figcaption><strong>Deux clans, une même nuit</strong>Les Von Dunkelwald et les Del Rattello partagent le même territoire, mais rarement les mêmes goûts ou les mêmes règles.</figcaption>
+      </figure>
       <h2>Les Von Dunkelwald, à Sarrebruck</h2>
       <p>Installés dans l’illustre château de Sarrebruck, les Von Dunkelwald défendent un vampirisme rigoureux et organisé. Leur préférence ? Un mélange subtil de gewurztraminer et de sang bien relevé. Chez eux, même la soif a ses bonnes manières.</p>
       <h2>Les Del Rattello, à Forbach</h2>
-      <p>Dans la tour du Schlossberg, les Del Rattello cultivent d’autres plaisirs : le sang bien gras et la saucisse à l’ail. Leur façon de vivre et leurs goûts sont à mille lieues de ceux de leurs voisins.</p>
-      <h2>Pourquoi cette rivalité ?</h2>
-      <p>Leur manière de mordre, de gérer leur cheptel humain, leur conception du bon goût : tout les sépare. Entre les deux clans, les différences nourrissent la rivalité.</p>
-      <h2>Un ancêtre et un mystérieux parchemin</h2>
-      <p>Mais un parchemin évoquant le trésor d’un lointain ancêtre commun vient bouleverser leurs habitudes. Les deux familles n’ont alors plus le choix : elles doivent coopérer. Reste à savoir combien de temps leurs bonnes résolutions résisteront…</p>
-      <p class="story-invitation">Dans le jeu, retrouve ces vampires et leurs pouvoirs au cours d’une nuit où tous les coups sont permis.</p>
-      <button id="clanStoryBackBtn" type="button" class="primary big">Retour à la préparation de la partie</button>
+      <p>Dans la tour du Schlossberg, les Del Rattello cultivent d’autres plaisirs : le sang bien gras et la saucisse à l’ail. Leur façon de vivre et leurs goûts sont à mille lieues de ceux de leurs voisins sarrois.</p>
+      <figure class="origin-figure reverse">
+        <img src="assets/origines-forbach.webp" alt="Deux vampires devant la tour du Schlossberg à Forbach">
+        <figcaption><strong>Le Schlossberg de Forbach</strong>La tour et les ruines du Schlossberg donnent leur décor aux Del Rattello, côté français de la frontière.</figcaption>
+      </figure>
+      <h2>Un parchemin les oblige à coopérer</h2>
+      <p>Leur manière de mordre, de gérer leur cheptel humain et leur conception du bon goût : tout les sépare. Mais un parchemin évoquant le trésor d’un lointain ancêtre commun vient bouleverser leurs habitudes. Les deux familles doivent alors s’allier… sans renoncer à leurs vieilles rivalités.</p>
+      <h2>Du livre au jeu de cartes</h2>
+      <p>Pour prolonger cette aventure, Boris Akielaszek a imaginé un jeu de cartes original. Les sept vampires, leurs caractères et les lieux de l’histoire deviennent des pouvoirs, des attaques, des défenses et des événements inattendus.</p>
+      <figure class="origin-figure">
+        <img src="assets/origines-laboratoire.webp" alt="Un vampire et un jeune assistant dans un laboratoire rempli de poches de sang">
+        <figcaption><strong>Le laboratoire des idées</strong>Les cartes reprennent l’humour macabre du livre : hypnose, loups-garous, chasseurs de vampires et autres coups bas se mêlent aux lieux de Sarrebruck et de la région.</figcaption>
+      </figure>
+      <p>Chaque partie devient une longue nuit sur Sarrebruck. Chacun commence avec cinq gouttes de sang ; le but est simple : survivre à la nuit.</p>
+      <p class="story-invitation">Retrouve les deux clans, choisis ton vampire et prépare-toi à une nuit sanglante où tous les coups sont permis.</p>
+      <button id="clanStoryBackBtn" type="button" class="primary big">Retour au menu principal</button>
     </article>
   </section>
   <section id="gameScreen" class="screen game-screen hidden">
