@@ -1370,6 +1370,23 @@ body.van-helsing-mode .helsing-stock{font-weight:bold;color:#ffe3a0}
  #humanPanel .drawer-help .action-detail{text-align:center!important}
 }
 </style>
+<style id="helsing-mobile-categories">
+.helsing-ammo-summary{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.helsing-ammo-summary span{padding:8px 12px;background:#142c26;border:1px solid #9e8546;border-radius:9px;color:#ffe4ac}
+.helsing-category{margin:18px 0;border:1px solid #484b59;border-radius:12px;overflow:hidden;background:#0d121a}
+.helsing-category h2{margin:0;padding:10px 12px;font-size:1.2rem;line-height:1.3;color:#fff0d3}
+.helsing-category-attack h2{background:#67111d}
+.helsing-category-defense h2{background:#263655}
+.helsing-category-regen h2{background:#155739}
+body.van-helsing-mode .helsing-category .secret-power-grid{padding:10px}
+@media(max-width:650px){
+ body.van-helsing-mode #humanPanel{inset:0!important;width:100%!important;max-height:100dvh!important;border-radius:0!important}
+ body.van-helsing-mode #humanPowers{border:0!important;padding:8px!important}
+ body.van-helsing-mode .helsing-gear strong{font-size:.95rem;line-height:1.25}
+ body.van-helsing-mode .helsing-stock{font-size:1rem}
+ body.van-helsing-mode .helsing-gear small{font-size:.82rem;line-height:1.3}
+}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1904,7 +1921,7 @@ function renderPlayerNameFields(){
 function getSetupPlayerName(){return safePlayerName(el('playerName0')?.value,'Toi')}
 function secretModeForName(name){
  const key=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,' ').trim();
- return key==='dracula'?'dracula':key==='van helsing'?'van_helsing':null;
+ return key==='dracula'?'dracula':key.replace(/ /g,'')==='vanhelsing'?'van_helsing':null;
 }
 function aiDifficulty(){return S?.secretMode==='van_helsing'?'hard':S?.secretMode==='dracula'?'easy':S?.difficulty||'normal'}
 function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
@@ -1933,11 +1950,20 @@ function secretPowersHTML(p){
  ['dawnLanternBtn','van_helsing_dawn','L’Aube du jour','Lanterne du mont Rose','−2 cartes à chaque vampire'],
  ['rosaryInfoBtn','van_helsing_rosary','Chapelet de sainte Marguerite',(p.rosaryCharges||0)+' / 5 utilisations','Annule une attaque défendable']
  ];
- return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum · Aucune carte de vampire</div>'+
- '<div class="secret-power-grid">'+gear.map(([button,id,title,stock,effect])=>{
+
+ const tile=([button,id,title,stock,effect])=>{
  const art=id==='van_helsing_bullet'?'<div class="helsing-ammo-art" aria-hidden="true">✝</div>':'<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="" loading="lazy">';
  return '<button type="button" id="'+button+'" class="secret-power helsing-gear" '+((id==='van_helsing_rosary'||id==='van_helsing_mirror')||secretPowerAvailable(p,id)?'':'disabled')+'>'+art+'<strong>'+title+'</strong><span class="helsing-stock">'+stock+'</span><small>'+effect+'</small></button>';
- }).join('')+'</div><p class="tiny">Une arme utilisée remplace ton action. En fin de tour : 50 % un carreau, 35 % une balle consacrée, 15 % un pieu. Les attaques peuvent être défendues.</p>'+
+ };
+ const groups=[
+ ['Attaque','attack',['van_helsing_bolt','van_helsing_bullet','van_helsing_stake','van_helsing_cross','van_helsing_whip','van_helsing_water','van_helsing_dawn']],
+ ['Défense et contre-attaque','defense',['van_helsing_rosary','van_helsing_mirror']],
+ ['Régénération','regen',['van_helsing_elixir','van_helsing_medkit']]
+ ];
+ return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum · Aucune carte de vampire</div>'+
+ '<div class="helsing-ammo-summary" aria-live="polite"><span>Carreaux : <b>'+p.silverBolts+'</b></span><span>Balles : <b>'+p.blessedBullets+'</b></span><span>Pieux : <b>'+p.gepettoStakes+'</b></span></div>'+
+ groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
+ '<p class="tiny">Une arme ou un soin utilisé remplace ton action. En fin de tour : 50 % un carreau, 35 % une balle consacrée, 15 % un pieu. Les attaques peuvent être défendues.</p>'+
  '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'>Passer l’action et chercher une munition</button>';
 
 }
