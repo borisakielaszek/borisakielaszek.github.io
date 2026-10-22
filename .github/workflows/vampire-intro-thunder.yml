@@ -1,0 +1,28 @@
+name: Vampire intro thunder
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vampire-intro-thunder.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch intro thunder
+        run: python3 .github/scripts/patch-vampire-intro-thunder.py
+      - name: Commit intro thunder
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Replace intro sound with thunder and brighten lightning"
+            git push
+          fi
