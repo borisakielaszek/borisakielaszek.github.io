@@ -1269,6 +1269,11 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 <style>.intro-art-final.intro-pressing::before,.intro-art-final.intro-pressing::after{display:none!important}.storm-flash.choice-storm::before{display:none!important}</style>
 <link rel="preload" as="image" href="assets/user-lightning-1.svg">
 <link rel="preload" as="image" href="assets/user-lightning-2.svg">
+
+<style id="v574-immediate-effect-detail">
+.scene-effect-detail{margin-top:12px;padding:11px 13px;border-radius:12px;background:#0b0d13cc;border:1px solid #6f5a3a;color:#f6ead6;font-family:system-ui,sans-serif;font-size:1rem;line-height:1.45;font-weight:650}
+@media(max-width:520px){.scene-effect-detail{font-size:.92rem;padding:10px 11px}}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1544,6 +1549,22 @@ function toggleMusic(){musicEnabled=!musicEnabled;if(!musicEnabled){stopAllMusic
 function alivePlayers(){return S.players.filter(p=>p.alive)}
 const VAMP_PORTRAITS={'draco':'assets/1232fd02579d5b19fc1b.png','rudiger':'assets/db06a25400a71cfd2186.png','ilsa':'assets/9a790cade0e6b367ea3f.png','manfred':'assets/dc21c4981ba25f65705c.png','draculito':'assets/be7811d6fdabc7561cb3.png','elisabetta':'assets/729c0a9000ce2cd00580.png','ermanno':'assets/29272f12ee15144bdd5f.png'};
 const VAMP_POWERS={"draco": "Cumule les bonus des deux familles.|Lever du jour : +1 goutte.", "rudiger": "Attaques de lycanthropes : immunisé ; peut les convertir en 1 goutte (2 pour une Meute).|Château de Sarrebruck : +3 gouttes au lieu de +2.", "ilsa": "Gewürztraminer au Sang Noir : +2 gouttes au lieu de +1.|Chasseurs de vampires : sans effet.", "manfred": "Régénération partielle : une fois par partie, gagne 1 goutte à tout moment.|Ignore les dégâts de Chute dans la Sarre.", "draculito": "Vigueur de la jeunesse : joue avec 6 gouttes.|Lever du jour : +1 goutte.", "elisabetta": "Ne passe jamais son tour.|Immunisée à l’Hypnose.|Lorsqu’elle joue Hypnose : peut voler 2 gouttes (1 à chacun de deux adversaires différents).|Main maximale : 7 cartes.", "ermanno": "Impôts et taxes Del Rattello : prend 2 gouttes dans la réserve commune ; si elle est insuffisante, vole le complément. Ne paie pas l’impôt joué par un adversaire.|Poche de sang expirée : immunisé ; s’il la joue sur lui-même, +1 goutte."};
+const IMMEDIATE_EXPLAIN={
+ marche_noel:"🎁 Cadeau de Noël pour tout le monde : chaque vampire pioche 2 nouvelles cartes dans la pioche commune. Si ta main dépasse sa limite, tu choisiras ensuite quoi défausser.",
+ hexennacht:"La Nuit des sorcières entraîne toute la table : chaque vampire vole 1 carte face cachée à son voisin de droite.",
+ fossoyeur:"Le Fossoyeur te fait perdre 1 goutte de sang.",
+ mortetrouille:"Mortetrouille fouille la défausse : tu choisis 1 carte parmi les 5 dernières et tu appliques immédiatement son effet.",
+ monstre:"Le monstre du Schafbach t’attaque : tu perds 2 gouttes de sang.",
+ proie_brandenbusch:"Tu saignes une proie dans la forêt du Brandenbourg : tu récupères 2 gouttes de sang.",
+ proie_schalkenthal:"Tu saignes une proie dans la forêt de Schalkenthal : tu récupères 1 goutte de sang.",
+ proie_bahnhof:"Tu saignes une proie devant la gare centrale : tu récupères 1 goutte de sang et tu pioches 2 cartes supplémentaires.",
+ sorcieres:"Les Sorcières d’Oeting s’installent à tes côtés : ta main maximale passe à 7 cartes et tu pioches immédiatement 1 carte supplémentaire.",
+ chute_sarre:"Tu chutes dans la Sarre : tu dois défausser 1 carte puis passer ton prochain tour, sauf si un pouvoir ou une carte te permet d’éviter la chute.",
+ fleau:"Le Fléau Purificateur frappe toute la table : chaque vampire perd 1 goutte de sang.",
+ fantome:"Le Fantôme te demande de choisir un autre vampire : il reçoit 1 goutte de sang provenant de la réserve commune.",
+ peste:"La peste frappe les vampires encore bien nourris : tous ceux qui ont au moins 4 gouttes de sang en perdent 2."
+};
+
 const CARD_EXPLAIN={
  impots:"Tous les autres vampires perdent 1 goutte de sang et défaussent 1 carte. Ermanno applique en plus son pouvoir spécial.",
  marche_noel:"🎁 Cadeau de Noël pour toute la table : chaque vampire vivant pioche 2 nouvelles cartes dans la pioche commune. Si la main dépasse ensuite sa limite, le jeu demandera simplement quelles cartes défausser.",
@@ -1781,16 +1802,13 @@ async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
       ? (isHuman?"TA PIOCHE DE FIN DE TOUR RÉVÈLE UNE CARTE À EFFET IMMÉDIAT":`FIN DU TOUR DE ${pName(player).toUpperCase()} — CARTE À EFFET IMMÉDIAT`)
       : (isHuman?"TON TOUR S’ACHÈVE AVEC LA PIOCHE DE :":`FIN DU TOUR DE ${pName(player).toUpperCase()} — PIOCHE DE :`));
  const info=immediate
-   ? (id==='hexennacht'
-      ? `${player.human?'Tu as':pName(player)+' a'} tiré Hexennacht. Tous les vampires vont maintenant voler 1 carte face cachée à leur voisin de droite. Quand ce sera ton tour, le jeu te montrera les cartes de ton voisin.`
-      : id==='marche_noel'
-      ? `🎁 ${player.human?'Tu as':pName(player)+' a'} tiré le Marché de Noël : cadeau pour tout le monde ! Chaque vampire va piocher 2 nouvelles cartes dans la pioche commune.`
-      : "Effet immédiat : l’action de cette carte se déclenche maintenant.")
+   ? "Effet immédiat : applique l’action de cette carte maintenant."
    : christmasDraw
    ? "🎁 Cadeau de Noël ! Voici l’une des deux nouvelles cartes que tu reçois. Elle rejoint ta main. Après la seconde, si ta main est trop pleine, tu choisiras simplement quoi défausser."
    : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
+ const effectDetail=immediate?(IMMEDIATE_EXPLAIN[id]||CARD_EXPLAIN[id]||"L’effet indiqué sur la carte s’applique immédiatement."):"";
  const title=immediate&&id==='hexennacht'?"🌙 Hexennacht — tout le monde participe":immediate&&id==='marche_noel'?"🎁 Marché de Noël — cadeaux pour tous":christmasDraw?"🎁 Marché de Noël — ton cadeau":witchesBonus?"Carte supplémentaire":"";
- const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
+ const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div>${immediate?`<div class="scene-effect-detail">${effectDetail}</div>`:""}<div class="scene-small">${immediate?"":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
  if(immediate)setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
  await openTapDismissInfo({title,content});
 }
