@@ -1570,6 +1570,7 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
+ van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
  van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_bullet:{name:'Balle consacrée de Gluckenburne',img:'assets/van-helsing-portrait-steampunk.webp',qty:0,kind:'attack',secretPower:true},
@@ -1775,6 +1776,7 @@ function render(){
    const hc=el('drawerHandCount');if(hc)hc.textContent=isVanHelsing(h)?' — Van Helsing — Arsenal':` — ${playerVampireName(h)} — ${h.hand.length} / ${maxHand(h)} cartes`;
   const hpw=el('humanPowers'); if(hpw){
      hpw.innerHTML=isVanHelsing(h)?secretPowersHTML(h):`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
+     el('elixirBtn')?.addEventListener('click',useHelsingElixir);
      el('blessedBulletBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bullet'));
      el('helsingResupplyBtn')?.addEventListener('click',helsingResupply);
      el('silverBoltBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bolt'));
@@ -1868,7 +1870,7 @@ function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function isVanHelsing(p){return !!(p?.human&&S?.secretMode==='van_helsing')}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?true:false));
+ (id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?true:false));
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
@@ -1878,6 +1880,7 @@ function secretPowersHTML(p){
 }
 
  const gear=[
+ ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / 2 doses','Rend jusqu’à 2 gouttes · maximum 10'],
  ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
  ['blessedBulletBtn','van_helsing_bullet','Balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
  ['gepettoBtn','van_helsing_stake','Pieu pneumatique Gepetto',p.gepettoStakes+' pieu(x)','Retire la moitié des gouttes, arrondie au supérieur'],
@@ -2041,7 +2044,7 @@ async function startGame(){
  const secretMode=secretModeForName(humanName);
  const human=players[0];
  if(secretMode==='van_helsing'){Object.defineProperty(VAMPIRES,'van_helsing',{value:{name:'Van Helsing',maxHp:10,family:'human',img:'assets/van-helsing-portrait-steampunk.webp'},configurable:true});
- human.vampire='van_helsing';human.blessedBullets=1;human.gepettoStakes=1;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
+ human.vampire='van_helsing';human.elixirDoses=2;human.blessedBullets=1;human.gepettoStakes=1;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;human.dawnUses=0;human.rosaryCharges=5;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
@@ -2341,6 +2344,19 @@ function recoverHelsingAmmo(p,roll=Math.random()){
  p[field]=(p[field]||0)+1;
  const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle consacrée':'un pieu Gepetto';
  log('Fin de ton tour : tu récupères '+label+'.','good');render();
+}
+async function useHelsingElixir(){
+ const game=S,p=game?.players.find(x=>x.human),id='van_helsing_elixir';
+ if(!secretPowerAvailable(p,id))return;
+ actionBusy=true;render();let used=false;
+ try{
+  const amount=Math.min(2,playerMaxHp(p)-p.hp,game.pool);
+  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère jusqu’à 2 gouttes, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.elixirDoses} / 2 doses restantes. Boire remplace ton action. Tu récupères ensuite une munition au hasard.</p></div></div>`,buttons:[{label:'Boire une dose',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
+  if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.elixirDoses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
+  p.elixirDoses--;used=true;closeHand();
+  await gainBlood(p,2,cardName(id));
+  if(S===game&&!game.gameOver)await finishAction(p,true);
+ }finally{if(S===game){actionBusy=false;render();if(used)endHumanTurn();}}
 }
 async function helsingResupply(){
  const p=S?.players.find(x=>x.human);
