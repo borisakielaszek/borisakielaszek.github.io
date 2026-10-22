@@ -1808,7 +1808,10 @@ function secretPowerAvailable(p,id){
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
- if(S.secretMode==='dracula')return '<div class="secret-mode-info">✦ Dracula — '+(p.goldBlood||0)+' goutte(s) d’or restante(s). Les IA te ménagent.</div>';
+ if(S.secretMode==='dracula'){
+ const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
+ return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
+}
  return '<div class="secret-mode-info">✦ Van Helsing — Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
  '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
  '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button></div>'+
@@ -1834,8 +1837,8 @@ async function useSecretPower(id){
  }
 }
 function bloodDisplayHTML(p){
- const gold=Math.min(p.hp,p.goldBlood||0);
- return '🩸 × '+(p.hp-gold)+(gold?' <span class="gold-blood" aria-label="'+gold+' gouttes de sang en or"><svg viewBox="0 0 24 28" width="16" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C9 7 2 13 2 18a10 10 0 0 0 20 0C22 13 15 7 12 0Z"/></svg> × '+gold+'</span>':'');
+ const bonus=Math.min(p.hp,p.goldBlood||0),gold=Math.floor(bonus/2);
+ return '🩸 × '+(p.hp-bonus+bonus%2)+(gold?' <span class="gold-blood" aria-label="'+gold+' gouttes de sang en or, valant '+(gold*2)+' gouttes rouges"><svg viewBox="0 0 24 28" width="16" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C9 7 2 13 2 18a10 10 0 0 0 20 0C22 13 15 7 12 0Z"/></svg> × '+gold+'</span>':'');
 }
 function haptic(ms=18){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
 function pressFeedback(node){if(!node||node.disabled)return;node.classList.add('tap-pressed');setTimeout(()=>node.classList.remove('tap-pressed'),125)}
@@ -1880,11 +1883,11 @@ async function startGame(){
  if(secretMode==='van_helsing'){human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
- if(secretMode==='dracula'){human.hp+=2;human.goldBlood=2;}
+ if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');switchToGameMusic();refreshMusicButton();
- if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires et des adversaires indulgents.','good');
+ if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires (4 gouttes rouges) et des adversaires indulgents.','good');
  if(secretMode==='van_helsing')log('✦ Van Helsing : '+human.silverBolts+' carreau(x) d’argent, un crucifix et une pression stratégique renforcée de 10 %.','important');
  log(`La nuit commence à Sarrebruck. ${pName(players[S.turnIndex])} commence la partie.`,'important');
  render();await sleep(350);gameLoop();
