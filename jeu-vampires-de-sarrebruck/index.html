@@ -1442,7 +1442,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
     <img src="assets/merci-livre-amazon.webp?v=577" alt="Merci d’avoir joué ! La nuit continue… Poursuivez l’aventure avec le livre illustré Les Vampires de Sarrebruck, disponible sur Amazon en plusieurs langues." width="1024" height="1536">
     <a class="farewell-book-link" href="https://amzn.eu/d/04Z1qIIV" target="_blank" rel="noopener noreferrer" aria-label="Découvrir Les Vampires de Sarrebruck sur Amazon"></a>
   </div>
-  <button id="farewellHomeBtn" class="farewell-home" type="button">Revenir à l’accueil du jeu</button>
+  <button id="farewellCloseBtn" class="farewell-home" type="button">Fermer</button>
 </section>
 <div id="toast" class="toast hidden"></div>
 <div id="modal" class="modal hidden" aria-modal="true" role="dialog">
@@ -2789,7 +2789,13 @@ function wireUI(){
    el('farewellScreen').scrollTop=0;
    el('farewellScreen').querySelector('a').focus({preventScroll:true});
  });
- el('farewellHomeBtn').addEventListener('click',()=>location.reload());
+ el('farewellCloseBtn').addEventListener('click',()=>{
+   const screen=el('farewellScreen');
+   screen.innerHTML='<div role="status" tabindex="-1" style="min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:32px;color:#f2ddb1"><h1>La partie est terminée.</h1><p>Tu peux fermer cet onglet.</p></div>';
+   screen.scrollTop=0;
+   screen.querySelector('[role="status"]').focus();
+   try{window.close();}catch(_){}
+ });
  el('restartBtn').addEventListener('click',()=>{if(confirm('Recommencer la partie ?'))location.reload()});
  el('humanStage').addEventListener('click',openHand);
  el('humanStage').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openHand()}});
