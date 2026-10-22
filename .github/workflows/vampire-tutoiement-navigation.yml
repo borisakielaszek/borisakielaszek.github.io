@@ -1,0 +1,28 @@
+name: Vampire tutoiement and action navigation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vampire-tutoiement-navigation.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch game interface
+        run: python3 .github/scripts/patch-vampire-tutoiement-navigation.py
+      - name: Commit game interface
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Use tutoiement and make action choices navigable"
+            git push
+          fi
