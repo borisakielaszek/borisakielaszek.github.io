@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-vh-fouet">
+<meta name="game-build" content="20261022-vh-fouet-collectif">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1838,7 +1838,7 @@ function secretPowersHTML(p){
  return '<div class="secret-mode-info">✦ Van Helsing — 10 gouttes de sang maximum. Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
  '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
  '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button>'+
- '<button type="button" id="consecratedWhipBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_whip')?'':'disabled')+'><strong>Fouet consacré</strong><span>'+(p.whipUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−1 goutte · −1 carte au hasard</small></button></div>'+
+ '<button type="button" id="consecratedWhipBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_whip')?'':'disabled')+'><strong>Fouet consacré</strong><span>'+(p.whipUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−1 goutte à tous les adversaires · aucune défausse</small></button></div>'+
  '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
 }
 function secretPowerTargets(game,p){
@@ -1849,6 +1849,14 @@ function secretPowerTargets(game,p){
 async function chooseSecretPowerTarget(game,p,id){
  const targets=secretPowerTargets(game,p);
  if(!targets.length)return null;
+ if(id==='van_helsing_whip'){
+   const confirmed=await openModal({
+     title:cardName(id),
+     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>Une seule utilisation par partie. Remplace ton action, puis tu pioches une carte.</p></div></div>`,
+     buttons:[{label:'Frapper tous les adversaires',value:true,className:'secret-power'},{label:'Retour à ma main',value:false}],closable:true
+   });
+   return S===game&&!game.gameOver&&confirmed===true&&secretPowerTargets(game,p).length>0?true:null;
+ }
  const single=targets.length===1;
  const portraits=targets.map(t=>`<button type="button" class="choice-card" data-secret-target="${t.id}" aria-label="Viser ${VAMPIRES[t.vampire].name}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('');
  const promise=openModal({
@@ -1872,11 +1880,13 @@ async function useSecretPower(id){
  actionBusy=true;render();let used=false;
  try{
    const target=await chooseSecretPowerTarget(game,p,id);
-   if(S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
+   if(S!==game||game.gameOver||!p.alive)return;
+   const collective=id==='van_helsing_whip';
+   if(collective?target!==true||!secretPowerTargets(game,p).length:!secretPowerTargets(game,p).includes(target))return;
    if(id==='van_helsing_bolt')p.silverBolts--;else if(id==='van_helsing_cross')p.crucifixUsed=true;else if(id==='van_helsing_whip')p.whipUsed=true;
    used=true;closeHand();
    log(pName(p)+' utilise '+cardName(id)+'.','important');
-   await executeAttack(p,id,{forcedTarget:target});
+   await executeAttack(p,id,{forcedTarget:collective?null:target});
    if(S===game&&!game.gameOver)await finishAction(p,true);
  }finally{
    if(S===game){actionBusy=false;render();if(used)endHumanTurn();}
@@ -2096,7 +2106,8 @@ async function maybeGameOver(){
 
 function attackPreviewText(p,id){
  const dmg=attackBaseDamage(id);
- if(id==='van_helsing_bolt'||id==='van_helsing_whip')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
+ if(id==='van_helsing_whip')return 'Tous les adversaires vivants perdent 1 goutte de sang lors de la même attaque. Aucune carte à défausser. Chaque adversaire peut se défendre.';
+ if(id==='van_helsing_bolt')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
  if(id==='van_helsing_cross')return 'La cible perd 2 gouttes de sang. Cette attaque est défendable.';
  if(id==='hypnose'){
    if(p.vampire==='elisabetta') return `Tu peux hypnotiser un adversaire et <strong>lui voler une carte</strong>. Avec Elisabetta, tu peux aussi choisir de voler <strong>2 gouttes</strong>, une à deux vampires différents.`;
@@ -2266,6 +2277,18 @@ async function showAttackReveal(attacker,target,id){
 }
 
 async function executeAttack(attacker,id,{free=false,forcedTarget=null,uncounterable=false}={}){
+ if(id==='van_helsing_whip'){
+   const game=S;
+   const targets=game.players.filter(t=>t!==attacker&&t.alive);
+   // Les cibles sont fixées au lancement : un renvoi ne supprime pas les autres coups déjà engagés.
+   log(pName(attacker)+' lance le fouet consacré contre tous ses adversaires : 1 goutte chacun.','important');
+   for(const target of targets){
+     if(S!==game||game.gameOver)break;
+     if(target.alive)await resolveAttackInstance(attacker,target,id,{uncounterable,allowDeadAttacker:true});
+   }
+   if(S===game)await maybeGameOver();
+   return true;
+ }
  if(id==='impots'){
    const targets=alivePlayers().filter(p=>p!==attacker);
    if(!attacker.human)await showAttackReveal(attacker,null,id);
@@ -2517,8 +2540,8 @@ function aiChooseDefense(t,a,id,eligible){
  return randomUnit()<.75?eligible[0]:null;
 }
 
-async function resolveAttackInstance(attacker,target,id,{uncounterable=false}={}){
- if(!attacker.alive||!target.alive)return;
+async function resolveAttackInstance(attacker,target,id,{uncounterable=false,allowDeadAttacker=false}={}){
+ if((!attacker.alive&&!allowDeadAttacker)||!target.alive)return;
  if(id==='hypnose'&&target.vampire==='elisabetta'){log(`Elisabetta est immunisée à l’Hypnose.`,'good');await showCombatScene({attacker,target,attackId:id,mode:'countered'});return}
  if(id==='aube'&&(target.vampire==='draculito'||target.vampire==='draco')){log(`${VAMPIRES[target.vampire].name} transforme le lever du jour en régénération.`,'good');await gainBlood(target,1,'lever du jour');return}
  if(isHunter(id)&&target.vampire==='ilsa'){log(`Les chasseurs n’ont aucun effet sur Ilsa.`,'good');await showCombatScene({attacker,target,attackId:id,mode:'countered'});return}
@@ -2585,11 +2608,11 @@ async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  if(dmg)summary.damage=await loseBlood(target,dmg,cardName(id));
  summary.eliminated=!target.alive;
  if(!target.alive)return summary;
- if((id==='van_helsing_bolt'||id==='van_helsing_whip')&&target.hand.length){
+ if(id==='van_helsing_bolt'&&target.hand.length){
    const index=Math.floor(randomUnit()*target.hand.length);
    const lost=removeHandIndex(target,index,true);
    summary.discarded.push(lost);
-   log(pName(target)+' perd au hasard '+cardName(lost)+(id==='van_helsing_whip'?' sous le fouet consacré.':' sous le carreau d’argent.'),'bad');
+   log(pName(target)+' perd au hasard '+cardName(lost)+' sous le carreau d’argent.','bad');
  }
  if(id==='impots')summary.discarded=await discardRandomOrChosen(target,1,'Impôts et taxes : défausse 1 carte.');
  if(id==='meute')summary.discarded=await discardRandomOrChosen(target,2,'Meute de loups-garous : défausse 2 cartes.');
