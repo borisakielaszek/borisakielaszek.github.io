@@ -1037,6 +1037,22 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 }
 </style>
 
+
+<style id="v566-turn-emblem">
+.turn-notice-logo{
+  display:block!important;
+  width:132px!important;
+  height:auto!important;
+  margin:0 auto 8px!important;
+  border-radius:16px!important;
+  object-fit:contain!important;
+  pointer-events:none!important;
+}
+@media(max-width:430px){
+  .turn-notice-logo{width:118px!important;margin-bottom:7px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1130,7 +1146,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 <div id="stormFlash" class="storm-flash" aria-hidden="true"></div>
 <div id="turnNotice" class="turn-notice" aria-live="assertive" aria-hidden="true">
   <div class="turn-notice-card">
-    <div class="turn-notice-kicker">Les Vampires de Sarrebruck</div>
+    <img class="turn-notice-logo" src="assets/logo-transition-vampire.webp" alt="" aria-hidden="true">
     <div id="turnNoticeName" class="turn-notice-name"></div>
     <div id="turnNoticeText" class="turn-notice-text"></div>
     <div id="turnNoticeVamp" class="turn-notice-vamp"></div>
