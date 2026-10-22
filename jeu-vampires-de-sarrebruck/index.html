@@ -1023,6 +1023,20 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .turn-notice-vamp{margin-top:12px!important;color:#d7c5a9!important;font-weight:700!important}
 </style>
 
+
+<style id="v565-endturn-draw-header">
+.draw-scene .draw-kicker{
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  width:100%!important;
+  margin:0 0 6px!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:640px){
+  .draw-scene .draw-kicker{margin-bottom:2px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1503,8 +1517,8 @@ async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
    : immediate
    ? "⚡ Regarde bien la carte : son effet s’appliquera lorsque tu continueras."
    : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
- const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":(immediate?"Carte Éclair révélée !":"Carte piochée");
- const content=`<div class="immediate-scene draw-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-kicker draw-kicker">${kicker}</div><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"Son effet se déclenchera quand tu continueras.":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
+ const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":"";
+ const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"Son effet se déclenchera quand tu continueras.":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
  if(immediate)setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
  await openTapDismissInfo({title,content});
 }
