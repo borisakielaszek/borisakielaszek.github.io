@@ -873,21 +873,45 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 </style>
 
 <style id="v557-intro-storm">
-/* V5.72 — tonnerre utilisateur + éclairs blancs lumineux */
+/* V5.73 — éclairs provenant des deux images fournies par Boris */
 .storm-flash.choice-storm{
-  background:radial-gradient(circle at 50% 18%,rgba(255,255,255,.78) 0,rgba(247,252,255,.46) 18%,rgba(205,228,255,.22) 42%,transparent 72%)!important;
-  mix-blend-mode:screen!important;overflow:hidden!important;
+  background:radial-gradient(circle at 50% 17%,rgba(255,255,255,.82) 0,rgba(238,248,255,.46) 22%,rgba(170,208,255,.18) 48%,transparent 76%)!important;
+  mix-blend-mode:screen!important;
+  overflow:hidden!important;
 }
-.storm-flash.choice-storm.flash{animation:choiceStormFlashV572 .26s ease-out both!important}
-.storm-flash.choice-storm .storm-bolt{
-  width:24px!important;height:96vh!important;background:#fff!important;opacity:0;
-  filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 9px #fff) drop-shadow(0 0 22px rgba(232,244,255,.98)) drop-shadow(0 0 48px rgba(181,216,255,.90)) drop-shadow(0 0 80px rgba(118,174,255,.62))!important;
-  animation:choiceBoltV572 .24s steps(1,end) both!important;
+.storm-flash.choice-storm.flash{animation:introUserSkyFlash .30s ease-out both!important}
+.intro-user-lightning{
+  position:absolute;
+  left:50%;
+  top:-1vh;
+  width:min(108vw,1800px);
+  max-width:none;
+  height:auto;
+  transform:translateX(-50%);
+  transform-origin:50% 0;
+  opacity:0;
+  pointer-events:none;
+  filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 12px #fff) drop-shadow(0 0 30px rgba(220,240,255,.98)) drop-shadow(0 0 68px rgba(125,187,255,.86));
+  animation:introUserBolt .34s steps(1,end) both;
 }
-.storm-flash.choice-storm .storm-bolt::before{content:"";position:absolute;inset:-8px -12px;background:#fff;clip-path:inherit;opacity:.82;filter:blur(6px)}
-.storm-flash.choice-storm .storm-bolt::after{content:"";position:absolute;inset:-18px -26px;background:#eaf5ff;clip-path:inherit;opacity:.48;filter:blur(18px)}
-@keyframes choiceBoltV572{0%{opacity:0}7%{opacity:1}30%{opacity:1}31%{opacity:.18}49%{opacity:.96}70%{opacity:.34}100%{opacity:0}}
-@keyframes choiceStormFlashV572{0%{opacity:0;background-color:rgba(255,255,255,0)}8%{opacity:1;background-color:rgba(255,255,255,.98)}26%{opacity:.34;background-color:rgba(225,240,255,.34)}48%{opacity:.92;background-color:rgba(255,255,255,.74)}70%{opacity:.20;background-color:rgba(195,222,255,.18)}100%{opacity:0;background-color:rgba(255,255,255,0)}}
+.intro-user-lightning.sheet2{top:-3vh;width:min(104vw,1740px)}
+@keyframes introUserBolt{
+  0%{opacity:0}
+  7%{opacity:1}
+  28%{opacity:1}
+  29%{opacity:.18}
+  47%{opacity:.98}
+  68%{opacity:.34}
+  100%{opacity:0}
+}
+@keyframes introUserSkyFlash{
+  0%{opacity:0;background-color:rgba(255,255,255,0)}
+  8%{opacity:1;background-color:rgba(255,255,255,.98)}
+  27%{opacity:.28;background-color:rgba(220,239,255,.30)}
+  48%{opacity:.92;background-color:rgba(255,255,255,.74)}
+  72%{opacity:.18;background-color:rgba(170,210,255,.18)}
+  100%{opacity:0;background-color:rgba(255,255,255,0)}
+}
 </style>
 <link rel="stylesheet" href="responsive.css?v=564">
 
@@ -1246,7 +1270,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 <body>
 <div id="app">
   
-  <audio id="introHissSfx" preload="auto" src="assets/thunder-intro.mp3"></audio>
+  <audio id="introHissSfx" preload="auto" src="assets/thunder-intro-user.mp3?v=573"></audio>
   <audio id="bgMusic" preload="auto" loop src="assets/ac039663553f45fe699c.mp3"></audio>
   <audio id="gameMusic" preload="auto" loop src="assets/a5d06f735fd7a028bc0d.mp3"></audio>
   <audio id="victoryMusic" preload="auto" src="assets/62afe0b10c2c1aeee1fa.mp3"></audio>
@@ -2583,31 +2607,31 @@ function stormBurst(){
 function choiceStormBurst(){
  const flash=el('stormFlash');if(!flash)return;
  flash.classList.add('choice-storm');
- const shapes=[
-  'polygon(46% 0,71% 0,53% 15%,78% 16%,45% 36%,67% 37%,31% 59%,54% 60%,18% 100%,29% 69%,10% 68%,38% 47%,19% 46%)',
-  'polygon(42% 0,68% 0,51% 18%,75% 19%,44% 39%,65% 40%,30% 63%,52% 64%,17% 100%,27% 73%,9% 72%,36% 50%,18% 49%)',
-  'polygon(48% 0,73% 0,56% 17%,80% 18%,47% 40%,69% 41%,34% 63%,56% 64%,20% 100%,31% 74%,11% 72%,39% 50%,21% 49%)'
- ];
+ [...flash.querySelectorAll('.intro-user-lightning')].forEach(n=>n.remove());
  const strikes=[
-  {t:0,x:27,rot:-5,scale:1.02},
-  {t:115,x:70,rot:4,scale:.88},
-  {t:430,x:48,rot:-2,scale:1.12},
-  {t:930,x:78,rot:5,scale:.82},
-  {t:1510,x:34,rot:-4,scale:.92},
-  {t:2240,x:63,rot:3,scale:.78}
+   {t:0,src:'assets/user-lightning-1.svg',cls:'sheet1',scale:1},
+   {t:105,src:'assets/user-lightning-2.svg',cls:'sheet2',scale:1.01},
+   {t:620,src:'assets/user-lightning-1.svg',cls:'sheet1',scale:.98},
+   {t:1320,src:'assets/user-lightning-2.svg',cls:'sheet2',scale:1.02},
+   {t:2380,src:'assets/user-lightning-1.svg',cls:'sheet1',scale:1.01},
+   {t:3500,src:'assets/user-lightning-2.svg',cls:'sheet2',scale:.99}
  ];
- strikes.forEach((st,i)=>setTimeout(()=>{
+ strikes.forEach(st=>setTimeout(()=>{
    if(!flash.classList.contains('choice-storm'))return;
    flash.classList.remove('flash');void flash.offsetWidth;flash.classList.add('flash');
-   const bolt=document.createElement('div');bolt.className='storm-bolt';
-   bolt.style.left=`calc(${st.x}% - 12px)`;
-   bolt.style.transform=`rotate(${st.rot}deg) scale(${st.scale})`;
-   bolt.style.clipPath=shapes[i%shapes.length];
+   const bolt=document.createElement('img');
+   bolt.className=`intro-user-lightning ${st.cls}`;
+   bolt.src=st.src;
+   bolt.alt='';bolt.setAttribute('aria-hidden','true');
+   bolt.style.transform=`translateX(-50%) scale(${st.scale})`;
    flash.appendChild(bolt);
-   setTimeout(()=>bolt.remove(),330);
-   setTimeout(()=>flash.classList.remove('flash'),285);
+   setTimeout(()=>bolt.remove(),430);
+   setTimeout(()=>flash.classList.remove('flash'),340);
  },st.t));
- setTimeout(()=>{flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt')].forEach(n=>n.remove());},3150);
+ setTimeout(()=>{
+   flash.classList.remove('flash','choice-storm');
+   [...flash.querySelectorAll('.intro-user-lightning')].forEach(n=>n.remove());
+ },4900);
 }
 
 function enterNight(e){
@@ -2620,13 +2644,13 @@ function enterNight(e){
  // V5.72 : tonnerre utilisateur coupé juste avant l’impact.
  // Les éclairs blancs restent sur la première page pendant l’effet.
  choiceStormBurst();
- if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=.92;const hp=hiss.play();if(hp&&hp.catch)hp.catch(()=>{});}catch(_){} }
+ if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=1;const hp=hiss.play();if(hp&&hp.catch)hp.catch(()=>{});}catch(_){}}
  // On amorce la musique du menu à volume nul dans le geste utilisateur pour préserver l'autoplay Android.
  if(a){try{a.loop=true;a.currentTime=0;a.volume=0;const mp=a.play();if(mp&&mp.catch)mp.catch(()=>{});}catch(_){} }
  let transitioned=false;
  const finishIntro=()=>{
    if(transitioned)return;transitioned=true;
-   const flash=el('stormFlash');if(flash){flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt')].forEach(n=>n.remove());}
+   const flash=el('stormFlash');if(flash){flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt,.intro-user-lightning')].forEach(n=>n.remove());}
    if(intro)intro.classList.add('hidden');
    if(menu)menu.classList.remove('hidden');
    window.scrollTo(0,0);
@@ -2634,8 +2658,8 @@ function enterNight(e){
    refreshMusicButton();
  };
  if(hiss){try{hiss.addEventListener('ended',finishIntro,{once:true});}catch(_){} }
- // Sécurité : le tonnerre monté dure ~3,25 s ; ended reste prioritaire.
- setTimeout(finishIntro,3400);
+ // Sécurité : le fichier monté dure environ 4,8 s ; l’événement ended reste prioritaire.
+ setTimeout(finishIntro,5100);
 }
 
 function openHand(){if(!S)return;el('humanPanel').classList.remove('hidden');render()}
