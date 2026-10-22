@@ -1322,6 +1322,14 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
         </select>
       </label>
       <div id="playerNames" class="player-names" aria-label="Prénoms des joueurs"></div>
+      <label>Difficulté
+        <select id="difficultyChoice" aria-describedby="difficultyHelp">
+          <option value="easy">Canines courtes (facile)</option>
+          <option value="normal" selected>Promenade au cimetière (normal)</option>
+          <option value="hard">Nuit sanglante (difficile)</option>
+        </select>
+      </label>
+      <p id="difficultyHelp" class="tiny">Seule la stratégie des IA change. Mêmes règles pour tous, sans accès aux cartes cachées.</p>
       <label>Ton vampire
         <select id="vampireChoice">
           <option value="random">Tirage aléatoire (règle normale)</option>
@@ -1771,10 +1779,7 @@ function renderPlayerNameFields(){
  wrap.innerHTML=`<div class="player-name-row"><label for="playerName0">Ton prénom</label><input id="playerName0" maxlength="22" autocomplete="off" placeholder="Ton prénom" value="${previous.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"></div>`;
 }
 function getSetupPlayerName(){return safePlayerName(el('playerName0')?.value,'Toi')}
-function secretNameKey(name){return String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,' ')}
-function secretDifficultyForName(name){const k=secretNameKey(name);if(k==='dracula')return 'easy';if(k==='van helsing')return 'hard';return 'normal'}
-function aiDifficulty(){return S?.secretDifficulty||'normal'}
-function aiDifficultyFactor(){return aiDifficulty()==='hard'?1.35:aiDifficulty()==='easy'?.70:1}
+function aiDifficulty(){return S?.difficulty||'normal'}
 function haptic(ms=18){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
 function pressFeedback(node){if(!node||node.disabled)return;node.classList.add('tap-pressed');setTimeout(()=>node.classList.remove('tap-pressed'),125)}
 async function showTurnNotice(p){
@@ -1814,7 +1819,7 @@ async function startGame(){
  const count=Number(el('playerCount').value), chosen=el('vampireChoice').value, humanName=getSetupPlayerName();let vids=shuffle(Object.keys(VAMPIRES).slice());let hv=chosen==='random'?vids.shift():chosen;if(chosen!=='random')vids=vids.filter(v=>v!==chosen);
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
- S={players,deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],secretDifficulty:secretDifficultyForName(humanName)};
+ S={players,deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value};
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');switchToGameMusic();refreshMusicButton();
@@ -2369,16 +2374,30 @@ async function chooseDefense(target,attacker,id,eligible){
  return aiChooseDefense(target,attacker,id,eligible);
 }
 function aiChooseDefense(t,a,id,eligible){
+ if(!eligible.length)return null;
  const dmg=attackBaseDamage(id),diff=aiDifficulty();
- // Dracula : environ 30 % de décisions défensives volontairement moins efficaces.
- if(diff==='easy'&&randomUnit()<.30){return eligible.length&&randomUnit()<.42?eligible[Math.floor(randomUnit()*eligible.length)]:null}
+ if(diff==='easy')return eligible[Math.floor(randomUnit()*eligible.length)];
+ if(diff==='hard'){
+   const ranked=eligible.map(d=>{
+     let score=10;
+     if(d==='lame')score+=dmg*3+(aiKnownBadTarget(a,id)?0:4);
+     if(d==='empalement')score+=a.hp<=1?12:4;
+     if(d==='plasma')score+=Math.min(2,VAMPIRES[t.vampire].maxHp-t.hp)*3;
+     if(d==='poche_aplus')score+=Math.min(1,VAMPIRES[t.vampire].maxHp-t.hp)*3;
+     if(d==='brume'&&id==='chasseurs_bayerische')score-=t.hp<=1?100:7;
+     // Conserver les défenses polyvalentes et les cartes utilisables pour attaquer.
+     if(d==='lame'||d==='fuite_chauve')score-=dmg<2&&t.hp>dmg?5:0;
+     if(CARDS[d].kind==='hybrid')score-=2;
+     return {d,score};
+   }).sort((x,y)=>y.score-x.score);
+   return ranked[0].d;
+ }
  if(eligible.includes('lame')&&(dmg>=2||t.hp<=dmg||id==='hypnose'))return 'lame';
  for(const d of ['fuite_chauve','fuite_warndt','empalement','furie','tablettes'])if(eligible.includes(d))return d;
  if(eligible.includes('brume'))return 'brume';
  if(t.hp<=2&&eligible.includes('plasma'))return 'plasma';
  if(t.hp<=2&&eligible.includes('poche_aplus'))return 'poche_aplus';
- const useChance=diff==='hard'?.98:.75;
- return eligible.length&&randomUnit()<useChance?eligible[0]:null;
+ return randomUnit()<.75?eligible[0]:null;
 }
 
 async function resolveAttackInstance(attacker,target,id,{uncounterable=false}={}){
@@ -2556,15 +2575,9 @@ async function aiTurn(p){
  p.hand.forEach((id,i)=>{const c=CARDS[id];let score=-5,mode=null;if(c.kind==='attack'||c.kind==='hybrid'){if(canPlayAttack(p,id)){score=aiAttackScore(p,id);mode='attack'}}if(c.kind==='regen'){score=Math.max(score,aiRegenScore(p,id));if(score>-5)mode='regen'}if(p.vampire==='rudiger'&&id==='lycanthrope'&&p.hp<VAMPIRES[p.vampire].maxHp){const s=5+(5-p.hp);if(s>score){score=s;mode='convert1'}}if(p.vampire==='rudiger'&&id==='meute'&&p.hp<VAMPIRES[p.vampire].maxHp){const s=8+(5-p.hp);if(s>score){score=s;mode='convert2'}}if(p.vampire==='ermanno'&&id==='poche_perimee'&&p.hp<VAMPIRES[p.vampire].maxHp){score=Math.max(score,5);mode=score===5?'ermanno_self':mode}options.push({i,id,score,mode})});
  options.sort((a,b)=>b.score-a.score);
  let choice=options[0],diff=aiDifficulty();
- // Dracula : l'IA fait parfois un choix légal mais sous-optimal au lieu du meilleur coup.
- if(diff==='easy'&&options.length>1&&randomUnit()<.30){
-   const playable=options.filter(o=>o.score>=1);
+ if(diff==='easy'){
+   const playable=options.filter(o=>o.mode&&o.score>=1);
    if(playable.length)choice=playable[Math.floor(randomUnit()*playable.length)];
- }
- // Van Helsing : évite presque toujours un coup médiocre quand une meilleure option existe.
- if(diff==='hard'&&options.length>1&&choice&&choice.score<4){
-   const strong=options.filter(o=>o.score>=4);
-   if(strong.length)choice=strong[0];
  }
  if(!choice||choice.score<1){const idx=aiWorstCardIndex(p);const id=removeHandIndex(p,idx,true);log(`${pName(p)} change ${cardName(id)}.`);await drawOneToHand(p);return}
  const id=choice.id;removeHandIndex(p,choice.i,false);discardCard(id);log(`${pName(p)} joue ${cardName(id)}.`,'important');if(choice.mode==='attack')await executeAttack(p,id);else if(choice.mode==='regen')await executeRegen(p,id);else if(choice.mode==='convert1')await gainBlood(p,1,'conversion de Rüdiger');else if(choice.mode==='convert2')await gainBlood(p,2,'conversion de Rüdiger');else if(choice.mode==='ermanno_self')await gainBlood(p,1,'Poche périmée sur lui-même');await finishAction(p,true)
@@ -2592,54 +2605,42 @@ function weightedAiPick(list,weightFn){
  for(const e of entries){r-=e.w;if(r<=0)return e.t}
  return entries[entries.length-1].t;
 }
+// Uniquement des informations publiques, jamais le contenu des mains adverses.
+function aiPublicTargetScore(attacker,t,id){
+ if(aiKnownBadTarget(t,id)||(id==='impots'&&t.vampire==='ermanno'))return -20;
+ const dmg=id?attackBaseDamage(id):1;
+ let score=dmg*3;
+ if(dmg>0&&t.hp<=dmg)score+=14;
+ score+=t.hp*.35+t.hand.length*.3;
+ if(id==='hypnose')score+=t.hand.length+(t.witches?5:0);
+ if(id==='saint_nicolas')score+=t.hand.length;
+ return score;
+}
 function aiTarget(attacker,cands,attackId=null){
- let pool=cands.filter(t=>t&&t.alive);
+ let pool=cands.filter(t=>t&&t.alive&&t!==attacker);
  if(!pool.length)return null;
  const diff=aiDifficulty();
- // En facile, l'IA peut occasionnellement oublier une immunité connue ; en normal/difficile elle l'évite.
- if(attackId&&(diff!=='easy'||randomUnit()>.30)){const sensible=pool.filter(t=>!aiKnownBadTarget(t,attackId));if(sensible.length)pool=sensible}
- if(pool.length===1){rememberAiTarget(pool[0]);return pool[0]}
- const history=Array.isArray(S?.aiTargetHistory)?S.aiTargetHistory:[];
- const recent=target=>history.slice(-5).filter(id=>id===target.id).length;
- const dmg=attackId?attackBaseDamage(attackId):0;
- const roll=randomUnit();
- let candidates=pool,mode='libre';
- const killCut=diff==='hard'?.40:diff==='easy'?.20:.30;
- const weakenCut=diff==='hard'?.68:diff==='easy'?.43:.58;
- const handCut=diff==='hard'?.88:diff==='easy'?.60:.78;
- if(attackId==='hypnose'){
-   const maxHand=Math.max(...pool.map(t=>t.hand.length+(t.witches?1:0)));
-   if(diff==='easy'&&randomUnit()<.30){candidates=pool;mode='libre'}else{candidates=pool.filter(t=>t.hand.length+(t.witches?1:0)===maxHand);mode='main'}
- }else if(roll<killCut){
-   const killable=dmg>0?pool.filter(t=>t.hp<=dmg):[];
-   if(killable.length)candidates=killable;
-   else{const minHp=Math.min(...pool.map(t=>t.hp));candidates=pool.filter(t=>t.hp===minHp)}
-   mode='achever';
- }else if(roll<weakenCut){
-   const maxHp=Math.max(...pool.map(t=>t.hp));candidates=pool.filter(t=>t.hp===maxHp);mode='affaiblir';
- }else if(roll<handCut){
-   const maxHand=Math.max(...pool.map(t=>t.hand.length));candidates=pool.filter(t=>t.hand.length===maxHand);mode='main';
- }
- const chosen=weightedAiPick(candidates,t=>{
-   let w=1;
-   if(mode==='achever')w+=Math.max(0,6-t.hp)*(diff==='hard'?.78:.55);
-   else if(mode==='affaiblir')w+=t.hp*(diff==='hard'?.25:.18);
-   else if(mode==='main')w+=t.hand.length*(diff==='hard'?.30:.22);
-   const seen=recent(t);
-   if(seen)w*=Math.pow(diff==='hard'?.66:.58,seen);
-   // Easter eggs de difficulté : léger biais vers/loin du joueur humain uniquement lors d'une attaque.
-   // Le choix stratégique (achever, affaiblir, viser une grosse main) reste prioritaire.
-   if(attackId&&t.human){
-     if(diff==='hard')w*=1.13;      // VAN HELSING : un peu plus exposé, sans acharnement.
-     else if(diff==='easy')w*=0.87; // DRACULA : un peu moins souvent pris pour cible.
-   }
-   return w+randomUnit()*(diff==='hard'?.18:.35);
- });
+ const sensible=pool.filter(t=>!aiKnownBadTarget(t,attackId));
+ if(sensible.length)pool=sensible;
+ let chosen;
+ if(diff==='easy')chosen=pool[Math.floor(randomUnit()*pool.length)];
+ else if(diff==='hard'){
+   const scores=pool.map(t=>({t,score:aiPublicTargetScore(attacker,t,attackId)}));
+   const best=Math.max(...scores.map(x=>x.score));
+   const tied=scores.filter(x=>Math.abs(x.score-best)<.001);
+   chosen=tied[Math.floor(randomUnit()*tied.length)].t;
+ }else chosen=weightedAiPick(pool,t=>Math.max(1,aiPublicTargetScore(attacker,t,attackId)+2));
  rememberAiTarget(chosen);
  return chosen;
 }
-function aiAttackScore(p,id){const dmg=attackBaseDamage(id);let s=dmg*4;if(id==='hypnose')s=7;if(id==='impots')s=7+alivePlayers().length;if(id==='saint_nicolas')s=7;if(id==='meute')s=12;if(id==='lycanthrope')s=7;if(id==='lame')s=9;if(id==='brume')s=4;if(id==='furie')s=9;if(id==='poche_perimee'&&p.vampire==='ermanno'&&p.hp<VAMPIRES[p.vampire].maxHp)s=5;return s+randomUnit()*2}
-function aiRegenScore(p,id){const missing=VAMPIRES[p.vampire].maxHp-p.hp;if(id==='gewurz'&&!family(p,'dunkelwald'))return p.hand.includes('tablettes')?0:-7;if(id==='saucisson'&&!family(p,'rattello'))return p.hand.includes('tablettes')?0:-7;if(missing<=0)return -4;let g=1;if(id==='chateau')g=p.vampire==='rudiger'?3:(family(p,'dunkelwald')?2:1);if(id==='tour_schlossberg')g=family(p,'rattello')?2:1;if(id==='gewurz')g=p.vampire==='ilsa'?2:1;return g*4+missing}
+function aiAttackScore(p,id){const dmg=attackBaseDamage(id);let s=dmg*4;if(id==='hypnose')s=7;if(id==='impots')s=7+alivePlayers().length;if(id==='saint_nicolas')s=7;if(id==='meute')s=12;if(id==='lycanthrope')s=7;if(id==='lame')s=9;if(id==='brume')s=4;if(id==='furie')s=9;if(id==='poche_perimee'&&p.vampire==='ermanno'&&p.hp<VAMPIRES[p.vampire].maxHp)s=5;if(aiDifficulty()==='hard'){
+ const targets=validAttackTargets(p,id);
+ const values=targets.map(t=>aiPublicTargetScore(p,t,id));
+ s+=values.length?(id==='impots'?values.reduce((a,b)=>a+b,0)*.4:Math.max(...values)*.65):-20;
+ if(CARDS[id].kind==='hybrid'&&p.hand.filter(x=>CARDS[x].kind==='defense').length===0&&p.hp<=2)s-=4;
+ return s;
+}return s+randomUnit()*2}
+function aiRegenScore(p,id){const missing=VAMPIRES[p.vampire].maxHp-p.hp;if(id==='gewurz'&&!family(p,'dunkelwald'))return p.hand.includes('tablettes')?0:-7;if(id==='saucisson'&&!family(p,'rattello'))return p.hand.includes('tablettes')?0:-7;if(missing<=0)return -4;let g=1;if(id==='chateau')g=p.vampire==='rudiger'?3:(family(p,'dunkelwald')?2:1);if(id==='tour_schlossberg')g=family(p,'rattello')?2:1;if(id==='gewurz')g=p.vampire==='ilsa'?2:1;return g*4+missing+(aiDifficulty()==='hard'?(p.hp<=2?9:0)-Math.max(0,g-missing)*3:0)}
 function aiWorstCardIndex(p){let worst=Infinity,wi=0;p.hand.forEach((id,i)=>{let v=CARDS[id].kind==='defense'?5:CARDS[id].kind==='regen'?4:6;if(id==='lame')v=10;if(id==='fuite_chauve')v=8;if(id==='plasma')v=7;if(id==='poche_aplus')v=6;if(id==='tablettes')v=4;if(v<worst){worst=v;wi=i}});return wi}
 function aiBestDiscardEffect(cards){let bi=0,bs=-99;cards.forEach((id,i)=>{let s=0;if(CARDS[id].kind==='attack'||CARDS[id].kind==='hybrid')s=aiAttackScore({vampire:'draco'},id);if(CARDS[id].kind==='regen')s=4;if(CARDS[id].kind==='immediate')s=5;if(CARDS[id].kind==='defense')s=-2;if(s>bs){bs=s;bi=i}});return bi}
 
