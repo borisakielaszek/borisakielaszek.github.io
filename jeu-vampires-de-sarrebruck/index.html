@@ -2324,7 +2324,18 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false}={}
  }
  await maybeManfredBeforeHit(target,attackBaseDamage(id));
  const defs=eligibleDefenses(target,id,uncounterable);
- if(target.human&&!uncounterable&&!CARDS[id].unblockable&&defs.length===0)log(`Aucune défense compatible en main contre ${cardName(id)}.`,'important');
+ if(target.human&&target!==attacker&&defs.length===0){
+   const imparable=uncounterable||!!CARDS[id].unblockable;
+   const explanation=imparable
+     ? (uncounterable?'Cette attaque est imparable : tu ne peux pas te défendre contre ce renvoi.':'Cette attaque porte le bouclier barré : elle est imparable. Tu n’as aucune carte permettant une exception.')
+     :'Tu n’as aucune carte de défense adaptée à cette attaque.';
+   log(explanation,'important');
+   await openModal({
+     title:imparable?'Attaque imparable':'Aucune défense adaptée',
+     text:explanation,
+     buttons:[{label:'Continuer',value:true}]
+   });
+ }
  const defense=await chooseDefense(target,attacker,id,defs);let postHeal=0;
  if(defense){
    removeOneFromHand(target,defense,true);
