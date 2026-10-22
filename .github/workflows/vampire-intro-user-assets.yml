@@ -16,49 +16,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Rebuild exact user thunder
+      - name: Audit staged thunder chunks
         shell: bash
         run: |
-          # Exact reconstruction after verified chunk corrections.
-          cat \
-            .github/tmp/thunder00.b64 \
-            .github/tmp/thunder01.b64 \
-            .github/tmp/thunder02.b64 \
-            .github/tmp/thunder03.b64 \
-            .github/tmp/thunder04.b64 \
-            .github/tmp/thunder05.b64 \
-            .github/tmp/thunder06.b64 \
-            .github/tmp/thunder07.b64 \
-            .github/tmp/thunder08.b64 \
-            .github/tmp/fix09a.b64 \
-            .github/tmp/fix09b.b64 \
-            .github/tmp/thunder10.b64 \
-            .github/tmp/thunder11.b64 \
-            .github/tmp/fix12a.b64 \
-            .github/tmp/fix12b.b64 \
-            | tr -d '\r\n' > /tmp/thunder.b64
-          base64 --decode --ignore-garbage /tmp/thunder.b64 > jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
-          sha256sum jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
-          stat -c%s jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
-          echo '5673fad35411ebf933c574d22e5770718f476d677aa5a68f264d407239c68e1a  jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3' | sha256sum -c -
-          test "$(stat -c%s jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3)" = "58349"
-          python3 - <<'PY'
-          p='jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3'
-          data=open(p,'rb').read(16)
-          print('Audio bytes:', data)
-          assert data[:3] == b'ID3'
-          PY
-
-      - name: Replace intro with user thunder and lightning
-        run: python3 .github/scripts/patch-intro-user-assets.py
-
-      - name: Commit corrected intro
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add jeu-vampires-de-sarrebruck/index.html jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
-          if ! git diff --cached --quiet; then
-            git commit -m "Use exact uploaded thunder and user lightning artwork"
-            git push
-          fi
+          cat > /tmp/checks <<'EOF'
+          211a99c008582dd9ab99bb2e7f7b2fbfcf894273251ed48905128282a59278fc  .github/tmp/thunder00.b64
+          61920b4e612e256cd79e36868005338d42ecd6a92403eb65f18e6b6111ba7c11  .github/tmp/thunder01.b64
+          da101c780ec2c0c43b469529c8371340d7f596f94fb683f46d007ea42db81c97  .github/tmp/thunder02.b64
+          22a8ec42dbf5814c764c7415cf7ebf218226ae034da47832e133019060546377  .github/tmp/thunder03.b64
+          9be8053625e911235d636c6f760c0fe4b82aa3d85a407b8124d56aed3e7a79a5  .github/tmp/thunder04.b64
+          03f8d35bafc2396039e0ff3ce6f278a34b4a47cc0b978b4ef58439058ddf1e35  .github/tmp/thunder05.b64
+          3465165ac28c68f6cd04969beb011ee6f37508e5ebc7a5ef1f5112789aa96dad  .github/tmp/thunder06.b64
+          e0f34fff312268581044f60353fe7040815607d8eb81b0772b022d485e2cb812  .github/tmp/thunder07.b64
+          dd14c0665c4f486f01a2f8471025e80daaaaeb42c5b9d0795fabc0b002290b2d  .github/tmp/thunder08.b64
+          124efe5339ca44c52467b68fae35c8d77e936fea160626d87ee21ec0009b924f  .github/tmp/fix09a.b64
+          abda8483992312ddffa0f3642b2e491bf54fc9ecf76cfc637f2d6f61ce7bd499  .github/tmp/fix09b.b64
+          1052776d665c9b9dc4ae8eda9fb93edf161addd6daa3d39b8615c3f50ea9ca34  .github/tmp/thunder10.b64
+          9ef4d52e3d24d95c112e7fc91e5ce97e6f71616f07a51b07acce924356f83686  .github/tmp/thunder11.b64
+          21da8c8284079a13a4c7adcc9ce43e62c46a62bd06ddc7fc9acb242372c3cbac  .github/tmp/fix12a.b64
+          e0f357d9fc87ea62abf7239778611ab7567a539920808234908bea6f3ec06dac  .github/tmp/fix12b.b64
+          EOF
+          set +e
+          sha256sum -c /tmp/checks
+          status=$?
+          echo '--- actual sizes/hashes ---'
+          wc -c .github/tmp/thunder00.b64 .github/tmp/thunder01.b64 .github/tmp/thunder02.b64 .github/tmp/thunder03.b64 .github/tmp/thunder04.b64 .github/tmp/thunder05.b64 .github/tmp/thunder06.b64 .github/tmp/thunder07.b64 .github/tmp/thunder08.b64 .github/tmp/fix09a.b64 .github/tmp/fix09b.b64 .github/tmp/thunder10.b64 .github/tmp/thunder11.b64 .github/tmp/fix12a.b64 .github/tmp/fix12b.b64
+          sha256sum .github/tmp/thunder00.b64 .github/tmp/thunder01.b64 .github/tmp/thunder02.b64 .github/tmp/thunder03.b64 .github/tmp/thunder04.b64 .github/tmp/thunder05.b64 .github/tmp/thunder06.b64 .github/tmp/thunder07.b64 .github/tmp/thunder08.b64 .github/tmp/fix09a.b64 .github/tmp/fix09b.b64 .github/tmp/thunder10.b64 .github/tmp/thunder11.b64 .github/tmp/fix12a.b64 .github/tmp/fix12b.b64
+          exit $status
