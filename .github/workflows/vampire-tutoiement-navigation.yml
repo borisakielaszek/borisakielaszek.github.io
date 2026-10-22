@@ -23,7 +23,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add jeu-vampires-de-sarrebruck/index.html
           if ! git diff --cached --quiet; then
-            git commit -m "Complete tutoiement and action navigation"
+            git commit -m "Finish tutoiement cleanup"
             git push
           fi
-# v5.69b complete tutoiement audit
+# v5.69c final tutoiement audit
