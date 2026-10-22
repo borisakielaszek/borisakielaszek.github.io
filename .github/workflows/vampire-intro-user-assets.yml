@@ -44,7 +44,6 @@ jobs:
           print('Audio size:', size)
           assert data[:3] == b'ID3' or data[:2] in (b'\xff\xfb', b'\xff\xf3', b'\xff\xf2')
           PY
-          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
 
       - name: Replace intro with user thunder and lightning
         run: python3 .github/scripts/patch-intro-user-assets.py
