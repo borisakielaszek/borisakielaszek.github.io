@@ -19,6 +19,7 @@ jobs:
       - name: Rebuild exact user thunder
         shell: bash
         run: |
+          # Exact reconstruction after verified chunk corrections.
           cat \
             .github/tmp/thunder00.b64 \
             .github/tmp/thunder01.b64 \
