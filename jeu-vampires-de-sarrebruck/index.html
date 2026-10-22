@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-vh-eau-benite">
+<meta name="game-build" content="20261022-vh-gepetto">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1546,6 +1546,7 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
@@ -1747,6 +1748,7 @@ function render(){
      el('crucifixBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_cross'));
      el('consecratedWhipBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_whip'));
      el('holyWaterBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_water'));
+     el('gepettoBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_stake'));
    }
    el('exchangeBtn').disabled=!playable;
    const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
@@ -1829,7 +1831,7 @@ function aiDifficulty(){return S?.secretMode==='van_helsing'?'hard':S?.secretMod
 function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:false));
+ (id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?!p.gepettoUsed:false));
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
@@ -1841,7 +1843,8 @@ function secretPowersHTML(p){
  '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
  '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button>'+
  '<button type="button" id="consecratedWhipBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_whip')?'':'disabled')+'><strong>Fouet consacré</strong><span>'+(p.whipUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−1 goutte à tous les adversaires · aucune défausse</small></button>'+
- '<button type="button" id="holyWaterBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_water')?'':'disabled')+'><strong>Eau bénite de Gluckenburne</strong><span>'+(p.holyWaterUsed?'Déjà utilisée':'1 utilisation par partie')+'</span><small>Jusqu’à 2 adversaires · chacun −1 goutte et −1 carte au hasard</small></button></div>'+
+ '<button type="button" id="holyWaterBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_water')?'':'disabled')+'><strong>Eau bénite de Gluckenburne</strong><span>'+(p.holyWaterUsed?'Déjà utilisée':'1 utilisation par partie')+'</span><small>Jusqu’à 2 adversaires · chacun −1 goutte et −1 carte au hasard</small></button>'+
+ '<button type="button" id="gepettoBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_stake')?'':'disabled')+'><strong>Pieu pneumatique Gepetto</strong><span>'+(p.gepettoUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>Retire la moitié du sang de la cible, arrondie au supérieur · fonctionne sans marteau</small></button></div>'+
  '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
 }
 function secretPowerTargets(game,p){
@@ -1919,7 +1922,7 @@ async function useSecretPower(id){
    if(water){
      if(!Array.isArray(target)||target.length!==Math.min(2,available.length)||new Set(target).size!==target.length||!target.every(t=>available.includes(t)))return;
    }else if(collective?target!==true||!available.length:!available.includes(target))return;
-   if(id==='van_helsing_bolt')p.silverBolts--;else if(id==='van_helsing_cross')p.crucifixUsed=true;else if(id==='van_helsing_whip')p.whipUsed=true;else if(id==='van_helsing_water')p.holyWaterUsed=true;
+   if(id==='van_helsing_bolt')p.silverBolts--;else if(id==='van_helsing_cross')p.crucifixUsed=true;else if(id==='van_helsing_whip')p.whipUsed=true;else if(id==='van_helsing_water')p.holyWaterUsed=true;else if(id==='van_helsing_stake')p.gepettoUsed=true;
    used=true;closeHand();
    log(pName(p)+' utilise '+cardName(id)+'.','important');
    await executeAttack(p,id,{forcedTarget:collective||water?null:target,forcedTargets:water?target:null});
@@ -1974,7 +1977,7 @@ async function startGame(){
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const secretMode=secretModeForName(humanName);
  const human=players[0];
- if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;}
+ if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;human.holyWaterUsed=false;human.gepettoUsed=false;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
@@ -2142,6 +2145,7 @@ async function maybeGameOver(){
 
 function attackPreviewText(p,id){
  const dmg=attackBaseDamage(id);
+ if(id==='van_helsing_stake')return 'Gepetto retire la moitié des gouttes actuelles de la cible, arrondie au supérieur (5 gouttes → 3 perdues). Aucune carte à défausser. Attaque défendable, utilisable une fois par partie. Fonctionne sans marteau.';
  if(id==='van_helsing_water')return 'Les émanations touchent deux adversaires différents : chacun perd 1 goutte et 1 carte au hasard, sauf s’il se défend. En duel, seul l’adversaire présent est touché.';
  if(id==='van_helsing_whip')return 'Tous les adversaires vivants perdent 1 goutte de sang lors de la même attaque. Aucune carte à défausser. Chaque adversaire peut se défendre.';
  if(id==='van_helsing_bolt')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
@@ -2217,7 +2221,8 @@ function defenseStrategySummary(eligible,incoming){
  if(eligible.includes('lame'))tags.push('renvoyer l’attaque contre son auteur');
  if(eligible.some(x=>['empalement','furie','brume','tablettes'].includes(x)))tags.push('utiliser une défense adaptée à cette attaque');
  let txt=tags.length?`Tu peux ${tags.join(' ; ')}.`:'Choisis la carte de réaction que tu veux utiliser.';
- if(dmg>0)txt+=` Si tu ne te défends pas, tu subis l’attaque et perds ${dmg} goutte${dmg>1?'s':''}.`;
+ if(incoming==='van_helsing_stake')txt+=' Sans défense, tu perds la moitié de tes gouttes actuelles, arrondie au supérieur.';
+ else if(dmg>0)txt+=` Si tu ne te défends pas, tu subis l’attaque et perds ${dmg} goutte${dmg>1?'s':''}.`;
  else txt+=' Si tu ne te défends pas, tu subis normalement l’effet de la carte.';
  return txt;
 }
@@ -2306,7 +2311,7 @@ function canPlayAttack(p,id){
 
 async function showAttackReveal(attacker,target,id){
  if(!attacker||attacker.human||!id)return;
- const dmg=attackBaseDamage(id);
+ const dmg=attackBaseDamage(id,target);
  const targetLine=target?`${pName(attacker)} attaque <strong>${pName(target)}</strong> avec cette carte.`:`${pName(attacker)} joue cette carte contre ses adversaires.`;
  const damageLine=dmg>0?`Elle peut faire perdre <strong>${dmg} goutte${dmg>1?'s':''} de sang</strong>.`:``;
  const content=`<div class="immediate-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-kicker">⚔ Attaque</div><div class="scene-title">${cardName(id)}</div><div class="scene-text">${targetLine}${damageLine?`<br>${damageLine}`:''}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
@@ -2361,7 +2366,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,forcedTar
 async function maybeManfredBeforeHit(target,expectedDamage){if(expectedDamage<=0)return;if(target.vampire!=='manfred'||target.manfredUsed||target.hp>=playerMaxHp(target)||S.pool<=0)return;if(target.human){const v=await openModal({title:'Régénération partielle',text:`Tu peux utiliser maintenant le pouvoir de Manfred et gagner 1 goutte avant de subir l’attaque.`,buttons:[{label:'Utiliser +1 goutte',value:true,className:'good'},{label:'Pas maintenant',value:false}]});if(v)await useManfred(target)}else if(expectedDamage>=target.hp)await useManfred(target)}
 async function useManfred(p){if(p.vampire!=='manfred'||p.manfredUsed||S.pool<=0||p.hp>=playerMaxHp(p))return false;p.manfredUsed=true;await gainBlood(p,1,'régénération partielle de Manfred');return true}
 
-function attackBaseDamage(id){return({van_helsing_water:1,van_helsing_bolt:1,van_helsing_cross:2,van_helsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function attackBaseDamage(id,target=null){if(id==='van_helsing_stake')return target?Math.ceil(Math.max(0,target.hp)/2):1;return({van_helsing_water:1,van_helsing_bolt:1,van_helsing_cross:2,van_helsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
 function combatOutcomeMode(defense,id){
  if(!defense)return 'hit';
  if(defense==='lame')return 'reflect';
@@ -2460,7 +2465,7 @@ async function showCombatScene({attacker,target,attackId,defenseId=null,mode=nul
  if(!attacker||!target||!attackId)return;
  const finalMode=mode||combatOutcomeMode(defenseId,attackId);
  const atk=cardName(attackId),def=defenseId?cardName(defenseId):'';
- const damage=(effectSummary&&typeof effectSummary.damage==='number')?effectSummary.damage:attackBaseDamage(attackId);
+ const damage=(effectSummary&&typeof effectSummary.damage==='number')?effectSummary.damage:attackBaseDamage(attackId,target);
  const discarded=(effectSummary&&Array.isArray(effectSummary.discarded))?effectSummary.discarded:[];
  const discardedNames=discarded.map(cardName);
  let msg='',type='important';
@@ -2521,7 +2526,7 @@ function eligibleDefenses(target,id,uncounterable=false){
    if(!allowed)continue;
    if(barred&&!defenseOverridesBarredShield(defense,id))continue;
    // Plasma / Poche A+ ne sont jouables que si la cible survit aux dégâts initiaux.
-   if((defense==='plasma'||defense==='poche_aplus')&&target.hp<=attackBaseDamage(id))continue;
+   if((defense==='plasma'||defense==='poche_aplus')&&target.hp<=attackBaseDamage(id,target))continue;
    out.push(defense);
  }
  return [...new Set(out)];
@@ -2536,7 +2541,7 @@ async function showImmediateScene(player,id){
 async function chooseDefense(target,attacker,id,eligible){
  if(!eligible.length)return null;
  if(target.human){
-   const dmg=attackBaseDamage(id);
+   const dmg=attackBaseDamage(id,target);
    const danger=dmg>0?`Cette attaque peut te faire perdre <strong>${dmg} goutte${dmg>1?'s':''} de sang</strong>.`:'Cette attaque ne retire pas forcément de sang, mais elle peut avoir un effet dangereux.';
    const help=`Possibilité de défense : regarde plus bas.`;
    const previewText=CARD_EXPLAIN[id]||attackPreviewText(attacker,id)||'Effet indiqué sur la carte.';
@@ -2564,7 +2569,7 @@ async function chooseDefense(target,attacker,id,eligible){
 }
 function aiChooseDefense(t,a,id,eligible){
  if(!eligible.length)return null;
- const dmg=attackBaseDamage(id),diff=aiDifficulty();
+ const dmg=attackBaseDamage(id,t),diff=aiDifficulty();
  if(diff==='easy')return eligible[Math.floor(randomUnit()*eligible.length)];
  if(diff==='hard'){
    const ranked=eligible.map(d=>{
@@ -2599,7 +2604,7 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
  if(id==='poche_perimee'&&target.vampire==='ermanno'){
    if(target===attacker){await gainBlood(target,1,'Poche périmée sur lui-même')}else log(`Ermanno est immunisé contre la Poche périmée.`,'good');return;
  }
- await maybeManfredBeforeHit(target,attackBaseDamage(id));
+ await maybeManfredBeforeHit(target,attackBaseDamage(id,target));
  const defs=eligibleDefenses(target,id,uncounterable);
  if(target.human&&target!==attacker&&defs.length===0){
    const imparable=uncounterable||!!CARDS[id].unblockable;
@@ -2653,7 +2658,7 @@ async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
    if(target.vampire==='elisabetta'){log(`Elisabetta ne passe jamais son tour.`,'good');return summary}
    target.skipTurns+=2;log(`${pName(target)} devra passer ses 2 prochains tours.`,'bad');render();return summary
  }
- let dmg=damageOverride??attackBaseDamage(id);
+ let dmg=damageOverride??attackBaseDamage(id,target);
  if(dmg)summary.damage=await loseBlood(target,dmg,cardName(id));
  summary.eliminated=!target.alive;
  if(!target.alive)return summary;
@@ -2795,7 +2800,7 @@ async function aiTurn(p){
 // Ne consulte que les effets des cartes de l'IA et l'état public de Dracula.
 function aiDraculaHarm(attacker,id,target){
  if(aiKnownBadTarget(target,id)||(id==='impots'&&target.vampire==='ermanno'))return 0;
- const damage=attackBaseDamage(id);
+ const damage=attackBaseDamage(id,target);
  let harm=damage*10+(damage>=target.hp&&damage>0?100:0);
  if(id==='impots'||id==='lycanthrope')harm+=5;
  if(id==='meute')harm+=10;
@@ -2829,7 +2834,7 @@ function weightedAiPick(list,weightFn){
 // Uniquement des informations publiques, jamais le contenu des mains adverses.
 function aiPublicTargetScore(attacker,t,id){
  if(aiKnownBadTarget(t,id)||(id==='impots'&&t.vampire==='ermanno'))return -20;
- const dmg=id?attackBaseDamage(id):1;
+ const dmg=id?attackBaseDamage(id,t):1;
  let score=dmg*3;
  if(dmg>0&&t.hp<=dmg)score+=14;
  score+=t.hp*.35+t.hand.length*.3;
