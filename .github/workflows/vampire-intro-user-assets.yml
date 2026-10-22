@@ -19,6 +19,8 @@ jobs:
       - name: Rebuild exact user thunder
         shell: bash
         run: |
+          echo '--- staged chunk hashes ---'
+          sha256sum .github/tmp/thunder??.b64
           cat \
             .github/tmp/thunder00.b64 \
             .github/tmp/thunder01.b64 \
