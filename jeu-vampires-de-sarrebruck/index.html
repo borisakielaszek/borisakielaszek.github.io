@@ -1282,6 +1282,18 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .farewell-book-link:focus-visible{outline:4px solid #fff;outline-offset:3px;background:#ffffff18}
 .farewell-home{display:block;margin:16px auto 28px;padding:12px 20px;color:#f2ddb1;background:#161a25;border:1px solid #80633d;border-radius:12px;font:inherit;cursor:pointer}
 </style>
+<style id="discovery-features">
+.clan-story{max-width:780px;margin:0 auto;padding:40px 24px 64px;line-height:1.7;font-size:1.08rem}
+.clan-story h1{font-size:clamp(2.2rem,6vw,3.5rem);line-height:1.1;color:#f2dfba}
+.clan-story h2{color:#e7c989;margin-top:30px;font-size:1.45rem}
+.story-cover{display:block;width:min(100%,480px);height:auto;margin:24px auto;border-radius:12px;box-shadow:0 12px 45px #0008}
+.story-invitation{padding:20px;border-left:3px solid #a8804a;background:#161b27;border-radius:8px}
+.guide-step{font-family:system-ui,sans-serif;line-height:1.65;font-size:1.05rem}
+.guide-step h3{font-family:Georgia,serif;color:#e7c989;font-size:1.5rem}
+.guide-step li{margin:12px 0}
+.vampire-introduction img{display:block;width:100%;max-height:38vh;object-fit:contain;border-radius:12px;margin:0 auto 16px}
+.vampire-introduction .power-line{padding:10px 0;line-height:1.55;border-bottom:1px solid #ffffff18}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1316,10 +1328,30 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
         </select>
       </label>
       <button id="startBtn" type="button" class="primary big">Commencer la partie</button>
+      <button id="quickGuideBtn" type="button" class="big">Comprendre le jeu en une minute</button>
+      <button id="clanStoryBtn" type="button" class="big">Découvrir l’histoire des Vampires de Sarrebruck</button>
       <p class="tiny">La musique accompagne tes choix et pourra être coupée une fois la partie lancée.</p>
     </div>
   </section>
 
+  <section id="clanStoryScreen" class="screen hidden" aria-labelledby="clanStoryTitle">
+    <article class="clan-story">
+      <p class="eyebrow">Aux origines de la nuit</p>
+      <h1 id="clanStoryTitle" tabindex="-1">Deux clans. Une même soif.</h1>
+      <img class="story-cover" src="/assets/livres/vampires-sarrebruck.webp" alt="Le livre illustré Les Vampires de Sarrebruck">
+      <p>De part et d’autre de la frontière, deux familles de vampires ont chacune leur idée de la bonne manière de vivre… et de mordre.</p>
+      <h2>Les Von Dunkelwald, à Sarrebruck</h2>
+      <p>Installés dans l’illustre château de Sarrebruck, les Von Dunkelwald défendent un vampirisme rigoureux et organisé. Leur préférence ? Un mélange subtil de gewurztraminer et de sang bien relevé. Chez eux, même la soif a ses bonnes manières.</p>
+      <h2>Les Del Rattello, à Forbach</h2>
+      <p>Dans la tour du Schlossberg, les Del Rattello cultivent d’autres plaisirs : le sang bien gras et la saucisse à l’ail. Leur façon de vivre et leurs goûts sont à mille lieues de ceux de leurs voisins.</p>
+      <h2>Pourquoi cette rivalité ?</h2>
+      <p>Leur manière de mordre, de gérer leur cheptel humain, leur conception du bon goût : tout les sépare. Entre les deux clans, les différences nourrissent la rivalité.</p>
+      <h2>Un ancêtre et un mystérieux parchemin</h2>
+      <p>Mais un parchemin évoquant le trésor d’un lointain ancêtre commun vient bouleverser leurs habitudes. Les deux familles n’ont alors plus le choix : elles doivent coopérer. Reste à savoir combien de temps leurs bonnes résolutions résisteront…</p>
+      <p class="story-invitation">Dans le jeu, retrouve ces vampires et leurs pouvoirs au cours d’une nuit où tous les coups sont permis.</p>
+      <button id="clanStoryBackBtn" type="button" class="primary big">Retour à la préparation de la partie</button>
+    </article>
+  </section>
   <section id="gameScreen" class="screen game-screen hidden">
     <main class="duel-screen">
       <section id="opponentStage" class="vamp-stage opponent-stage" role="button" tabindex="0" aria-label="Adversaire — toucher pour voir ses compétences et ses cartes">
@@ -2615,6 +2647,64 @@ async function humanExchange(){if(!S?.awaitingHuman||actionBusy)return;const gam
 
 function showRules(){openModal({title:'Règles du jeu',content:`<div class="rules"><h3>But</h3><p>Être le dernier vampire encore en vie.</p><h3>Tour</h3><p>Une seule action : attaquer, se régénérer ou changer une carte. Après une attaque ou une régénération, tu pioches une carte. Une défense jouée hors de ton tour ne fait pas repiocher.</p><h3>Main</h3><p>Maximum 6 cartes, 7 pour Elisabetta ou le propriétaire des Sorcières d’Oeting. Quand les Sorcières sont piochées, leur propriétaire pioche immédiatement 1 carte supplémentaire ; cette carte ne remplace pas la pioche normale de fin de tour. Au début de ton tour, si tu as moins de 3 cartes, tu complètes jusqu’à 3.</p><h3>Sang</h3><p>5 gouttes au départ, sauf Draculito : 6. À 0 goutte, le vampire meurt immédiatement.</p><h3>Règle d’or</h3><p>Le texte d’une carte ou d’un pouvoir particulier prime sur les règles générales. Le texte d’une carte ou d’un pouvoir particulier reste prioritaire sur les règles générales.</p></div>`,buttons:[{label:'Fermer',value:true}],closable:true})}
 
+
+const DISCOVERY_STORAGE_KEY='vampires-discovery-seen-v1';
+function rememberDiscovery(){try{localStorage.setItem(DISCOVERY_STORAGE_KEY,'1');}catch(_){}}
+async function offerFirstNightGuide(){
+ try{if(localStorage.getItem(DISCOVERY_STORAGE_KEY)==='1')return;}catch(_){}
+ const choice=await openModal({
+   title:'Première nuit à Sarrebruck ?',
+   text:'Tu découvres le jeu ? Une minute suffit pour apprendre à survivre à la nuit.',
+   buttons:[{label:'Découvrir le jeu',value:'guide',className:'good'},{label:'Je connais déjà',value:'skip'}]
+ });
+ rememberDiscovery();
+ if(choice==='guide')await showQuickGuide();
+}
+async function showQuickGuide(){
+ const steps=[
+  {title:'Survis à la nuit',content:'<h3>Garde tes gouttes de sang !</h3><p>Ton objectif : être le dernier vampire encore en vie.</p><p>Tu commences avec <strong>5 gouttes de sang</strong>, ou <strong>6 avec Draculito</strong>. À zéro, tu es éliminé.</p><p>Choisis le nombre total de joueurs : tu affrontes les autres vampires, contrôlés par le jeu.</p>'},
+  {title:'À toi de jouer',content:'<h3>Une action à chaque tour</h3><ul><li><strong>Attaque</strong> un adversaire.</li><li><strong>Régénère-toi</strong> pour récupérer du sang.</li><li>Ou <strong>échange une carte</strong>.</li></ul><p>Après une attaque ou une régénération, tu pioches. Touche ton personnage pour voir ta main et consulte ses compétences.</p>'},
+  {title:'Réagis aux surprises',content:'<h3>Défenses et cartes Éclair</h3><p>Lorsqu’on t’attaque, les <strong>défenses utilisables</strong> te sont proposées. Un <strong>bouclier barré</strong> signale une attaque imparable, sauf exception écrite sur une carte.</p><p>Une <strong>carte à effet immédiat</strong> s’applique dès qu’elle est piochée : les éclairs l’annoncent.</p><p>Le menu <strong>Aide & options</strong> permet de consulter les règles pendant la partie.</p>'}
+ ];
+ let index=0;
+ while(index<steps.length){
+   const step=steps[index];
+   const result=await openModal({title:step.title,content:'<div class="guide-step"><p class="eyebrow">Guide rapide · '+(index+1)+' / '+steps.length+'</p>'+step.content+'</div>',buttons:[
+     ...(index>0?[{label:'Précédent',value:'back'}]:[]),
+     {label:index===steps.length-1?'À moi de jouer !':'Suivant',value:'next',className:'good'},
+     {label:'Passer le guide',value:'skip'}
+   ]});
+   if(result==='skip'||result==null)break;
+   if(result==='back')index--;else index++;
+ }
+ rememberDiscovery();
+}
+let confirmedVampireChoice='random';
+async function presentChosenVampire(){
+ const select=el('vampireChoice'),id=select.value;
+ if(id==='random'){confirmedVampireChoice=id;return;}
+ const vampire=VAMPIRES[id];if(!vampire)return;
+ const familyLabel=vampire.family==='dunkelwald'?'Clan Von Dunkelwald':vampire.family==='rattello'?'Clan Del Rattello':'Ancêtre commun aux deux clans';
+ const accepted=await openModal({
+   title:vampire.name,
+   content:'<div class="vampire-introduction"><img src="'+imgVamp({vampire:id})+'" alt="'+vampire.name+'"><p class="eyebrow">'+familyLabel+'</p><p>'+vampire.maxHp+' gouttes de sang au départ · '+vampire.maxHand+' cartes maximum en main</p><div class="drawer-powers">'+vampPowerHTML({vampire:id})+'</div></div>',
+   buttons:[{label:'Choisir ce vampire',value:true,className:'good'},{label:'Retour à la liste',value:false}]
+ });
+ if(accepted)confirmedVampireChoice=id;else select.value=confirmedVampireChoice;
+}
+function showClanStory(){
+ el('startScreen').classList.add('hidden');
+ el('clanStoryScreen').classList.remove('hidden');
+ window.scrollTo(0,0);
+ el('clanStoryTitle').focus({preventScroll:true});
+}
+function closeClanStory(){
+ el('clanStoryScreen').classList.add('hidden');
+ el('startScreen').classList.remove('hidden');
+ window.scrollTo(0,0);
+ el('clanStoryBtn').focus({preventScroll:true});
+}
+
 function init(){
  const sel=el('vampireChoice');
  for(const [id,v] of Object.entries(VAMPIRES)){
@@ -2719,6 +2809,7 @@ function enterNight(e){
    window.scrollTo(0,0);
    if(a&&musicEnabled){try{a.currentTime=0;a.volume=.22;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(_){} }
    refreshMusicButton();
+   offerFirstNightGuide();
  };
  if(hiss){try{hiss.addEventListener('ended',finishIntro,{once:true});}catch(_){} }
  // Sécurité : le fichier monté dure environ 6,4 s ; l’événement ended reste prioritaire.
@@ -2763,6 +2854,10 @@ function wireUI(){
  const startBtn=el('startBtn');
  el('enterNightBtn').addEventListener('click',enterNight); el('enterNightBtn').addEventListener('pointerup',e=>{e.preventDefault();enterNight();},{passive:false});
  el('musicToggle').addEventListener('click',toggleMusic);
+ el('quickGuideBtn').addEventListener('click',showQuickGuide);
+ el('clanStoryBtn').addEventListener('click',showClanStory);
+ el('clanStoryBackBtn').addEventListener('click',closeClanStory);
+ el('vampireChoice').addEventListener('change',presentChosenVampire);
  startBtn.addEventListener('click',async()=>{
    if(startBtn.disabled)return;
    startBtn.disabled=true;
@@ -2789,13 +2884,7 @@ function wireUI(){
    el('farewellScreen').scrollTop=0;
    el('farewellScreen').querySelector('a').focus({preventScroll:true});
  });
- el('farewellCloseBtn').addEventListener('click',()=>{
-   const screen=el('farewellScreen');
-   screen.innerHTML='<div role="status" tabindex="-1" style="min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:32px;color:#f2ddb1"><h1>La partie est terminée.</h1><p>Tu peux fermer cet onglet.</p></div>';
-   screen.scrollTop=0;
-   screen.querySelector('[role="status"]').focus();
-   try{window.close();}catch(_){}
- });
+ el('farewellCloseBtn').addEventListener('click',()=>{window.location.href='https://borisakielaszek.github.io/';});
  el('restartBtn').addEventListener('click',()=>{if(confirm('Recommencer la partie ?'))location.reload()});
  el('humanStage').addEventListener('click',openHand);
  el('humanStage').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openHand()}});
