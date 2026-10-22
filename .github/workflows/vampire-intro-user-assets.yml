@@ -1,0 +1,71 @@
+name: Vampire intro user assets
+
+on:
+  push:
+    paths:
+      - '.github/workflows/vampire-intro-user-assets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch exact thunder source from Pixabay
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import html, re, urllib.request
+          page='https://pixabay.com/sound-effects/nature-thunder-clap-512544/'
+          headers={'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36','Referer':'https://pixabay.com/'}
+          req=urllib.request.Request(page,headers=headers)
+          raw=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','ignore')
+          decoded=html.unescape(raw).replace('\\/','/').replace('\\u0026','&')
+          patterns=[
+            r'https://cdn\.pixabay\.com/download/audio/[^"\'<>\\\s]+',
+            r'https://[^"\'<>\\\s]*thunder-clap-512544\.mp3[^"\'<>\\\s]*',
+          ]
+          urls=[]
+          for pat in patterns:
+            urls += re.findall(pat,decoded)
+          urls=[u.rstrip('\\') for u in urls]
+          urls=list(dict.fromkeys(urls))
+          if not urls:
+            hits=[decoded[max(0,m.start()-300):m.start()+500] for m in re.finditer('512544',decoded)]
+            print('\n--- PAGE DEBUG ---\n'.join(hits[:5]))
+            raise SystemExit('Could not find Pixabay mp3 URL')
+          print('Candidates:',urls[:5])
+          audio_url=next((u for u in urls if 'cdn.pixabay.com' in u and '.mp3' in u),urls[0])
+          req=urllib.request.Request(audio_url,headers=headers)
+          data=urllib.request.urlopen(req,timeout=60).read()
+          print('Downloaded bytes:',len(data),'from',audio_url)
+          if len(data)<10000:
+            raise SystemExit('Downloaded audio is unexpectedly small')
+          open('/tmp/thunder-source.mp3','wb').write(data)
+          PY
+
+      - name: Trim initial silence and encode clean thunder
+        shell: bash
+        run: |
+          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 /tmp/thunder-source.mp3
+          ffmpeg -y -hide_banner -loglevel error -ss 0.58 -t 4.80 -i /tmp/thunder-source.mp3 -af 'afade=t=out:st=4.55:d=0.25' -ac 1 -ar 44100 -c:a libmp3lame -b:a 96k jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
+          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
+
+      - name: Replace intro with user thunder and lightning
+        run: python3 .github/scripts/patch-intro-user-assets.py
+
+      - name: Commit corrected intro
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html jeu-vampires-de-sarrebruck/assets/thunder-intro-user.mp3
+          if ! git diff --cached --quiet; then
+            git commit -m "Use user thunder sound and lightning artwork"
+            git push
+          fi
