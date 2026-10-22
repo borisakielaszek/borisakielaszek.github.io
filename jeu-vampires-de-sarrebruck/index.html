@@ -1294,6 +1294,17 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .vampire-introduction img{display:block;width:100%;max-height:38vh;object-fit:contain;border-radius:12px;margin:0 auto 16px}
 .vampire-introduction .power-line{padding:10px 0;line-height:1.55;border-bottom:1px solid #ffffff18}
 </style>
+<style>
+.secret-mode-info{color:#f1d389;margin-top:12px;font-weight:700}
+.secret-power-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:12px}
+button.secret-power{border:2px solid #bd9446!important;background:linear-gradient(145deg,#443115,#171009)!important;color:#ffe3a1!important;padding:15px!important;border-radius:12px;text-align:left;white-space:normal}
+.secret-power strong,.secret-power span,.secret-power small{display:block}
+.secret-power strong{font-size:1.1rem;margin-bottom:7px}
+.secret-power span,.secret-power small{font-size:.9rem;line-height:1.5}
+.secret-power:disabled{opacity:.45;cursor:default}
+.gold-blood{color:#f4ce68;white-space:nowrap}
+.gold-blood svg{vertical-align:middle}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1518,6 +1529,8 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/8e717dfc6c59c6edec3a.png',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/8e717dfc6c59c6edec3a.png',qty:0,kind:'attack',secretPower:true},
  impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
  marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
  cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
@@ -1707,7 +1720,11 @@ function render(){
    fillHand('otherHand','otherSection',otherCards);
    [...document.querySelectorAll('#humanPanel .hand-card')].forEach(n=>n.addEventListener('click',()=>humanCardClick(Number(n.dataset.index))));
    const hc=el('drawerHandCount');if(hc)hc.textContent=` — ${VAMPIRES[h.vampire].name} — ${h.hand.length} / ${maxHand(h)} cartes`;
-  const hpw=el('humanPowers'); if(hpw) hpw.innerHTML=`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}`;
+  const hpw=el('humanPowers'); if(hpw){
+     hpw.innerHTML=`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
+     el('silverBoltBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bolt'));
+     el('crucifixBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_cross'));
+   }
    el('exchangeBtn').disabled=!playable;
    const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<VAMPIRES[h.vampire].maxHp&&S.pool>0&&h.alive;
    el('manfredBtn').classList.toggle('hidden',h.vampire!=='manfred');
@@ -1724,7 +1741,7 @@ function playerCardHTML(p,current,isHuman=false){
 }
 function playerInfoBarHTML(p,isHuman=false){
  if(!p)return '';
- if(isHuman)return `<div class="vamp-info-main"><strong>${p.name||'Toi'}</strong><span>${VAMPIRES[p.vampire].name}</span></div><div class="vamp-info-blood">🩸 × ${p.hp}</div>`;
+ if(isHuman)return `<div class="vamp-info-main"><strong>${p.name||'Toi'}</strong><span>${VAMPIRES[p.vampire].name}</span></div><div class="vamp-info-blood">${bloodDisplayHTML(p)}</div>`;
  return `<div class="vamp-info-main"><strong>${VAMPIRES[p.vampire].name} (IA)</strong></div><div class="vamp-info-blood">🩸 × ${p.hp}</div>`;
 }
 
@@ -1779,7 +1796,47 @@ function renderPlayerNameFields(){
  wrap.innerHTML=`<div class="player-name-row"><label for="playerName0">Ton prénom</label><input id="playerName0" maxlength="22" autocomplete="off" placeholder="Ton prénom" value="${previous.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"></div>`;
 }
 function getSetupPlayerName(){return safePlayerName(el('playerName0')?.value,'Toi')}
-function aiDifficulty(){return S?.difficulty||'normal'}
+function secretModeForName(name){
+ const key=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,' ').trim();
+ return key==='dracula'?'dracula':key==='van helsing'?'van_helsing':null;
+}
+function aiDifficulty(){return S?.secretMode==='van_helsing'?'hard':S?.secretMode==='dracula'?'easy':S?.difficulty||'normal'}
+function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
+function secretPowerAvailable(p,id){
+ return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
+ (id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:false));
+}
+function secretPowersHTML(p){
+ if(!p?.human||!S?.secretMode)return '';
+ if(S.secretMode==='dracula')return '<div class="secret-mode-info">✦ Dracula — '+(p.goldBlood||0)+' goutte(s) d’or restante(s). Les IA te ménagent.</div>';
+ return '<div class="secret-mode-info">✦ Van Helsing — Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
+ '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
+ '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button></div>'+
+ '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
+}
+async function useSecretPower(id){
+ const game=S,p=game?.players.find(x=>x.human);
+ if(!secretPowerAvailable(p,id))return;
+ actionBusy=true;render();let used=false;
+ try{
+   const targets=alivePlayers().filter(t=>t!==p);
+   const target=await choosePlayer('Choisis la cible — '+cardName(id),targets,true);
+   if(S!==game||game.gameOver||!target?.alive||!p.alive)return;
+   const confirmed=await openModal({title:cardName(id),text:(id==='van_helsing_bolt'?'La cible perd 1 goutte et 1 carte au hasard.':'La cible perd 2 gouttes, sans perdre de carte.')+' Cette attaque est défendable et remplace ton action du tour.',buttons:[{label:'Utiliser le pouvoir',value:true,className:'secret-power'},{label:'Annuler',value:false}],closable:true});
+   if(S!==game||game.gameOver||!confirmed||!target.alive||!p.alive)return;
+   if(id==='van_helsing_bolt')p.silverBolts--;else p.crucifixUsed=true;
+   used=true;closeHand();
+   log(pName(p)+' utilise '+cardName(id)+'.','important');
+   await executeAttack(p,id,{forcedTarget:target});
+   if(S===game&&!game.gameOver)await finishAction(p,true);
+ }finally{
+   if(S===game){actionBusy=false;render();if(used)endHumanTurn();}
+ }
+}
+function bloodDisplayHTML(p){
+ const gold=Math.min(p.hp,p.goldBlood||0);
+ return '🩸 × '+(p.hp-gold)+(gold?' <span class="gold-blood" aria-label="'+gold+' gouttes de sang en or"><svg viewBox="0 0 24 28" width="16" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C9 7 2 13 2 18a10 10 0 0 0 20 0C22 13 15 7 12 0Z"/></svg> × '+gold+'</span>':'');
+}
 function haptic(ms=18){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
 function pressFeedback(node){if(!node||node.disabled)return;node.classList.add('tap-pressed');setTimeout(()=>node.classList.remove('tap-pressed'),125)}
 async function showTurnNotice(p){
@@ -1818,11 +1875,17 @@ async function startGame(){
  actionBusy=false;humanTurnResolve=null;
  const count=Number(el('playerCount').value), chosen=el('vampireChoice').value, humanName=getSetupPlayerName();let vids=shuffle(Object.keys(VAMPIRES).slice());let hv=chosen==='random'?vids.shift():chosen;if(chosen!=='random')vids=vids.filter(v=>v!==chosen);
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
+ const secretMode=secretModeForName(humanName);
+ const human=players[0];
+ if(secretMode==='van_helsing'){human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
- S={players,deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value};
+ S={players,deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
+ if(secretMode==='dracula'){human.hp+=2;human.goldBlood=2;}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');switchToGameMusic();refreshMusicButton();
+ if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires et des adversaires indulgents.','good');
+ if(secretMode==='van_helsing')log('✦ Van Helsing : '+human.silverBolts+' carreau(x) d’argent, un crucifix et une pression stratégique renforcée de 10 %.','important');
  log(`La nuit commence à Sarrebruck. ${pName(players[S.turnIndex])} commence la partie.`,'important');
  render();await sleep(350);gameLoop();
 }
@@ -1835,7 +1898,7 @@ function removeOneFromHand(p,id,toDiscard=true){const i=p.hand.indexOf(id);if(i<
 async function gainBlood(p,n,why=''){
  if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0){log(`${pName(p)} est déjà au maximum de sang.`);return 0}const take=Math.min(n,room,S.pool);p.hp+=take;S.pool-=take;if(take)log(`${pName(p)} gagne ${take} goutte${take>1?'s':''} de sang${why?` (${why})`:''}.`,'good');if(take<n&&room>take)log(`La réserve commune ne contient pas assez de sang.`);render();return take}
 async function loseBlood(p,n,why=''){
- if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;p.goldBlood=Math.max(0,(p.goldBlood||0)-loss);S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
 async function showHumanEliminationScene(p){
  playEndgameMusic('defeatMusic');
  const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${ENDGAME_LOSE_ART}" alt="Éliminé ! Tu as succombé à la nuit"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
@@ -1844,7 +1907,7 @@ async function showHumanEliminationScene(p){
  stopEndgameMusic({resumeGame:gameContinues});
 }
 async function eliminate(p){if(!p.alive)return;p.alive=false;for(const id of p.hand)discardCard(id);p.hand=[];if(p.witches){p.witches=false;discardCard('sorcieres')}log(`☠ ${pName(p)} — ${VAMPIRES[p.vampire].name} — est éliminé.`,'bad');render();if(p.human&&!p.eliminationShown){p.eliminationShown=true;await showHumanEliminationScene(p)}}
-async function stealBlood(from,to,n=1){const game=S;for(let k=0;k<n;k++){if(!game||S!==game||game.gameOver||!game.players.includes(from)||!game.players.includes(to))return;if(!from.alive||from.hp<=0)break;from.hp--;const room=VAMPIRES[to.vampire].maxHp-to.hp;if(room>0)to.hp++;else S.pool++;log(`${pName(to)} vole 1 goutte à ${pName(from)}.`,'good');if(from.hp<=0)await eliminate(from)}render()}
+async function stealBlood(from,to,n=1){const game=S;for(let k=0;k<n;k++){if(!game||S!==game||game.gameOver||!game.players.includes(from)||!game.players.includes(to))return;if(!from.alive||from.hp<=0)break;from.hp--;from.goldBlood=Math.max(0,(from.goldBlood||0)-1);const room=VAMPIRES[to.vampire].maxHp-to.hp;if(room>0)to.hp++;else S.pool++;log(`${pName(to)} vole 1 goutte à ${pName(from)}.`,'good');if(from.hp<=0)await eliminate(from)}render()}
 
 async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
  const isHuman=!!player?.human;
@@ -1981,6 +2044,8 @@ async function maybeGameOver(){
 
 function attackPreviewText(p,id){
  const dmg=attackBaseDamage(id);
+ if(id==='van_helsing_bolt')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
+ if(id==='van_helsing_cross')return 'La cible perd 2 gouttes de sang. Cette attaque est défendable.';
  if(id==='hypnose'){
    if(p.vampire==='elisabetta') return `Tu peux hypnotiser un adversaire et <strong>lui voler une carte</strong>. Avec Elisabetta, tu peux aussi choisir de voler <strong>2 gouttes</strong>, une à deux vampires différents.`;
    return `Tu peux hypnotiser un adversaire, regarder sa main et <strong>lui voler la carte de ton choix</strong>.`;
@@ -2158,7 +2223,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,uncounter
  }
  if(id==='hypnose'&&attacker.vampire==='elisabetta'&&!forcedTarget){
    const others=alivePlayers().filter(t=>t!==attacker);const normal=others.filter(t=>t.vampire!=='elisabetta'&&(t.hand.length||t.witches));
-   let mode='normal';if(others.length>=2){if(attacker.human)mode=await openModal({title:'Hypnose — pouvoir d’Elisabetta',text:'Choisis l’effet de ton Hypnose.',buttons:[{label:'Voler 1 carte',value:'normal'},{label:'Voler 2 gouttes (1 à deux vampires différents)',value:'blood',className:'good'},{label:'Annuler',value:'cancel'}],closable:true});else mode=attacker.hp<VAMPIRES[attacker.vampire].maxHp?'blood':'normal'}
+   let mode='normal';if(others.length>=2){if(attacker.human)mode=await openModal({title:'Hypnose — pouvoir d’Elisabetta',text:'Choisis l’effet de ton Hypnose.',buttons:[{label:'Voler 1 carte',value:'normal'},{label:'Voler 2 gouttes (1 à deux vampires différents)',value:'blood',className:'good'},{label:'Annuler',value:'cancel'}],closable:true});else mode=attacker.hp<VAMPIRES[attacker.vampire].maxHp&&!(S.secretMode==='dracula'&&others.some(isDraculaPlayer)&&others.length<3)?'blood':'normal'}
    if(mode==='cancel'||!mode)return false;
    if(mode==='blood'){let first=attacker.human?await choosePlayer('Premier vampire à saigner',others):aiTarget(attacker,others);let rem=others.filter(x=>x!==first);let second=attacker.human?await choosePlayer('Deuxième vampire à saigner',rem):aiTarget(attacker,rem);await stealBlood(first,attacker,1);if(second.alive)await stealBlood(second,attacker,1);return true}
    if(!normal.length)return false;
@@ -2172,7 +2237,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,uncounter
 async function maybeManfredBeforeHit(target,expectedDamage){if(expectedDamage<=0)return;if(target.vampire!=='manfred'||target.manfredUsed||target.hp>=VAMPIRES[target.vampire].maxHp||S.pool<=0)return;if(target.human){const v=await openModal({title:'Régénération partielle',text:`Tu peux utiliser maintenant le pouvoir de Manfred et gagner 1 goutte avant de subir l’attaque.`,buttons:[{label:'Utiliser +1 goutte',value:true,className:'good'},{label:'Pas maintenant',value:false}]});if(v)await useManfred(target)}else if(expectedDamage>=target.hp)await useManfred(target)}
 async function useManfred(p){if(p.vampire!=='manfred'||p.manfredUsed||S.pool<=0||p.hp>=VAMPIRES[p.vampire].maxHp)return false;p.manfredUsed=true;await gainBlood(p,1,'régénération partielle de Manfred');return true}
 
-function attackBaseDamage(id){return({impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function attackBaseDamage(id){return({van_helsing_bolt:1,van_helsing_cross:2,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
 function combatOutcomeMode(defense,id){
  if(!defense)return 'hit';
  if(defense==='lame')return 'reflect';
@@ -2441,6 +2506,12 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false}={}
      await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode,effectSummary:summary});
      return;
    }
+   if(CARDS[id].secretPower&&(defense==='plasma'||defense==='poche_aplus')){
+     const summary=await applyAttackEffect(attacker,target,id,{});
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode,effectSummary:summary});
+     if(target.alive)await gainBlood(target,defense==='plasma'?2:1,cardName(defense));
+     return;
+   }
    await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode});
    if(defense==='plasma')postHeal=2;else if(defense==='poche_aplus')postHeal=1;else if(defense==='empalement'){await loseBlood(attacker,1,'contre-attaque de l’Empalement');return}else return;
  }else{
@@ -2462,6 +2533,12 @@ async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  if(dmg)summary.damage=await loseBlood(target,dmg,cardName(id));
  summary.eliminated=!target.alive;
  if(!target.alive)return summary;
+ if(id==='van_helsing_bolt'&&target.hand.length){
+   const index=Math.floor(randomUnit()*target.hand.length);
+   const lost=removeHandIndex(target,index,true);
+   summary.discarded.push(lost);
+   log(pName(target)+' perd au hasard '+cardName(lost)+' sous le carreau d’argent.','bad');
+ }
  if(id==='impots')summary.discarded=await discardRandomOrChosen(target,1,'Impôts et taxes : défausse 1 carte.');
  if(id==='meute')summary.discarded=await discardRandomOrChosen(target,2,'Meute de loups-garous : défausse 2 cartes.');
  if(id==='lycanthrope')summary.discarded=await discardRandomOrChosen(target,1,'Attaque de loup-garou : défausse 1 carte.');
@@ -2566,7 +2643,7 @@ async function resolveHexennacht(starter){
  render();
 }
 
-async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
+async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates,p);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
 async function applyFreeCardEffect(p,id){const c=CARDS[id];if(c.kind==='attack'||c.kind==='hybrid'){await executeAttack(p,id,{free:true})}else if(c.kind==='regen'){await executeRegen(p,id)}else if(c.kind==='immediate'){if(id==='sorcieres'){const pos=S.discard.lastIndexOf('sorcieres');if(pos>=0)S.discard.splice(pos,1);await resolveImmediate(p,id)}else await resolveImmediate(p,id)}else log(`${cardName(id)} est une défense : son effet ne peut pas être appliqué maintenant.`)}
 
 async function aiTurn(p){
@@ -2579,8 +2656,28 @@ async function aiTurn(p){
    const playable=options.filter(o=>o.mode&&o.score>=1);
    if(playable.length)choice=playable[Math.floor(randomUnit()*playable.length)];
  }
+ if(S?.secretMode==='dracula'&&choice?.mode==='attack'){
+   const dracula=alivePlayers().find(isDraculaPlayer);
+   if(dracula){
+     const attacks=options.filter(o=>o.mode==='attack'&&o.score>=1);
+     const safe=attacks.filter(o=>o.id!=='impots'&&validAttackTargets(p,o.id).some(t=>t!==dracula&&!aiKnownBadTarget(t,o.id)));
+     if(safe.length)choice=safe[0];
+     else if(attacks.length)choice=attacks.reduce((best,o)=>aiDraculaHarm(p,o.id,dracula)<aiDraculaHarm(p,best.id,dracula)?o:best);
+   }
+ }
  if(!choice||choice.score<1){const idx=aiWorstCardIndex(p);const id=removeHandIndex(p,idx,true);log(`${pName(p)} change ${cardName(id)}.`);await drawOneToHand(p);return}
  const id=choice.id;removeHandIndex(p,choice.i,false);discardCard(id);log(`${pName(p)} joue ${cardName(id)}.`,'important');if(choice.mode==='attack')await executeAttack(p,id);else if(choice.mode==='regen')await executeRegen(p,id);else if(choice.mode==='convert1')await gainBlood(p,1,'conversion de Rüdiger');else if(choice.mode==='convert2')await gainBlood(p,2,'conversion de Rüdiger');else if(choice.mode==='ermanno_self')await gainBlood(p,1,'Poche périmée sur lui-même');await finishAction(p,true)
+}
+// Ne consulte que les effets des cartes de l'IA et l'état public de Dracula.
+function aiDraculaHarm(attacker,id,target){
+ if(aiKnownBadTarget(target,id)||(id==='impots'&&target.vampire==='ermanno'))return 0;
+ const damage=attackBaseDamage(id);
+ let harm=damage*10+(damage>=target.hp&&damage>0?100:0);
+ if(id==='impots'||id==='lycanthrope')harm+=5;
+ if(id==='meute')harm+=10;
+ if(id==='hypnose')harm+=target.hand.length?6:0;
+ if(id==='saint_nicolas')harm+=18;
+ return harm;
 }
 function aiKnownBadTarget(target,attackId){
  if(!attackId)return false;
@@ -2614,12 +2711,17 @@ function aiPublicTargetScore(attacker,t,id){
  score+=t.hp*.35+t.hand.length*.3;
  if(id==='hypnose')score+=t.hand.length+(t.witches?5:0);
  if(id==='saint_nicolas')score+=t.hand.length;
+ if(S?.secretMode==='van_helsing'&&t.human)score*=1.10;
  return score;
 }
 function aiTarget(attacker,cands,attackId=null){
  let pool=cands.filter(t=>t&&t.alive&&t!==attacker);
  if(!pool.length)return null;
  const diff=aiDifficulty();
+ if(S?.secretMode==='dracula'){
+   const others=pool.filter(t=>!isDraculaPlayer(t));
+   if(others.length)pool=others;
+ }
  const sensible=pool.filter(t=>!aiKnownBadTarget(t,attackId));
  if(sensible.length)pool=sensible;
  let chosen;
@@ -2641,8 +2743,20 @@ function aiAttackScore(p,id){const dmg=attackBaseDamage(id);let s=dmg*4;if(id===
  return s;
 }return s+randomUnit()*2}
 function aiRegenScore(p,id){const missing=VAMPIRES[p.vampire].maxHp-p.hp;if(id==='gewurz'&&!family(p,'dunkelwald'))return p.hand.includes('tablettes')?0:-7;if(id==='saucisson'&&!family(p,'rattello'))return p.hand.includes('tablettes')?0:-7;if(missing<=0)return -4;let g=1;if(id==='chateau')g=p.vampire==='rudiger'?3:(family(p,'dunkelwald')?2:1);if(id==='tour_schlossberg')g=family(p,'rattello')?2:1;if(id==='gewurz')g=p.vampire==='ilsa'?2:1;return g*4+missing+(aiDifficulty()==='hard'?(p.hp<=2?9:0)-Math.max(0,g-missing)*3:0)}
-function aiWorstCardIndex(p){let worst=Infinity,wi=0;p.hand.forEach((id,i)=>{let v=CARDS[id].kind==='defense'?5:CARDS[id].kind==='regen'?4:6;if(id==='lame')v=10;if(id==='fuite_chauve')v=8;if(id==='plasma')v=7;if(id==='poche_aplus')v=6;if(id==='tablettes')v=4;if(v<worst){worst=v;wi=i}});return wi}
-function aiBestDiscardEffect(cards){let bi=0,bs=-99;cards.forEach((id,i)=>{let s=0;if(CARDS[id].kind==='attack'||CARDS[id].kind==='hybrid')s=aiAttackScore({vampire:'draco'},id);if(CARDS[id].kind==='regen')s=4;if(CARDS[id].kind==='immediate')s=5;if(CARDS[id].kind==='defense')s=-2;if(s>bs){bs=s;bi=i}});return bi}
+function aiWorstCardIndex(p){
+ if(S?.secretMode==='van_helsing'){
+   let bestIndex=0,lowest=Infinity;
+   p.hand.forEach((id,i)=>{
+     const kind=CARDS[id].kind;
+     let value=kind==='regen'?aiRegenScore(p,id):kind==='defense'?7:aiAttackScore(p,id);
+     if(kind==='defense'&&p.hp<=2)value+=5;
+     if(p.hand.filter(x=>x===id).length>1)value-=2;
+     if(value<lowest){lowest=value;bestIndex=i;}
+   });
+   return bestIndex;
+ }
+ let worst=Infinity,wi=0;p.hand.forEach((id,i)=>{let v=CARDS[id].kind==='defense'?5:CARDS[id].kind==='regen'?4:6;if(id==='lame')v=10;if(id==='fuite_chauve')v=8;if(id==='plasma')v=7;if(id==='poche_aplus')v=6;if(id==='tablettes')v=4;if(v<worst){worst=v;wi=i}});return wi}
+function aiBestDiscardEffect(cards,p){let bi=0,bs=-99;cards.forEach((id,i)=>{let s=0;if(CARDS[id].kind==='attack'||CARDS[id].kind==='hybrid')s=aiAttackScore(p,id);if(CARDS[id].kind==='regen')s=4;if(CARDS[id].kind==='immediate')s=5;if(CARDS[id].kind==='defense')s=-2;if(s>bs){bs=s;bi=i}});return bi}
 
 async function humanExchange(){if(!S?.awaitingHuman||actionBusy)return;const game=S;const p=S.players.find(x=>x.human);actionBusy=true;try{const idx=await chooseCardFromHand(p,'Choisis la carte à changer',()=>true,true);if(S!==game||game.gameOver||idx==null)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} change ${cardName(id)}.`);log(`Fin du tour de ${pName(p)} : tu pioches 1 carte.`,'important');await drawOneToHand(p,'exchange');if(S===game)endHumanTurn()}finally{if(S===game){actionBusy=false;render()}}}
 
