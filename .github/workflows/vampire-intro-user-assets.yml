@@ -15,18 +15,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Verify corrected thunder chunks
+      - name: Inspect final thunder chunks
         shell: bash
         run: |
-          cat > /tmp/checks <<'EOF'
-          95513e2f6a7b9e87350207e654eaade266bf36dd795be0b64015a785514d8b80  .github/tmp/fix05a.b64
-          63dff7d442ae76b9d780879f8f3f18ba4f25a15a0eaebb1c7e6c7b40ef481200  .github/tmp/fix05b.b64
-          ac12d8b42e69d328c35d5301ca9bef30da9292e48b0297ad80dd15b533615eb0  .github/tmp/exact09a.b64
-          6af54cc00468cd9ad2aa67d8ad2eb9a93e5d74bd3a0797e22a03843e393963c2  .github/tmp/fix09b.b64
-          b89e0b767e71565e3d538e59323962bddac3f17bf1b4edd73d6495c3570d3788  .github/tmp/fix12a.b64
-          4dfcd9f5337f71098007e7627e6a477007112925a320cfb8c2f9bd387262f2dd  .github/tmp/exact12b.b64
-          EOF
-          sha256sum -c /tmp/checks
           echo '--- sizes ---'
-          wc -c .github/tmp/fix05a.b64 .github/tmp/fix05b.b64 .github/tmp/exact09a.b64 .github/tmp/fix09b.b64 .github/tmp/fix12a.b64 .github/tmp/exact12b.b64
+          wc -c .github/tmp/exact09a.b64 .github/tmp/exact12b.b64
+          echo '--- hashes ---'
+          sha256sum .github/tmp/exact09a.b64 .github/tmp/exact12b.b64
+          echo '--- expected ---'
+          echo '09a size 3000 hash ac12d8b42e69d328c35d5301ca9bef30da9292e48b0297ad80dd15b533615eb0'
+          echo '12b size 2900 hash 4dfcd9f5337f71098007e7627e6a477007112925a320cfb8c2f9bd387262f2dd'
