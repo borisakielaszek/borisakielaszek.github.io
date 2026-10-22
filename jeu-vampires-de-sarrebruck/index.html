@@ -1353,6 +1353,23 @@ body.van-helsing-mode .helsing-ammo-art{display:grid;place-items:center;font-siz
 body.van-helsing-mode .helsing-stock{font-weight:bold;color:#ffe3a0}
 @media(max-width:550px){body.van-helsing-mode .secret-power-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}body.van-helsing-mode .helsing-gear-image,body.van-helsing-mode .helsing-ammo-art{height:130px}body.van-helsing-mode #humanPanel{padding:0 8px 16px!important}}
 </style>
+<style id="desktop-action-centering">
+@media(min-width:901px){
+ #humanPanel>.drawer-head,
+ #humanPanel>.drawer-powers,
+ #humanPanel>.drawer-help,
+ #humanPanel>.drawer-choice-title,
+ #humanPanel>.action-card-groups{
+  width:100%!important;max-width:1000px!important;
+  margin-left:auto!important;margin-right:auto!important;
+ }
+ #humanPanel>.drawer-help{margin-top:12px!important;margin-bottom:12px!important}
+ #humanPanel .drawer-help .action-option{
+  grid-template-columns:auto auto!important;justify-content:center!important;text-align:center!important;
+ }
+ #humanPanel .drawer-help .action-detail{text-align:center!important}
+}
+</style>
 </head>
 <body>
 <div id="app">
