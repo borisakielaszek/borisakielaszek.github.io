@@ -15,6 +15,7 @@ tutoiement = {
     'Effet immédiat : gagnez 2 gouttes de sang.': 'Effet immédiat : gagne 2 gouttes de sang.',
     'Effet immédiat : gagnez 1 goutte de sang.': 'Effet immédiat : gagne 1 goutte de sang.',
     'Effet immédiat : gagnez 1 goutte et piochez 2 cartes.': 'Effet immédiat : gagne 1 goutte et pioche 2 cartes.',
+    'Regardez la main d’un adversaire et volez 1 carte. Défense impossible. Elisabetta est immunisée.': 'Regarde la main d’un adversaire et vole 1 carte. Défense impossible. Elisabetta est immunisée.',
     "${vampireName}${vampireName?' • ':''}Touchez pour continuer": "${vampireName}${vampireName?' • ':''}Touche pour continuer",
     ' commence. Touchez pour continuer.': ' commence. Touche pour continuer.',
     'Main maximale : ${maxHand(p)} cartes — choisissez une carte à défausser.': 'Main maximale : ${maxHand(p)} cartes — choisis une carte à défausser.',
@@ -95,7 +96,7 @@ else:
 path.write_text(text, encoding='utf-8')
 
 # Audit informatif : repère les restes probables de vouvoiement dans le code/textes.
-pattern = re.compile(r'\b(vous|votre|vos|veuillez|choisissez|touchez|cliquez|pouvez|devez|voulez|êtes|avez|gagnez|piochez|appliquez|récupérez|défaussez|utilisez|gardez|lancez|sélectionnez|regardez)\b', re.I)
+pattern = re.compile(r'\b(vous|votre|vos|veuillez|choisissez|touchez|cliquez|pouvez|devez|voulez|êtes|avez|gagnez|piochez|appliquez|récupérez|défaussez|utilisez|gardez|lancez|sélectionnez|regardez|volez)\b', re.I)
 print('--- AUDIT VOUVOIEMENT RESTANT ---')
 for no, line in enumerate(text.splitlines(), 1):
     if pattern.search(line):
