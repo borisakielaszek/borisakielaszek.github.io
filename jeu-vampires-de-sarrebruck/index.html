@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-vh-cibles-2">
+<meta name="game-build" content="20261022-vh-portrait-10">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1321,6 +1321,7 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
  filter:drop-shadow(0 2px 1px #3c0209);
 }
 </style>
+<!-- Van Helsing background reference: Stork M, Historischer Brunnen St Johann, Wikimedia Commons, CC BY-SA 3.0. Adapted with AI: portrait, night atmosphere and composition. https://commons.wikimedia.org/wiki/File:Historischer_Brunnen_St_Johann.JPG https://creativecommons.org/licenses/by-sa/3.0/ -->
 </head>
 <body>
 <div id="app">
@@ -1701,8 +1702,10 @@ function family(p,f){return VAMPIRES[p.vampire].family===f||VAMPIRES[p.vampire].
 function pName(p){return (p.name&&p.name.trim())?p.name.trim():(p.human?'Toi':'Vampire')}
 function cardName(id){return CARDS[id]?.name||id}
 function imgCard(id){return A+CARDS[id].img}
-function imgVamp(p){return VAMP_PORTRAITS[p.vampire]||A+VAMPIRES[p.vampire].img}
-function vampPowerHTML(p){return (VAMP_POWERS[p.vampire]||'').split('|').filter(Boolean).map(x=>`<div class="power-line">✦ ${x}</div>`).join('')}
+function playerMaxHp(p){return p.maxHp??VAMPIRES[p.vampire].maxHp}
+function playerVampireName(p){return p.profileName||VAMPIRES[p.vampire].name}
+function imgVamp(p){return p.portrait||VAMP_PORTRAITS[p.vampire]||A+VAMPIRES[p.vampire].img}
+function vampPowerHTML(p){return (p.profileName?'<div class="power-line">Héritage : '+VAMPIRES[p.vampire].name+'</div>':'')+(VAMP_POWERS[p.vampire]||'').split('|').filter(Boolean).map(x=>`<div class="power-line">✦ ${x}</div>`).join('')}
 function effectClassFor(v){return ''}
 
 function render(){
@@ -1735,14 +1738,14 @@ function render(){
    fillHand('defenseHand','defenseSection',defenseCards);
    fillHand('otherHand','otherSection',otherCards);
    [...document.querySelectorAll('#humanPanel .hand-card')].forEach(n=>n.addEventListener('click',()=>humanCardClick(Number(n.dataset.index))));
-   const hc=el('drawerHandCount');if(hc)hc.textContent=` — ${VAMPIRES[h.vampire].name} — ${h.hand.length} / ${maxHand(h)} cartes`;
+   const hc=el('drawerHandCount');if(hc)hc.textContent=` — ${playerVampireName(h)} — ${h.hand.length} / ${maxHand(h)} cartes`;
   const hpw=el('humanPowers'); if(hpw){
      hpw.innerHTML=`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
      el('silverBoltBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bolt'));
      el('crucifixBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_cross'));
    }
    el('exchangeBtn').disabled=!playable;
-   const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<VAMPIRES[h.vampire].maxHp&&S.pool>0&&h.alive;
+   const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
    el('manfredBtn').classList.toggle('hidden',h.vampire!=='manfred');
    el('manfredBtn').disabled=!manfredAvailable;
  }
@@ -1753,11 +1756,11 @@ function render(){
 function playerCardHTML(p,current,isHuman=false){
  const witchMarker=p.witches?`<div class="witch-card-badge" title="Les Sorcières d’Oeting actives — main maximale 7"><img src="${imgCard('sorcieres')}" alt="Les Sorcières d’Oeting"><div class="witch-card-tag">Sorcières</div></div>`:'';
  const deathMarker=!p.alive?`<div class="death-eliminated-label" aria-label="Vampire éliminé">ÉLIMINÉ</div>`:'';
- return `<div class="featured-portrait-wrap ${p===current?'current':''} ${!p.alive?'dead':''}" data-player-id="${p.id}"><img class="featured-portrait" src="${imgVamp(p)}" alt="${VAMPIRES[p.vampire].name}">${witchMarker}${deathMarker}</div>`;
+ return `<div class="featured-portrait-wrap ${p===current?'current':''} ${!p.alive?'dead':''}" data-player-id="${p.id}"><img class="featured-portrait" src="${imgVamp(p)}" alt="${playerVampireName(p)}">${witchMarker}${deathMarker}</div>`;
 }
 function playerInfoBarHTML(p,isHuman=false){
  if(!p)return '';
- if(isHuman)return `<div class="vamp-info-main"><strong>${p.name||'Toi'}</strong><span>${VAMPIRES[p.vampire].name}</span></div><div class="vamp-info-blood">${bloodDisplayHTML(p)}</div>`;
+ if(isHuman)return `<div class="vamp-info-main"><strong>${p.name||'Toi'}</strong><span>${playerVampireName(p)}</span></div><div class="vamp-info-blood">${bloodDisplayHTML(p)}</div>`;
  return `<div class="vamp-info-main"><strong>${VAMPIRES[p.vampire].name} (IA)</strong></div><div class="vamp-info-blood">🩸 × ${p.hp}</div>`;
 }
 
@@ -1830,7 +1833,7 @@ function secretPowersHTML(p){
  const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
  return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
 }
- return '<div class="secret-mode-info">✦ Van Helsing — Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
+ return '<div class="secret-mode-info">✦ Van Helsing — 10 gouttes de sang maximum. Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
  '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
  '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button></div>'+
  '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
@@ -1886,7 +1889,7 @@ async function showTurnNotice(p){
  const notice=el('turnNotice');
  if(!notice)return;
  const nameEl=el('turnNoticeName'),textEl=el('turnNoticeText'),vampEl=el('turnNoticeVamp');
- const vampireName=VAMPIRES[p.vampire]?.name||'';
+ const vampireName=p.profileName||VAMPIRES[p.vampire]?.name||'';
  if(nameEl)nameEl.textContent=`Le tour de ${pName(p)}`;
  if(textEl)textEl.textContent='commence…';
  if(vampEl)vampEl.textContent=`${vampireName}${vampireName?' • ':''}Touche pour continuer`;
@@ -1922,15 +1925,16 @@ async function startGame(){
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const secretMode=secretModeForName(humanName);
  const human=players[0];
- if(secretMode==='van_helsing'){human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;}
+ if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
+ if(secretMode==='van_helsing')human.hp=10;
  if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');switchToGameMusic();refreshMusicButton();
  if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires (4 gouttes rouges) et des adversaires indulgents.','good');
- if(secretMode==='van_helsing')log('✦ Van Helsing : '+human.silverBolts+' carreau(x) d’argent, un crucifix et une pression stratégique renforcée de 10 %.','important');
+ if(secretMode==='van_helsing')log('✦ Van Helsing : 10 gouttes de sang, '+human.silverBolts+' carreau(x) d’argent, un crucifix et une pression stratégique renforcée de 10 %.','important');
  log(`La nuit commence à Sarrebruck. ${pName(players[S.turnIndex])} commence la partie.`,'important');
  render();await sleep(350);gameLoop();
 }
@@ -1941,7 +1945,7 @@ function removeHandIndex(p,i,toDiscard=true){const [id]=p.hand.splice(i,1);if(to
 function removeOneFromHand(p,id,toDiscard=true){const i=p.hand.indexOf(id);if(i<0)return false;removeHandIndex(p,i,toDiscard);return true}
 
 async function gainBlood(p,n,why=''){
- if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0){log(`${pName(p)} est déjà au maximum de sang.`);return 0}const take=Math.min(n,room,S.pool);p.hp+=take;S.pool-=take;if(take)log(`${pName(p)} gagne ${take} goutte${take>1?'s':''} de sang${why?` (${why})`:''}.`,'good');if(take<n&&room>take)log(`La réserve commune ne contient pas assez de sang.`);render();return take}
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const room=playerMaxHp(p)-p.hp;if(room<=0){log(`${pName(p)} est déjà au maximum de sang.`);return 0}const take=Math.min(n,room,S.pool);p.hp+=take;S.pool-=take;if(take)log(`${pName(p)} gagne ${take} goutte${take>1?'s':''} de sang${why?` (${why})`:''}.`,'good');if(take<n&&room>take)log(`La réserve commune ne contient pas assez de sang.`);render();return take}
 async function loseBlood(p,n,why=''){
  if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;p.goldBlood=Math.max(0,(p.goldBlood||0)-loss);S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
 async function showHumanEliminationScene(p){
@@ -1952,7 +1956,7 @@ async function showHumanEliminationScene(p){
  stopEndgameMusic({resumeGame:gameContinues});
 }
 async function eliminate(p){if(!p.alive)return;p.alive=false;for(const id of p.hand)discardCard(id);p.hand=[];if(p.witches){p.witches=false;discardCard('sorcieres')}log(`☠ ${pName(p)} — ${VAMPIRES[p.vampire].name} — est éliminé.`,'bad');render();if(p.human&&!p.eliminationShown){p.eliminationShown=true;await showHumanEliminationScene(p)}}
-async function stealBlood(from,to,n=1){const game=S;for(let k=0;k<n;k++){if(!game||S!==game||game.gameOver||!game.players.includes(from)||!game.players.includes(to))return;if(!from.alive||from.hp<=0)break;from.hp--;from.goldBlood=Math.max(0,(from.goldBlood||0)-1);const room=VAMPIRES[to.vampire].maxHp-to.hp;if(room>0)to.hp++;else S.pool++;log(`${pName(to)} vole 1 goutte à ${pName(from)}.`,'good');if(from.hp<=0)await eliminate(from)}render()}
+async function stealBlood(from,to,n=1){const game=S;for(let k=0;k<n;k++){if(!game||S!==game||game.gameOver||!game.players.includes(from)||!game.players.includes(to))return;if(!from.alive||from.hp<=0)break;from.hp--;from.goldBlood=Math.max(0,(from.goldBlood||0)-1);const room=playerMaxHp(to)-to.hp;if(room>0)to.hp++;else S.pool++;log(`${pName(to)} vole 1 goutte à ${pName(from)}.`,'good');if(from.hp<=0)await eliminate(from)}render()}
 
 async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
  const isHuman=!!player?.human;
@@ -2046,7 +2050,7 @@ async function gameLoop(){
    logTurnStart(p);render();await showTurnNotice(p);
    if(p.skipTurns>0&&p.vampire!=='elisabetta'){p.skipTurns--;log(`${pName(p)} passe son tour.`,'important');render();await sleep(p.human?600:900);advanceTurn();continue}
    if(p.hand.length<3){log(`${pName(p)} complète sa main jusqu’à 3 cartes.`);while(S===game&&!game.gameOver&&p.alive&&p.hand.length<3)await drawOneToHand(p);if(S!==game||game.gameOver)return;if(!p.alive){await maybeGameOver();if(S!==game||game.gameOver)return;advanceTurn();continue}}
-   if(p.vampire==='manfred'&&!p.manfredUsed&&!p.human&&p.hp<VAMPIRES[p.vampire].maxHp&&S.pool>0&&(p.hp<=2||Math.random()<.22))await useManfred(p);
+   if(p.vampire==='manfred'&&!p.manfredUsed&&!p.human&&p.hp<playerMaxHp(p)&&S.pool>0&&(p.hp<=2||Math.random()<.22))await useManfred(p);
    if(p.human){S.awaitingHuman=true;render();await new Promise(r=>humanTurnResolve=r);if(S!==game)return;humanTurnResolve=null;S.awaitingHuman=false;render()}else{await sleep(1800);if(S!==game||game.gameOver)return;await aiTurn(p);if(S!==game)return;await sleep(1200)}
    if(S!==game)return;await maybeGameOver();if(S!==game)return;if(!game.gameOver)advanceTurn();
  }
@@ -2268,7 +2272,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,uncounter
  }
  if(id==='hypnose'&&attacker.vampire==='elisabetta'&&!forcedTarget){
    const others=alivePlayers().filter(t=>t!==attacker);const normal=others.filter(t=>t.vampire!=='elisabetta'&&(t.hand.length||t.witches));
-   let mode='normal';if(others.length>=2){if(attacker.human)mode=await openModal({title:'Hypnose — pouvoir d’Elisabetta',text:'Choisis l’effet de ton Hypnose.',buttons:[{label:'Voler 1 carte',value:'normal'},{label:'Voler 2 gouttes (1 à deux vampires différents)',value:'blood',className:'good'},{label:'Annuler',value:'cancel'}],closable:true});else mode=attacker.hp<VAMPIRES[attacker.vampire].maxHp&&!(S.secretMode==='dracula'&&others.some(isDraculaPlayer)&&others.length<3)?'blood':'normal'}
+   let mode='normal';if(others.length>=2){if(attacker.human)mode=await openModal({title:'Hypnose — pouvoir d’Elisabetta',text:'Choisis l’effet de ton Hypnose.',buttons:[{label:'Voler 1 carte',value:'normal'},{label:'Voler 2 gouttes (1 à deux vampires différents)',value:'blood',className:'good'},{label:'Annuler',value:'cancel'}],closable:true});else mode=attacker.hp<playerMaxHp(attacker)&&!(S.secretMode==='dracula'&&others.some(isDraculaPlayer)&&others.length<3)?'blood':'normal'}
    if(mode==='cancel'||!mode)return false;
    if(mode==='blood'){let first=attacker.human?await choosePlayer('Premier vampire à saigner',others):aiTarget(attacker,others);let rem=others.filter(x=>x!==first);let second=attacker.human?await choosePlayer('Deuxième vampire à saigner',rem):aiTarget(attacker,rem);await stealBlood(first,attacker,1);if(second.alive)await stealBlood(second,attacker,1);return true}
    if(!normal.length)return false;
@@ -2279,8 +2283,8 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,uncounter
  await resolveAttackInstance(attacker,target,id,{uncounterable});await maybeGameOver();return true;
 }
 
-async function maybeManfredBeforeHit(target,expectedDamage){if(expectedDamage<=0)return;if(target.vampire!=='manfred'||target.manfredUsed||target.hp>=VAMPIRES[target.vampire].maxHp||S.pool<=0)return;if(target.human){const v=await openModal({title:'Régénération partielle',text:`Tu peux utiliser maintenant le pouvoir de Manfred et gagner 1 goutte avant de subir l’attaque.`,buttons:[{label:'Utiliser +1 goutte',value:true,className:'good'},{label:'Pas maintenant',value:false}]});if(v)await useManfred(target)}else if(expectedDamage>=target.hp)await useManfred(target)}
-async function useManfred(p){if(p.vampire!=='manfred'||p.manfredUsed||S.pool<=0||p.hp>=VAMPIRES[p.vampire].maxHp)return false;p.manfredUsed=true;await gainBlood(p,1,'régénération partielle de Manfred');return true}
+async function maybeManfredBeforeHit(target,expectedDamage){if(expectedDamage<=0)return;if(target.vampire!=='manfred'||target.manfredUsed||target.hp>=playerMaxHp(target)||S.pool<=0)return;if(target.human){const v=await openModal({title:'Régénération partielle',text:`Tu peux utiliser maintenant le pouvoir de Manfred et gagner 1 goutte avant de subir l’attaque.`,buttons:[{label:'Utiliser +1 goutte',value:true,className:'good'},{label:'Pas maintenant',value:false}]});if(v)await useManfred(target)}else if(expectedDamage>=target.hp)await useManfred(target)}
+async function useManfred(p){if(p.vampire!=='manfred'||p.manfredUsed||S.pool<=0||p.hp>=playerMaxHp(p))return false;p.manfredUsed=true;await gainBlood(p,1,'régénération partielle de Manfred');return true}
 
 function attackBaseDamage(id){return({van_helsing_bolt:1,van_helsing_cross:2,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
 function combatOutcomeMode(defense,id){
@@ -2492,8 +2496,8 @@ function aiChooseDefense(t,a,id,eligible){
      let score=10;
      if(d==='lame')score+=dmg*3+(aiKnownBadTarget(a,id)?0:4);
      if(d==='empalement')score+=a.hp<=1?12:4;
-     if(d==='plasma')score+=Math.min(2,VAMPIRES[t.vampire].maxHp-t.hp)*3;
-     if(d==='poche_aplus')score+=Math.min(1,VAMPIRES[t.vampire].maxHp-t.hp)*3;
+     if(d==='plasma')score+=Math.min(2,playerMaxHp(t)-t.hp)*3;
+     if(d==='poche_aplus')score+=Math.min(1,playerMaxHp(t)-t.hp)*3;
      if(d==='brume'&&id==='chasseurs_bayerische')score-=t.hp<=1?100:7;
      // Conserver les défenses polyvalentes et les cartes utilisables pour attaquer.
      if(d==='lame'||d==='fuite_chauve')score-=dmg<2&&t.hp>dmg?5:0;
@@ -2609,7 +2613,7 @@ if(ivCap)ivCap.addEventListener('click',e=>{imageViewerCloseNow(e)});
 render();
 }
 async function transferWitches(from,to){from.witches=false;to.witches=true;log(`${pName(to)} vole Les Sorcières d’Oeting à ${pName(from)}.`,'important');await enforceHandLimit(from);while(to.alive&&to.hand.length<7)await drawOneToHand(to);render()}
-async function ermannoTaxesBonus(p){if(!p.alive)return;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0)return;let need=Math.min(2,room);const taken=await gainBlood(p,need,'pouvoir Impôts et taxes');need-=taken;if(need>0){const targets=alivePlayers().filter(x=>x!==p);for(let k=0;k<need&&targets.length;k++){const t=p.human?await choosePlayer('La réserve est insuffisante : choisis un vampire à qui voler le complément.',targets):aiTarget(p,targets);await stealBlood(t,p,1)}}}
+async function ermannoTaxesBonus(p){if(!p.alive)return;const room=playerMaxHp(p)-p.hp;if(room<=0)return;let need=Math.min(2,room);const taken=await gainBlood(p,need,'pouvoir Impôts et taxes');need-=taken;if(need>0){const targets=alivePlayers().filter(x=>x!==p);for(let k=0;k<need&&targets.length;k++){const t=p.human?await choosePlayer('La réserve est insuffisante : choisis un vampire à qui voler le complément.',targets):aiTarget(p,targets);await stealBlood(t,p,1)}}}
 
 async function executeRegen(p,id){
  if(id==='chateau'){let n=family(p,'dunkelwald')?2:1;if(p.vampire==='rudiger')n=3;if(p.vampire==='draco')n=2;await gainBlood(p,n,cardName(id));return}
@@ -2660,7 +2664,7 @@ async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
  }
  if(id==='chute_sarre'){await resolveChute(p);return}
  if(id==='fleau'){const victims=alivePlayers().slice();for(const x of victims)if(x.alive)await loseBlood(x,1,cardName(id));return}
- if(id==='fantome'){if(S.pool<=0){log('Le Fantôme ne trouve aucune goutte dans la réserve commune.');return}const targets=alivePlayers().filter(x=>x!==p&&x.hp<VAMPIRES[x.vampire].maxHp);if(!targets.length){log('Aucun autre vampire ne peut recevoir la goutte du Fantôme.');return}const t=p.human?await choosePlayer('Le Fantôme : offrez 1 goutte depuis la réserve commune',targets):aiTarget(p,targets);await gainBlood(t,1,'don du Fantôme');return}
+ if(id==='fantome'){if(S.pool<=0){log('Le Fantôme ne trouve aucune goutte dans la réserve commune.');return}const targets=alivePlayers().filter(x=>x!==p&&x.hp<playerMaxHp(x));if(!targets.length){log('Aucun autre vampire ne peut recevoir la goutte du Fantôme.');return}const t=p.human?await choosePlayer('Le Fantôme : offrez 1 goutte depuis la réserve commune',targets):aiTarget(p,targets);await gainBlood(t,1,'don du Fantôme');return}
  if(id==='peste'){const victims=alivePlayers().filter(x=>x.hp>=4);for(const x of victims)if(x.alive)await loseBlood(x,2,cardName(id));return}
 }
 async function resolveChute(p){if(p.vampire==='manfred'){log(`Manfred ignore entièrement la Chute dans la Sarre.`,'good');return}if(p.hand.includes('fuite_chauve')){let use=p.human?await openModal({title:'Chute dans la Sarre',text:'Tu peux éviter entièrement la chute avec Fuite en chauve-souris.',buttons:[{label:'Utiliser Fuite en chauve-souris',value:true,className:'good'},{label:'Subir la chute',value:false}]}):true;if(use){removeOneFromHand(p,'fuite_chauve',true);log(`${pName(p)} évite la Chute dans la Sarre avec Fuite en chauve-souris.`,'good');return}}await discardRandomOrChosen(p,1,'Chute dans la Sarre : défausse 1 carte.');if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour.`,'bad')}}
@@ -2694,7 +2698,7 @@ async function applyFreeCardEffect(p,id){const c=CARDS[id];if(c.kind==='attack'|
 async function aiTurn(p){
  if(!p.alive)return;
  const options=[];
- p.hand.forEach((id,i)=>{const c=CARDS[id];let score=-5,mode=null;if(c.kind==='attack'||c.kind==='hybrid'){if(canPlayAttack(p,id)){score=aiAttackScore(p,id);mode='attack'}}if(c.kind==='regen'){score=Math.max(score,aiRegenScore(p,id));if(score>-5)mode='regen'}if(p.vampire==='rudiger'&&id==='lycanthrope'&&p.hp<VAMPIRES[p.vampire].maxHp){const s=5+(5-p.hp);if(s>score){score=s;mode='convert1'}}if(p.vampire==='rudiger'&&id==='meute'&&p.hp<VAMPIRES[p.vampire].maxHp){const s=8+(5-p.hp);if(s>score){score=s;mode='convert2'}}if(p.vampire==='ermanno'&&id==='poche_perimee'&&p.hp<VAMPIRES[p.vampire].maxHp){score=Math.max(score,5);mode=score===5?'ermanno_self':mode}options.push({i,id,score,mode})});
+ p.hand.forEach((id,i)=>{const c=CARDS[id];let score=-5,mode=null;if(c.kind==='attack'||c.kind==='hybrid'){if(canPlayAttack(p,id)){score=aiAttackScore(p,id);mode='attack'}}if(c.kind==='regen'){score=Math.max(score,aiRegenScore(p,id));if(score>-5)mode='regen'}if(p.vampire==='rudiger'&&id==='lycanthrope'&&p.hp<playerMaxHp(p)){const s=5+(5-p.hp);if(s>score){score=s;mode='convert1'}}if(p.vampire==='rudiger'&&id==='meute'&&p.hp<playerMaxHp(p)){const s=8+(5-p.hp);if(s>score){score=s;mode='convert2'}}if(p.vampire==='ermanno'&&id==='poche_perimee'&&p.hp<playerMaxHp(p)){score=Math.max(score,5);mode=score===5?'ermanno_self':mode}options.push({i,id,score,mode})});
  options.sort((a,b)=>b.score-a.score);
  let choice=options[0],diff=aiDifficulty();
  if(diff==='easy'){
@@ -2780,14 +2784,14 @@ function aiTarget(attacker,cands,attackId=null){
  rememberAiTarget(chosen);
  return chosen;
 }
-function aiAttackScore(p,id){const dmg=attackBaseDamage(id);let s=dmg*4;if(id==='hypnose')s=7;if(id==='impots')s=7+alivePlayers().length;if(id==='saint_nicolas')s=7;if(id==='meute')s=12;if(id==='lycanthrope')s=7;if(id==='lame')s=9;if(id==='brume')s=4;if(id==='furie')s=9;if(id==='poche_perimee'&&p.vampire==='ermanno'&&p.hp<VAMPIRES[p.vampire].maxHp)s=5;if(aiDifficulty()==='hard'){
+function aiAttackScore(p,id){const dmg=attackBaseDamage(id);let s=dmg*4;if(id==='hypnose')s=7;if(id==='impots')s=7+alivePlayers().length;if(id==='saint_nicolas')s=7;if(id==='meute')s=12;if(id==='lycanthrope')s=7;if(id==='lame')s=9;if(id==='brume')s=4;if(id==='furie')s=9;if(id==='poche_perimee'&&p.vampire==='ermanno'&&p.hp<playerMaxHp(p))s=5;if(aiDifficulty()==='hard'){
  const targets=validAttackTargets(p,id);
  const values=targets.map(t=>aiPublicTargetScore(p,t,id));
  s+=values.length?(id==='impots'?values.reduce((a,b)=>a+b,0)*.4:Math.max(...values)*.65):-20;
  if(CARDS[id].kind==='hybrid'&&p.hand.filter(x=>CARDS[x].kind==='defense').length===0&&p.hp<=2)s-=4;
  return s;
 }return s+randomUnit()*2}
-function aiRegenScore(p,id){const missing=VAMPIRES[p.vampire].maxHp-p.hp;if(id==='gewurz'&&!family(p,'dunkelwald'))return p.hand.includes('tablettes')?0:-7;if(id==='saucisson'&&!family(p,'rattello'))return p.hand.includes('tablettes')?0:-7;if(missing<=0)return -4;let g=1;if(id==='chateau')g=p.vampire==='rudiger'?3:(family(p,'dunkelwald')?2:1);if(id==='tour_schlossberg')g=family(p,'rattello')?2:1;if(id==='gewurz')g=p.vampire==='ilsa'?2:1;return g*4+missing+(aiDifficulty()==='hard'?(p.hp<=2?9:0)-Math.max(0,g-missing)*3:0)}
+function aiRegenScore(p,id){const missing=playerMaxHp(p)-p.hp;if(id==='gewurz'&&!family(p,'dunkelwald'))return p.hand.includes('tablettes')?0:-7;if(id==='saucisson'&&!family(p,'rattello'))return p.hand.includes('tablettes')?0:-7;if(missing<=0)return -4;let g=1;if(id==='chateau')g=p.vampire==='rudiger'?3:(family(p,'dunkelwald')?2:1);if(id==='tour_schlossberg')g=family(p,'rattello')?2:1;if(id==='gewurz')g=p.vampire==='ilsa'?2:1;return g*4+missing+(aiDifficulty()==='hard'?(p.hp<=2?9:0)-Math.max(0,g-missing)*3:0)}
 function aiWorstCardIndex(p){
  if(S?.secretMode==='van_helsing'){
    let bestIndex=0,lowest=Infinity;
