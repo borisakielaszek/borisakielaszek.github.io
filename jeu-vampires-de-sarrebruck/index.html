@@ -1308,17 +1308,11 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
 </style>
 <style id="blood-title-style">
 #startScreen .start-panel .blood-title{
- text-align:center!important;max-width:18ch;margin:.35em auto .9em!important;
- line-height:1.16!important;text-wrap:balance;overflow:visible;
+ display:block;width:100%;max-width:800px;margin:12px auto 24px!important;
+ padding:0;font-size:0!important;line-height:0!important;text-align:center;
 }
-#startScreen .blood-title-word{
- display:inline-block;position:relative;color:#cf3440;
- text-shadow:0 2px 1px #47040c,0 0 15px #9f14232e;
-}
-#startScreen .blood-title-drips{
- position:absolute;left:0;top:calc(100% - .2em);width:100%;height:.43em;
- fill:currentColor;overflow:visible;pointer-events:none;
- filter:drop-shadow(0 2px 1px #3c0209);
+#startScreen .blood-title img{
+ display:block;width:100%;height:auto;max-width:100%;margin:0 auto;
 }
 </style>
 <!-- Van Helsing background reference: Stork M, Historischer Brunnen St Johann, Wikimedia Commons, CC BY-SA 3.0. Adapted with AI: portrait, night atmosphere and composition. https://commons.wikimedia.org/wiki/File:Historischer_Brunnen_St_Johann.JPG https://creativecommons.org/licenses/by-sa/3.0/ -->
@@ -1343,7 +1337,7 @@ button.secret-power{border:2px solid #bd9446!important;background:linear-gradien
     <div class="start-art"><img src="assets/064b137135d7a152bee5.png" alt="Les Vampires de Sarrebruck"></div>
     <div class="start-panel">
       
-      <h1 class="blood-title">Que le bain de <span class="blood-title-word">sang<svg class="blood-title-drips" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M8 0h8c-2 4-2 9-2 15v5c0 5-6 5-6 0V9c0-4 1-6 0-9Zm27 0h8c-2 5-2 11-2 20v7c0 8-7 8-7 0V15c0-6 2-10 1-15Zm38 0h7c-1 4-1 7-1 12v2c0 6-6 6-6 0V7c0-3 1-4 0-7Z"/></svg></span> commence&nbsp;!</h1>
+      <h1 class="blood-title"><img src="assets/titre-bain-de-sang-rouge.webp" alt="Que le bain de sang commence !" width="2172" height="724" fetchpriority="high"></h1>
       <label>Nombre total de joueurs
         <select id="playerCount">
           <option value="2">2 joueurs (1 humain + 1 IA)</option><option value="3">3 joueurs (1 humain + 2 IA)</option><option value="4">4 joueurs (1 humain + 3 IA)</option><option value="5" selected>5 joueurs (1 humain + 4 IA)</option>
