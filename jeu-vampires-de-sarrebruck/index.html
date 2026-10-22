@@ -1220,6 +1220,18 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 }
 </style>
 
+
+<style id="v571-immediate-repick">
+.immediate-repick-notice{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;text-align:center;padding:28px 18px 22px;min-height:210px;
+}
+.immediate-repick-icon{font-size:2.15rem;color:#e8c678;line-height:1}
+.immediate-repick-notice strong{display:block;font-family:Georgia,serif;font-size:1.6rem;color:#f3e4c8;margin-bottom:8px}
+.immediate-repick-notice span{display:block;font-size:1.28rem;font-weight:800;color:#fff}
+.immediate-repick-notice .tap-dismiss-note{margin-top:14px;font-size:.9rem;opacity:.72}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1734,18 +1746,22 @@ async function showDrawScene(player,id,{immediate=false,reason='endturn'}={}){
  const info=christmasDraw
    ? (immediate?"Cette carte à effet immédiat vient de la pioche commune pendant le Marché de Noël. Son propre effet se résout maintenant, puis la pioche du Marché de Noël reprend.":"Cette carte vient de la pioche commune. Après tes deux pioches du Marché de Noël, tu défausseras le surplus si ta main dépasse sa limite.")
    : immediate
-   ? "⚡ Regarde bien la carte : son effet s’appliquera lorsque tu continueras."
+   ? "Effet immédiat : applique l’action de cette carte maintenant."
    : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
  const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":"";
- const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"Son effet se déclenchera quand tu continueras.":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
+ const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div><div class="scene-small">${immediate?"":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
  if(immediate)setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
  await openTapDismissInfo({title,content});
+}
+async function showImmediateRepickNotice(){
+ const content=`<div class="immediate-repick-notice"><div class="immediate-repick-icon">✦</div><div><strong>Effet immédiat effectué</strong><span>Tu repioches.</span></div><div class="tap-dismiss-note">Touche pour continuer</div></div>`;
+ await openTapDismissInfo({title:'',content});
 }
 async function drawOneToHand(p,reason='normal'){
  const game=S;
  if(!game||game.gameOver||!game.players.includes(p)||!p.alive)return null;for(let guard=0;guard<100&&S===game&&!game.gameOver;guard++){
    if(!refillDeck())return null;const id=S.deck.pop();
-   const revealDraw=(p.human&&(reason==='endturn'||reason==='exchange'||reason==='witchesBonus'||reason==='marche_noel'))||(reason==='marche_noel'&&CARDS[id].kind==='immediate');
+   const revealDraw=p.human&&(reason==='endturn'||reason==='exchange'||reason==='witchesBonus'||reason==='marche_noel');
    if(CARDS[id].kind==='immediate'){
      // Une seule révélation visuelle. La pioche bonus des Sorcières est distinguée de la pioche normale de fin de tour.
      if(revealDraw)await showDrawScene(p,id,{immediate:true,reason});
@@ -1753,6 +1769,8 @@ async function drawOneToHand(p,reason='normal'){
      log(`${pName(p)} pioche ${cardName(id)}.`,'important');
      // L'effet se résout ensuite sans rouvrir une seconde fenêtre de révélation.
      await resolveImmediate(p,id,{skipScene:true,drawReason:reason});
+     if(S!==game||game.gameOver)return null;
+     if(revealDraw&&p.human&&p.alive)await showImmediateRepickNotice();
      if(S!==game||game.gameOver)return null;
      if(id!=='sorcieres'||!p.witches)discardCard(id);render();if(!p.alive)return null;continue;
    }
