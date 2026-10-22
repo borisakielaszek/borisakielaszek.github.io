@@ -1274,6 +1274,14 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .scene-effect-detail{margin-top:12px;padding:11px 13px;border-radius:12px;background:#0b0d13cc;border:1px solid #6f5a3a;color:#f6ead6;font-family:system-ui,sans-serif;font-size:1rem;line-height:1.45;font-weight:650}
 @media(max-width:520px){.scene-effect-detail{font-size:.92rem;padding:10px 11px}}
 </style>
+<style id="farewell-screen-style">
+#farewellScreen{position:fixed;inset:0;z-index:10000;overflow:auto;background:#05070d;overscroll-behavior:contain}
+.farewell-poster{position:relative;width:min(100%,640px);margin:0 auto}
+.farewell-poster img{display:block;width:100%;height:auto}
+.farewell-book-link{position:absolute;left:18%;top:84%;width:64%;height:8.5%;border-radius:24px}
+.farewell-book-link:focus-visible{outline:4px solid #fff;outline-offset:3px;background:#ffffff18}
+.farewell-home{display:block;margin:16px auto 28px;padding:12px 20px;color:#f2ddb1;background:#161a25;border:1px solid #80633d;border-radius:12px;font:inherit;cursor:pointer}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1421,10 +1429,21 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
         <strong>Recommencer</strong>
         <span>Relancer une nouvelle partie.</span>
       </button>
+      <button id="quitGameBtn" class="help-action danger" type="button">
+        <strong>Quitter le jeu</strong>
+        <span>Terminer la partie et poursuivre l’aventure avec le livre illustré.</span>
+      </button>
     </div>
   </div>
 </div>
 
+<section id="farewellScreen" class="hidden" aria-label="Merci d’avoir joué !">
+  <div class="farewell-poster">
+    <img src="assets/merci-livre-amazon.webp?v=577" alt="Merci d’avoir joué ! La nuit continue… Poursuivez l’aventure avec le livre illustré Les Vampires de Sarrebruck, disponible sur Amazon en plusieurs langues." width="1024" height="1536">
+    <a class="farewell-book-link" href="https://amzn.eu/d/04Z1qIIV" target="_blank" rel="noopener noreferrer" aria-label="Découvrir Les Vampires de Sarrebruck sur Amazon"></a>
+  </div>
+  <button id="farewellHomeBtn" class="farewell-home" type="button">Revenir à l’accueil du jeu</button>
+</section>
 <div id="toast" class="toast hidden"></div>
 <div id="modal" class="modal hidden" aria-modal="true" role="dialog">
   <div class="modal-card">
@@ -2760,6 +2779,17 @@ function wireUI(){
  el('exchangeBtn').addEventListener('click',humanExchange);
  el('manfredBtn').addEventListener('click',async()=>{if(!S||actionBusy)return;const p=S.players.find(x=>x.human);await useManfred(p);render()});
  el('rulesBtn').addEventListener('click',showRules);
+ el('quitGameBtn').addEventListener('click',()=>{
+   if(S){S.gameOver=true;S.awaitingHuman=false;}
+   closeHelp();
+   stopAllMusic(true);
+   document.querySelectorAll('audio').forEach(a=>{try{a.pause();}catch(_){}});
+   document.body.classList.remove('game-active');
+   el('farewellScreen').classList.remove('hidden');
+   el('farewellScreen').scrollTop=0;
+   el('farewellScreen').querySelector('a').focus({preventScroll:true});
+ });
+ el('farewellHomeBtn').addEventListener('click',()=>location.reload());
  el('restartBtn').addEventListener('click',()=>{if(confirm('Recommencer la partie ?'))location.reload()});
  el('humanStage').addEventListener('click',openHand);
  el('humanStage').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openHand()}});
