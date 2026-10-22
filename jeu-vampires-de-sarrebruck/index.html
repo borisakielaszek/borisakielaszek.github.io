@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta name="game-build" content="20261022-vh-cibles-2">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1544,8 +1545,8 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
- van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp',qty:0,kind:'attack',secretPower:true},
- van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
  impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
  marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
  cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
@@ -1783,11 +1784,13 @@ async function openTapDismissInfo({title='',content=''}){
 function openImageViewer(src,caption=''){const wrap=el('imageViewer'),img=el('imageViewerImg');img.src=src;img.alt=caption||'Carte';el('imageViewerCaption').textContent=caption||'';wrap.classList.remove('hidden')}
 function closeImageViewer(){el('imageViewer').classList.add('hidden');el('imageViewerImg').src='';el('imageViewerCaption').textContent=''}
 async function choosePlayer(prompt,players,allowCancel=false){
+ const game=S;
+ players=players.filter(p=>game?.players.includes(p)&&p.alive);
  if(!players.length)return null;
  if(players.length===1)return players[0];
  const content=`<div class="choice-grid">${players.map(p=>`<div class="choice-card" data-pid="${p.id}"><img src="${imgVamp(p)}"><b>${p.human?pName(p):`${VAMPIRES[p.vampire].name} (IA)`}</b><small>${p.human?`${VAMPIRES[p.vampire].name}<br>`:''}🩸 ${p.hp} · 🂠 ${p.hand.length}</small></div>`).join('')}</div>`;
  const promise=openModal({title:prompt,text:'Touche le vampire visé.',content,buttons:allowCancel?[{label:'Annuler',value:null}]:[],closable:allowCancel});
- setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-pid]')].forEach(n=>n.onclick=()=>closeModal(S.players.find(p=>p.id===Number(n.dataset.pid))))},0);
+ setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-pid]')].forEach(n=>n.onclick=()=>{const target=players.find(p=>String(p.id)===n.dataset.pid);if(S!==game||game.gameOver||!target?.alive)return closeModal(null);closeModal(target)})},0);
  return await promise;
 }
 async function chooseCardFromHand(p,prompt,filter=()=>true,allowCancel=false){
@@ -1832,20 +1835,38 @@ function secretPowersHTML(p){
  '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button></div>'+
  '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
 }
+function secretPowerTargets(game,p){
+ if(!game||S!==game||game.gameOver||!game.players.includes(p))return [];
+ const opponentIds=new Set(game.opponentIds||game.players.filter(t=>!t.human).map(t=>t.id));
+ return game.players.filter(t=>t!==p&&!t.human&&t.alive&&opponentIds.has(t.id));
+}
+async function chooseSecretPowerTarget(game,p,id){
+ const targets=secretPowerTargets(game,p);
+ if(!targets.length)return null;
+ const single=targets.length===1;
+ const portraits=targets.map(t=>`<button type="button" class="choice-card" data-secret-target="${t.id}" aria-label="Viser ${VAMPIRES[t.vampire].name}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('');
+ const promise=openModal({
+   title:cardName(id),
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Ce pouvoir remplace ton action du tour. Tu pioches ensuite une carte.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
+   buttons:[{label:'Retour à ma main',value:null}],closable:true
+ });
+ for(const button of el('modalContent').querySelectorAll('[data-secret-target]')){
+   button.addEventListener('click',()=>{
+     if(S!==game||game.gameOver)return closeModal(null);
+     const target=targets.find(t=>String(t.id)===button.dataset.secretTarget);
+     if(secretPowerTargets(game,p).includes(target))closeModal(target);
+   });
+ }
+ const target=await promise;
+ return secretPowerTargets(game,p).includes(target)?target:null;
+}
 async function useSecretPower(id){
  const game=S,p=game?.players.find(x=>x.human);
  if(!secretPowerAvailable(p,id))return;
  actionBusy=true;render();let used=false;
  try{
-   const confirmed=await openModal({
-     title:cardName(id),
-     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Ce pouvoir remplace ton action du tour. Tu pioches ensuite une carte.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div>`,
-     buttons:[{label:'Choisir la cible',value:true,className:'secret-power'},{label:'Retour à ma main',value:false}],closable:true
-   });
-   if(S!==game||game.gameOver||!confirmed||!p.alive)return;
-   const targets=alivePlayers().filter(t=>t!==p);
-   const target=await choosePlayer('Choisis la cible — '+cardName(id),targets,true);
-   if(S!==game||game.gameOver||!target?.alive||!p.alive)return;
+   const target=await chooseSecretPowerTarget(game,p,id);
+   if(S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
    if(id==='van_helsing_bolt')p.silverBolts--;else p.crucifixUsed=true;
    used=true;closeHand();
    log(pName(p)+' utilise '+cardName(id)+'.','important');
@@ -1895,13 +1916,15 @@ async function showTurnNotice(p){
 
 async function startGame(){
  actionBusy=false;humanTurnResolve=null;
- const count=Number(el('playerCount').value), chosen=el('vampireChoice').value, humanName=getSetupPlayerName();let vids=shuffle(Object.keys(VAMPIRES).slice());let hv=chosen==='random'?vids.shift():chosen;if(chosen!=='random')vids=vids.filter(v=>v!==chosen);
+ const requestedCount=Number(el('playerCount').value);
+ if(!Number.isInteger(requestedCount)||requestedCount<2||requestedCount>5)throw new Error('Choisis entre 2 et 5 joueurs.');
+ const count=requestedCount, chosen=el('vampireChoice').value, humanName=getSetupPlayerName();let vids=shuffle(Object.keys(VAMPIRES).slice());let hv=chosen==='random'?vids.shift():chosen;if(chosen!=='random')vids=vids.filter(v=>v!==chosen);
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const secretMode=secretModeForName(humanName);
  const human=players[0];
  if(secretMode==='van_helsing'){human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
- S={players,deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
+ S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
