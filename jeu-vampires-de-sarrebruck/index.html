@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-vh-portrait-10">
+<meta name="game-build" content="20261022-vh-fouet">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1546,6 +1546,7 @@ const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(randomUnit()*
 const pick=a=>a[Math.floor(randomUnit()*a.length)];
 
 const CARDS={
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
  van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
  impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
@@ -1743,6 +1744,7 @@ function render(){
      hpw.innerHTML=`<b>Tes compétences de vampire</b>${vampPowerHTML(h)}${secretPowersHTML(h)}`;
      el('silverBoltBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bolt'));
      el('crucifixBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_cross'));
+     el('consecratedWhipBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_whip'));
    }
    el('exchangeBtn').disabled=!playable;
    const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
@@ -1825,7 +1827,7 @@ function aiDifficulty(){return S?.secretMode==='van_helsing'?'hard':S?.secretMod
 function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:false));
+ (id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:false));
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
@@ -1835,7 +1837,8 @@ function secretPowersHTML(p){
 }
  return '<div class="secret-mode-info">✦ Van Helsing — 10 gouttes de sang maximum. Nuit sanglante renforcée : pression stratégique +10 %.</div>'+
  '<div class="secret-power-grid"><button type="button" id="silverBoltBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_bolt')?'':'disabled')+'><strong>Tir d’arbalète</strong><span>Carreau à pointe d’argent · '+p.silverBolts+' / '+p.initialSilverBolts+' restant(s)</span><small>−1 goutte · −1 carte au hasard</small></button>'+
- '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button></div>'+
+ '<button type="button" id="crucifixBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_cross')?'':'disabled')+'><strong>Crucifix</strong><span>'+(p.crucifixUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−2 gouttes · aucune carte perdue</small></button>'+
+ '<button type="button" id="consecratedWhipBtn" class="secret-power" '+(secretPowerAvailable(p,'van_helsing_whip')?'':'disabled')+'><strong>Fouet consacré</strong><span>'+(p.whipUsed?'Déjà utilisé':'1 utilisation par partie')+'</span><small>−1 goutte · −1 carte au hasard</small></button></div>'+
  '<p class="tiny">Une utilisation remplace ton action, puis tu pioches une carte. Ces attaques peuvent être défendues ou renvoyées.</p>';
 }
 function secretPowerTargets(game,p){
@@ -1870,7 +1873,7 @@ async function useSecretPower(id){
  try{
    const target=await chooseSecretPowerTarget(game,p,id);
    if(S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
-   if(id==='van_helsing_bolt')p.silverBolts--;else p.crucifixUsed=true;
+   if(id==='van_helsing_bolt')p.silverBolts--;else if(id==='van_helsing_cross')p.crucifixUsed=true;else if(id==='van_helsing_whip')p.whipUsed=true;
    used=true;closeHand();
    log(pName(p)+' utilise '+cardName(id)+'.','important');
    await executeAttack(p,id,{forcedTarget:target});
@@ -1925,7 +1928,7 @@ async function startGame(){
  const players=[freshPlayer(0,humanName,true,hv)];for(let i=1;i<count;i++){const vid=vids.shift();players.push(freshPlayer(i,`${VAMPIRES[vid].name} (IA)`,false,vid));}
  const secretMode=secretModeForName(humanName);
  const human=players[0];
- if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;}
+ if(secretMode==='van_helsing'){human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.silverBolts=count-1;human.initialSilverBolts=count-1;human.crucifixUsed=false;human.whipUsed=false;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
@@ -1934,7 +1937,7 @@ async function startGame(){
  for(let r=0;r<6;r++)for(const p of players)p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');switchToGameMusic();refreshMusicButton();
  if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires (4 gouttes rouges) et des adversaires indulgents.','good');
- if(secretMode==='van_helsing')log('✦ Van Helsing : 10 gouttes de sang, '+human.silverBolts+' carreau(x) d’argent, un crucifix et une pression stratégique renforcée de 10 %.','important');
+ if(secretMode==='van_helsing')log('✦ Van Helsing : 10 gouttes de sang, '+human.silverBolts+' carreau(x) d’argent, un crucifix, un fouet consacré et une pression stratégique renforcée de 10 %.','important');
  log(`La nuit commence à Sarrebruck. ${pName(players[S.turnIndex])} commence la partie.`,'important');
  render();await sleep(350);gameLoop();
 }
@@ -2093,7 +2096,7 @@ async function maybeGameOver(){
 
 function attackPreviewText(p,id){
  const dmg=attackBaseDamage(id);
- if(id==='van_helsing_bolt')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
+ if(id==='van_helsing_bolt'||id==='van_helsing_whip')return 'La cible perd 1 goutte de sang et défausse 1 carte au hasard. Cette attaque est défendable.';
  if(id==='van_helsing_cross')return 'La cible perd 2 gouttes de sang. Cette attaque est défendable.';
  if(id==='hypnose'){
    if(p.vampire==='elisabetta') return `Tu peux hypnotiser un adversaire et <strong>lui voler une carte</strong>. Avec Elisabetta, tu peux aussi choisir de voler <strong>2 gouttes</strong>, une à deux vampires différents.`;
@@ -2286,7 +2289,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,uncounter
 async function maybeManfredBeforeHit(target,expectedDamage){if(expectedDamage<=0)return;if(target.vampire!=='manfred'||target.manfredUsed||target.hp>=playerMaxHp(target)||S.pool<=0)return;if(target.human){const v=await openModal({title:'Régénération partielle',text:`Tu peux utiliser maintenant le pouvoir de Manfred et gagner 1 goutte avant de subir l’attaque.`,buttons:[{label:'Utiliser +1 goutte',value:true,className:'good'},{label:'Pas maintenant',value:false}]});if(v)await useManfred(target)}else if(expectedDamage>=target.hp)await useManfred(target)}
 async function useManfred(p){if(p.vampire!=='manfred'||p.manfredUsed||S.pool<=0||p.hp>=playerMaxHp(p))return false;p.manfredUsed=true;await gainBlood(p,1,'régénération partielle de Manfred');return true}
 
-function attackBaseDamage(id){return({van_helsing_bolt:1,van_helsing_cross:2,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function attackBaseDamage(id){return({van_helsing_bolt:1,van_helsing_cross:2,van_helsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
 function combatOutcomeMode(defense,id){
  if(!defense)return 'hit';
  if(defense==='lame')return 'reflect';
@@ -2582,11 +2585,11 @@ async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  if(dmg)summary.damage=await loseBlood(target,dmg,cardName(id));
  summary.eliminated=!target.alive;
  if(!target.alive)return summary;
- if(id==='van_helsing_bolt'&&target.hand.length){
+ if((id==='van_helsing_bolt'||id==='van_helsing_whip')&&target.hand.length){
    const index=Math.floor(randomUnit()*target.hand.length);
    const lost=removeHandIndex(target,index,true);
    summary.discarded.push(lost);
-   log(pName(target)+' perd au hasard '+cardName(lost)+' sous le carreau d’argent.','bad');
+   log(pName(target)+' perd au hasard '+cardName(lost)+(id==='van_helsing_whip'?' sous le fouet consacré.':' sous le carreau d’argent.'),'bad');
  }
  if(id==='impots')summary.discarded=await discardRandomOrChosen(target,1,'Impôts et taxes : défausse 1 carte.');
  if(id==='meute')summary.discarded=await discardRandomOrChosen(target,2,'Meute de loups-garous : défausse 2 cartes.');
