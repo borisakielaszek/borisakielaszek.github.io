@@ -1222,7 +1222,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
         </select>
       </label>
       <button id="startBtn" type="button" class="primary big">Commencer la partie</button>
-      <p class="tiny">La musique accompagne vos choix et pourra être coupée une fois la partie lancée.</p>
+      <p class="tiny">La musique accompagne tes choix et pourra être coupée une fois la partie lancée.</p>
     </div>
   </section>
 
@@ -1254,7 +1254,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 
       <div id="humanInfoBar" class="vamp-info-bar human-info-bar" aria-live="polite"></div>
 
-      <section id="humanStage" class="vamp-stage human-stage" role="button" tabindex="0" aria-label="Ton vampire — toucher pour voir vos cartes">
+      <section id="humanStage" class="vamp-stage human-stage" role="button" tabindex="0" aria-label="Ton vampire — toucher pour voir tes cartes">
         <div class="night-skyline night-skyline-bottom" aria-hidden="true"></div>
         <div id="humanInfo" class="featured-vampire"></div>
         <div class="tap-hint">Touche ton vampire pour voir ses compétences et tes cartes</div>
@@ -1484,12 +1484,12 @@ const CARD_EXPLAIN={
  fossoyeur:"Effet immédiat : tu perds 1 goutte. Défense impossible.",
  chasseur_grande_loge:"La cible perd 2 gouttes. Défense impossible, sauf exceptions indiquées par certaines cartes.",
  fuite_warndt:"Défense : évite une attaque, sauf Attaque de loup-garou et Meute de loups-garous.",
- mortetrouille:"Effet immédiat : choisissez une carte parmi les 5 premières de la défausse et appliquez son effet.",
+ mortetrouille:"Effet immédiat : choisis une carte parmi les 5 premières de la défausse et applique son effet.",
  monstre:"Effet immédiat : tu perds 2 gouttes. Défense impossible.",
  abomination:"La cible perd 2 gouttes. Défense impossible.",
- proie_brandenbusch:"Effet immédiat : gagnez 2 gouttes de sang.",
- proie_schalkenthal:"Effet immédiat : gagnez 1 goutte de sang.",
- proie_bahnhof:"Effet immédiat : gagnez 1 goutte et piochez 2 cartes.",
+ proie_brandenbusch:"Effet immédiat : gagne 2 gouttes de sang.",
+ proie_schalkenthal:"Effet immédiat : gagne 1 goutte de sang.",
+ proie_bahnhof:"Effet immédiat : gagne 1 goutte et pioche 2 cartes.",
  chasseurs_bayerische:"La cible perd 2 gouttes. Brume vampirique peut réduire les dégâts à 1.",
  sorcieres:"Effet persistant : ta main maximale passe à 7 cartes. Cette carte ne peut être volée que par Hypnose.",
  poche_aplus:"Défense après une perte de sang : récupère 1 goutte. Ne sauve pas un vampire déjà tombé à 0.",
@@ -1631,11 +1631,11 @@ async function showTurnNotice(p){
  const vampireName=VAMPIRES[p.vampire]?.name||'';
  if(nameEl)nameEl.textContent=`Le tour de ${pName(p)}`;
  if(textEl)textEl.textContent='commence…';
- if(vampEl)vampEl.textContent=`${vampireName}${vampireName?' • ':''}Touchez pour continuer`;
+ if(vampEl)vampEl.textContent=`${vampireName}${vampireName?' • ':''}Touche pour continuer`;
  notice.setAttribute('aria-hidden','false');
  notice.setAttribute('role','button');
  notice.setAttribute('tabindex','0');
- notice.setAttribute('aria-label',`Le tour de ${pName(p)} commence. Touchez pour continuer.`);
+ notice.setAttribute('aria-label',`Le tour de ${pName(p)} commence. Touche pour continuer.`);
  notice.classList.add('show');
  await new Promise(resolve=>{
    let closed=false;
@@ -1738,7 +1738,7 @@ async function drawCards(p,n,reason='normal'){
  try{for(let i=0;i<n&&p.alive&&S===game&&!game.gameOver;i++)await drawOneToHand(p,reason);}
  finally{if(batch){p.deferredHandLimits--;if(S===game&&!game.gameOver)await enforceHandLimit(p);}}
 }
-async function enforceHandLimit(p){const game=S;if(!game||game.gameOver||!game.players.includes(p)||p.deferredHandLimits>0)return;while(S===game&&!game.gameOver&&p.alive&&p.hand.length>maxHand(p)){let idx;if(p.human)idx=await chooseCardFromHand(p,`Main maximale : ${maxHand(p)} cartes — choisissez une carte à défausser.`);else idx=aiWorstCardIndex(p);if(S!==game||game.gameOver)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} défausse ${cardName(id)} pour respecter sa limite de main.`)}}
+async function enforceHandLimit(p){const game=S;if(!game||game.gameOver||!game.players.includes(p)||p.deferredHandLimits>0)return;while(S===game&&!game.gameOver&&p.alive&&p.hand.length>maxHand(p)){let idx;if(p.human)idx=await chooseCardFromHand(p,`Main maximale : ${maxHand(p)} cartes — choisis une carte à défausser.`);else idx=aiWorstCardIndex(p);if(S!==game||game.gameOver)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} défausse ${cardName(id)} pour respecter sa limite de main.`)}}
 async function discardRandomOrChosen(p,n,reason=''){
  const discarded=[];
  for(let k=0;k<n&&p.alive&&p.hand.length;k++){
@@ -2145,7 +2145,7 @@ async function chooseDefense(target,attacker,id,eligible){
    const danger=dmg>0?`Cette attaque peut te faire perdre <strong>${dmg} goutte${dmg>1?'s':''} de sang</strong>.`:'Cette attaque ne retire pas forcément de sang, mais elle peut avoir un effet dangereux.';
    const help=`Possibilité de défense : regarde plus bas.`;
    const previewText=CARD_EXPLAIN[id]||attackPreviewText(attacker,id)||'Effet indiqué sur la carte.';
-   const content=`<div class="defense-intro">⚠️ <strong>${pName(attacker)} t’attaque avec ${cardName(id)}.</strong><div class="defense-hint">${danger}</div><div class="defense-help-note">${help}</div></div><div class="defense-attack-preview"><img id="defenseAttackCard" src="${imgCard(id)}" alt="${cardName(id)}"><div class="defense-attack-copy"><div class="attack-kicker">Carte jouée</div><div class="attack-title">${cardName(id)}</div><div class="attack-main">${previewText}</div></div></div><div class="defense-choice-title">Vos actions possibles :</div><div class="choice-grid">${eligible.map(d=>`<div class="choice-card" data-def="${d}"><img src="${imgCard(d)}" alt="${cardName(d)}"><b>${cardName(d)}</b></div>`).join('')}</div><div id="defenseDetailPanel" class="defense-detail-panel empty">Touche une carte pour lire son effet, ou choisis « Subir l’attaque ».</div>`;
+   const content=`<div class="defense-intro">⚠️ <strong>${pName(attacker)} t’attaque avec ${cardName(id)}.</strong><div class="defense-hint">${danger}</div><div class="defense-help-note">${help}</div></div><div class="defense-attack-preview"><img id="defenseAttackCard" src="${imgCard(id)}" alt="${cardName(id)}"><div class="defense-attack-copy"><div class="attack-kicker">Carte jouée</div><div class="attack-title">${cardName(id)}</div><div class="attack-main">${previewText}</div></div></div><div class="defense-choice-title">Tes actions possibles :</div><div class="choice-grid">${eligible.map(d=>`<div class="choice-card" data-def="${d}"><img src="${imgCard(d)}" alt="${cardName(d)}"><b>${cardName(d)}</b></div>`).join('')}</div><div id="defenseDetailPanel" class="defense-detail-panel empty">Touche une carte pour lire son effet, ou choisis « Subir l’attaque ».</div>`;
    const pr=openModal({title:'Défends-toi !',content,buttons:[{label:'Subir l’attaque',value:null,className:'danger'}]});
    setTimeout(()=>{
      const attackImg=el('defenseAttackCard');
@@ -2256,7 +2256,7 @@ if(ivCap)ivCap.addEventListener('click',e=>{imageViewerCloseNow(e)});
 render();
 }
 async function transferWitches(from,to){from.witches=false;to.witches=true;log(`${pName(to)} vole Les Sorcières d’Oeting à ${pName(from)}.`,'important');await enforceHandLimit(from);while(to.alive&&to.hand.length<7)await drawOneToHand(to);render()}
-async function ermannoTaxesBonus(p){if(!p.alive)return;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0)return;let need=Math.min(2,room);const taken=await gainBlood(p,need,'pouvoir Impôts et taxes');need-=taken;if(need>0){const targets=alivePlayers().filter(x=>x!==p);for(let k=0;k<need&&targets.length;k++){const t=p.human?await choosePlayer('La réserve est insuffisante : choisissez un vampire à qui voler le complément.',targets):aiTarget(p,targets);await stealBlood(t,p,1)}}}
+async function ermannoTaxesBonus(p){if(!p.alive)return;const room=VAMPIRES[p.vampire].maxHp-p.hp;if(room<=0)return;let need=Math.min(2,room);const taken=await gainBlood(p,need,'pouvoir Impôts et taxes');need-=taken;if(need>0){const targets=alivePlayers().filter(x=>x!==p);for(let k=0;k<need&&targets.length;k++){const t=p.human?await choosePlayer('La réserve est insuffisante : choisis un vampire à qui voler le complément.',targets):aiTarget(p,targets);await stealBlood(t,p,1)}}}
 
 async function executeRegen(p,id){
  if(id==='chateau'){let n=family(p,'dunkelwald')?2:1;if(p.vampire==='rudiger')n=3;if(p.vampire==='draco')n=2;await gainBlood(p,n,cardName(id));return}
@@ -2320,7 +2320,7 @@ async function resolveHexennacht(starter){
  render();
 }
 
-async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisissez 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
+async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
 async function applyFreeCardEffect(p,id){const c=CARDS[id];if(c.kind==='attack'||c.kind==='hybrid'){await executeAttack(p,id,{free:true})}else if(c.kind==='regen'){await executeRegen(p,id)}else if(c.kind==='immediate'){if(id==='sorcieres'){const pos=S.discard.lastIndexOf('sorcieres');if(pos>=0)S.discard.splice(pos,1);await resolveImmediate(p,id)}else await resolveImmediate(p,id)}else log(`${cardName(id)} est une défense : son effet ne peut pas être appliqué maintenant.`)}
 
 async function aiTurn(p){
