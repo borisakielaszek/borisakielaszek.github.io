@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/friendly-global-events.yml'
+      - '.github/scripts/friendly_global_events.py'
 
 permissions:
   contents: write
@@ -16,88 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Improve global immediate event guidance
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('jeu-vampires-de-sarrebruck/index.html')
-          s = p.read_text(encoding='utf-8')
-
-          old = ''' marche_noel:"Effet immédiat : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus au-delà de sa limite de main. Aucune carte n’est prise à un voisin.",'''
-          new = ''' marche_noel:"🎁 Cadeau de Noël pour toute la table : chaque vampire vivant pioche 2 nouvelles cartes dans la pioche commune. Si la main dépasse ensuite sa limite, le jeu demandera simplement quelles cartes défausser.",'''
-          if old not in s: raise SystemExit('CARD_EXPLAIN marche_noel not found')
-          s = s.replace(old, new, 1)
-
-          old = ''' hexennacht:"Effet immédiat : chaque joueur vole 1 carte face cachée à son voisin de droite. Les Sorcières d’Oeting ne peuvent pas être volées ainsi.",'''
-          new = ''' hexennacht:"🌙 Hexennacht entraîne toute la table : chaque vampire vole 1 carte face cachée à son voisin de droite. Les Sorcières d’Oeting restent protégées et ne peuvent pas être volées ainsi.",'''
-          if old not in s: raise SystemExit('CARD_EXPLAIN hexennacht not found')
-          s = s.replace(old, new, 1)
-
-          old = ''' const info=immediate
-   ? "Effet immédiat : applique l’action de cette carte maintenant."
-   : christmasDraw
-   ? "Cette carte vient de la pioche commune. Après tes deux pioches du Marché de Noël, tu défausseras le surplus si ta main dépasse sa limite."
-   : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
- const title=christmasDraw?"Marché de Noël — pioche commune":witchesBonus?"Carte supplémentaire":"";'''
-          new = ''' const info=immediate
-   ? (id==='hexennacht'
-      ? `${p.human?'Tu as':pName(p)+' a'} tiré Hexennacht. Tous les vampires vont maintenant voler 1 carte face cachée à leur voisin de droite. Quand ce sera ton tour, le jeu te montrera les cartes de ton voisin.`
-      : id==='marche_noel'
-      ? `🎁 ${p.human?'Tu as':pName(p)+' a'} tiré le Marché de Noël : cadeau pour tout le monde ! Chaque vampire va piocher 2 nouvelles cartes dans la pioche commune.`
-      : "Effet immédiat : l’action de cette carte se déclenche maintenant.")
-   : christmasDraw
-   ? "🎁 Cadeau de Noël ! Voici l’une des deux nouvelles cartes que tu reçois. Elle rejoint ta main. Après la seconde, si ta main est trop pleine, tu choisiras simplement quoi défausser."
-   : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
- const title=immediate&&id==='hexennacht'?"🌙 Hexennacht — tout le monde participe":immediate&&id==='marche_noel'?"🎁 Marché de Noël — cadeaux pour tous":christmasDraw?"🎁 Marché de Noël — ton cadeau":witchesBonus?"Carte supplémentaire":"";'''
-          if old not in s: raise SystemExit('showDrawScene info block not found')
-          s = s.replace(old, new, 1)
-
-          old = '''async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){'''
-          new = '''async function showGlobalImmediateNotice(p,id){
- const who=p.human?'Tu as':`${pName(p)} a`;
- let title='',text='';
- if(id==='hexennacht'){
-   title='🌙 Hexennacht — tout le monde participe';
-   text=`<strong>${who} tiré Hexennacht.</strong><br><br>Tous les vampires sont entraînés dans la ronde : chacun va voler <strong>1 carte face cachée à son voisin de droite</strong>.<br><br>Quand ce sera ton tour, le jeu te montrera les cartes de ton voisin.`;
- }else if(id==='marche_noel'){
-   title='🎁 Marché de Noël — cadeaux pour tous';
-   text=`<strong>${who} tiré le Marché de Noël.</strong><br><br>🎁 Cadeau pour toute la table ! Chaque vampire va piocher <strong>2 nouvelles cartes dans la pioche commune</strong>.<br><br>Tes deux cadeaux s’afficheront juste après.`;
- }else return;
- const content=`<div class="immediate-scene draw-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${text}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
- setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
- await openTapDismissInfo({title,content});
-}
-
-async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){'''
-          if old not in s: raise SystemExit('resolveImmediate declaration not found')
-          s = s.replace(old, new, 1)
-
-          old = '''     log(`${pName(p)} pioche ${cardName(id)}.`,'important');
-     // L'effet se résout ensuite sans rouvrir une seconde fenêtre de révélation.
-     await resolveImmediate(p,id,{skipScene:true,drawReason:reason});'''
-          new = '''     log(`${pName(p)} pioche ${cardName(id)}.`,'important');
-     // Si un autre vampire déclenche un événement qui concerne toute la table,
-     // on l'annonce clairement avant d'enchaîner les actions.
-     if(!revealDraw&&(id==='hexennacht'||id==='marche_noel')){
-       await showGlobalImmediateNotice(p,id);
-       if(S!==game||game.gameOver)return null;
-     }
-     // L'effet se résout ensuite sans rouvrir une seconde fenêtre de révélation.
-     await resolveImmediate(p,id,{skipScene:true,drawReason:reason});'''
-          if old not in s: raise SystemExit('drawOneToHand immediate block not found')
-          s = s.replace(old, new, 1)
-
-          old = ''' const promise=openModal({title:`Hexennacht — ${pName(victim)}`,text:'Choisis une carte face cachée à voler au vampire situé à ta droite.',content});'''
-          new = ''' const promise=openModal({title:'🌙 Hexennacht — à toi de voler !',text:`Ton voisin de droite est ${pName(victim)}. Choisis l’une de ses cartes face cachée : elle rejoindra immédiatement ta main.`,content});'''
-          if old not in s: raise SystemExit('chooseHexennachtBack modal not found')
-          s = s.replace(old, new, 1)
-
-          p.write_text(s, encoding='utf-8')
-          PY
+      - name: Patch game messages
+        run: python3 .github/scripts/friendly_global_events.py
 
       - name: Commit changes
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
