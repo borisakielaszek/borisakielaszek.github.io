@@ -17,7 +17,6 @@
 #livres .book-description{font-size:.95rem;line-height:1.6;text-align:left;color:#ccc;margin:14px 0 0}
 
 #jeux .game-intro{display:grid;grid-template-columns:minmax(180px,280px) minmax(0,1fr);gap:32px;align-items:start}#jeux .game-cover{margin:0}#jeux img{display:block;width:100%;height:auto}#jeux .game-cover figcaption,#jeux .game-gallery figcaption{text-align:center;color:#aaa;font-size:.9rem;margin-top:12px;line-height:1.4}#jeux .game-copy h3{margin-top:0}#jeux .game-gallery-title{margin:32px 0 20px;font-size:1.2rem}#jeux .game-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;max-width:1000px;margin:auto}#jeux .game-gallery figure{margin:0}#jeux .game-gallery a{display:block}#jeux .game-gallery a:focus-visible{outline:2px solid #fff;outline-offset:5px}@media(max-width:700px){#jeux .game-intro{grid-template-columns:1fr}#jeux .game-cover{max-width:280px;margin:auto}#jeux .game-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}}@media(max-width:420px){#jeux .game-gallery{grid-template-columns:1fr;max-width:300px}}
-
 .atelier-logo{display:block;width:110px;height:110px;object-fit:contain;border-radius:50%;margin:0 0 20px}.atelier-card h3{margin-top:0}
 
 #disponibilite .atelier-card{min-width:0;overflow:hidden}#disponibilite .atelier-logo{display:block;width:96px;height:96px;max-width:100%;object-fit:contain;clip-path:circle(49% at 50% 50%);margin:0 0 18px}#disponibilite .grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
@@ -146,4 +145,56 @@ article,#livres .book-block{background:#38332f;border-color:#62594f}
  .online-game-cta{padding:38px 24px!important}
  .online-game-cta::before{width:58%;height:58%}
  .online-game-cta::after{width:60%;height:60%}
+}
+
+/* Saarbruecken artwork banner */
+.online-game-cta{
+ position:relative!important;
+ isolation:isolate!important;
+ overflow:hidden!important;
+ margin-top:3rem!important;
+ padding:0!important;
+ width:100%!important;
+ min-height:0!important;
+ aspect-ratio:3/1!important;
+ border:1px solid #7d141c!important;
+ border-radius:16px!important;
+ background:#080809 url('/assets/vampires-sarrebruck-banner.svg?v=20261023-2315') center/cover no-repeat!important;
+ box-shadow:0 20px 46px rgba(0,0,0,.55)!important;
+ display:block!important;
+}
+.online-game-cta::before,.online-game-cta::after{display:none!important}
+.online-game-cta>h4,.online-game-cta>p{
+ position:absolute!important;
+ width:1px!important;
+ height:1px!important;
+ padding:0!important;
+ margin:-1px!important;
+ overflow:hidden!important;
+ clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;
+ border:0!important;
+}
+.online-game-cta .links{
+ position:absolute!important;
+ inset:0!important;
+ margin:0!important;
+ display:block!important;
+ z-index:3!important;
+}
+.online-game-cta .links a{
+ position:absolute!important;
+ left:36.5%!important;
+ right:36.5%!important;
+ top:72%!important;
+ bottom:10%!important;
+ margin:0!important;
+ padding:0!important;
+ opacity:0!important;
+ display:block!important;
+ cursor:pointer!important;
+}
+@media(max-width:700px){
+ .online-game-cta{aspect-ratio:auto!important;min-height:260px!important;background-size:cover!important;background-position:center!important;}
+ .online-game-cta .links a{left:18%!important;right:18%!important;top:70%!important;bottom:9%!important;}
 }
