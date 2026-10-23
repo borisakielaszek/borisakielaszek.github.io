@@ -1,0 +1,1058 @@
+--- Balai @ 2501951 ---
+'assets/van-helsing-sacoche-soins.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
+ van_helsing_broom:{name:'Balai d’Hexennacht',img:'assets/van-helsing-balai-hexennacht.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_armed_broom:{name:'Balai de contre-attaque d’Oeting',img:'assets/van-helsing-balai-oeting-missiles.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immed
+
+--- Balai @ 2502090 ---
+rckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
+ van_helsing_broom:{name:'Balai d’Hexennacht',img:'assets/van-helsing-balai-hexennacht.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_armed_broom:{name:'Balai de contre-attaque d’Oeting',img:'assets/van-helsing-balai-oeting-missiles.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
+ cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
+ aube:{name:'Aub
+
+--- Balai @ 2539614 ---
+ attaque adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>'+unavailableReason+'</p>':'')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ if(!ok)return;
+ if(id==='van_helsing_goggles')return useHelsingGoggles();
+ if(id==='van_helsing_medkit')return useHelsingMedkit();
+ if(id==='van_helsing_elixir')return useHelsingElixir();
+ return useSecretPower(id);
+}
+function secretPowersHTML(p){
+ if(!p?.human||!S?.secretMode)return '';
+ if(S.secretMode==='dracula'){
+ const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
+ return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
+}
+
+ const gear=[
+ ['broomInfoBtn','van_helsing_broom','Balai d’Hexennacht',(p.broomCharges||0)+' utilisation restante',defenseCopy('van_helsing_broom')],
+ ['armedBroomInfoBtn','van_helsing_armed_broom','Balai d’Oeting',(p.armedBroomCharges||0)+' utilisation restante',defenseCopy('van_helsing_armed_broom')],
+ ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire'],
+ ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / '+p.initialMirrorCharges+' utilisations','Annule une attaque de vampire défendable · −1 goutte à l’attaquant · Sans effet sur les loups-garous'],
+ ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
+ ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / '+p.initialElixirDoses+' doses','Rend jusqu’à 2 gouttes · maximum 10'],
+ ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
+ ['blessedBulletBtn','van_helsing_bullet','Pistolet à balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
+ ['gepettoBtn','van_helsing_stake','Pieu pneumatique Gepetto',p.gepettoStakes+' pieu(x)','Retire la moitié des gouttes, arrondie au supérieur'],
+ ['crucifixBtn','van_helsing_cross','Crucifix',!p.crossLimit?'Non fourni':p.crucifixUsed?'Déjà utilisé':'1 
+
+--- Balai @ 2539762 ---
+{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ if(!ok)return;
+ if(id==='van_helsing_goggles')return useHelsingGoggles();
+ if(id==='van_helsing_medkit')return useHelsingMedkit();
+ if(id==='van_helsing_elixir')return useHelsingElixir();
+ return useSecretPower(id);
+}
+function secretPowersHTML(p){
+ if(!p?.human||!S?.secretMode)return '';
+ if(S.secretMode==='dracula'){
+ const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
+ return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
+}
+
+ const gear=[
+ ['broomInfoBtn','van_helsing_broom','Balai d’Hexennacht',(p.broomCharges||0)+' utilisation restante',defenseCopy('van_helsing_broom')],
+ ['armedBroomInfoBtn','van_helsing_armed_broom','Balai d’Oeting',(p.armedBroomCharges||0)+' utilisation restante',defenseCopy('van_helsing_armed_broom')],
+ ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire'],
+ ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / '+p.initialMirrorCharges+' utilisations','Annule une attaque de vampire défendable · −1 goutte à l’attaquant · Sans effet sur les loups-garous'],
+ ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
+ ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / '+p.initialElixirDoses+' doses','Rend jusqu’à 2 gouttes · maximum 10'],
+ ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
+ ['blessedBulletBtn','van_helsing_bullet','Pistolet à balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
+ ['gepettoBtn','van_helsing_stake','Pieu pneumatique Gepetto',p.gepettoStakes+' pieu(x)','Retire la moitié des gouttes, arrondie au supérieur'],
+ ['crucifixBtn','van_helsing_cross','Crucifix',!p.crossLimit?'Non fourni':p.crucifixUsed?'Déjà utilisé':'1 utilisation','−2 gouttes'],
+ ['consecratedWhipBtn','van_helsing_whip','Fouet consacré',!p.whipLimit?'Non fourni':p.whipUsed?'Déjà utilisé':'1 utilis
+
+--- balai @ 2501995 ---
+0,kind:'regen',secretPower:true},
+ van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
+ van_helsing_broom:{name:'Balai d’Hexennacht',img:'assets/van-helsing-balai-hexennacht.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_armed_broom:{name:'Balai de contre-attaque d’Oeting',img:'assets/van-helsing-balai-oeting-missiles.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
+ cercueil:{name:'Cercueil endommagé'
+
+--- balai @ 2502148 ---
+bp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
+ van_helsing_broom:{name:'Balai d’Hexennacht',img:'assets/van-helsing-balai-hexennacht.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_armed_broom:{name:'Balai de contre-attaque d’Oeting',img:'assets/van-helsing-balai-oeting-missiles.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
+ cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
+ aube:{name:'Aube naissante sur le jardin franco-allemand',img:'assets/50d
+
+--- balai @ 2535587 ---
+ndex]===p&&!actionBusy&&
+ (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?(p.dawnUses||0)<(p.dawnLimit||currentHelsingBalance().dawnLimit):(id==='van_helsing_goggles'||id==='van_helsing_resupply')?true:false));
+}
+function helsingGearUnavailableReason(p,id){
+ if(!isVanHelsing(p)||!p.alive||S.gameOver)return 'Cet équipement ne peut pas être utilisé dans une partie terminée.';
+ if(['van_helsing_broom','van_helsing_armed_broom'].includes(id))return p[id==='van_helsing_broom'?'broomCharges':'armedBroomCharges']>0?'':'Ce balai a déjà été utilisé. Il faut en recevoir un nouveau grâce à son événement.';
+ const ammo={van_helsing_bolt:['silverBolts','Aucun carreau disponible. Récupère un carreau pour réutiliser l’arbalète.'],van_helsing_bullet:['blessedBullets','Aucune balle disponible. Récupère une balle d’argent consacrée pour réutiliser le pistolet.'],van_helsing_stake:['gepettoStakes','Aucun pieu disponible. Récupère un pieu pour réutiliser Gepetto.']};
+ if(ammo[id]&&!(p[ammo[id][0]]>0))return ammo[id][1];
+ const limits={van_helsing_cross:'crossLimit',van_helsing_whip:'whipLimit',van_helsing_water:'waterLimit'};if(limits[id]&&!p[limits[id]])return 'Non fourni dans cet équipement de départ, selon la difficulté et le nombre d’adversaires.';
+ if(id==='van_helsing_dawn'&&(p.dawnUses||0)>=p.dawnLimit)return 'La lanterne a épuisé ses utilisations pour cette partie.';
+ const spent={van_helsing_cross:'crucifixUsed',van_helsing_whip:'whipUsed',van_helsing_water:'holyWaterUsed'};
+ if(spent[id]&&p[spent[id]])return 'Déjà utilisé : cet équipement ne sert qu’une fois par partie.';
+ if(id==='van_helsing_rosary')return p.rosaryCharges>0?'':p.initialRosaryCharges===0?'Chapelet non fourni avec cet équipement de départ.':'Le chapelet n’a plus d’utilisation disponible.';
+ if(id==='van_helsing_mirror')return p.mirrorCharges>0?'':p.initialMirrorCharges===0?'Miroir non fourni avec cet équipement de départ.':'Le miro
+
+--- balai @ 2603594 ---
+2,van_helsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function combatOutcomeMode(defense,id){
+ if(!defense)return 'hit';
+ if(defense==='lame')return 'reflect';
+ if(defense==='brume'&&id==='chasseurs_bayerische')return 'partial';
+ if(defense==='plasma'||defense==='poche_aplus')return 'endured';
+ return 'countered';
+}
+function combatOutcomeChip(mode){
+ return({countered:{txt:'Attaque contrée',cls:'good'},reflect:{txt:'Attaque renvoyée',cls:'good'},partial:{txt:'Attaque freinée',cls:'good'},endured:{txt:'Attaque subie',cls:'bad'},hit:{txt:'Attaque subie',cls:'bad'}}[mode]||{txt:'Résolution',cls:''});
+}
+function combatSceneLine(attacker,target,attackId,defenseId,mode){
+ if(defenseId==='van_helsing_broom')return 'Van Helsing prend la fuite sur son balai d’Hexennacht.';
+ if(defenseId==='van_helsing_armed_broom')return 'Van Helsing prend la fuite et lance les missiles de son balai d’Oeting : −3 gouttes au vampire attaquant.';
+ if(defenseId==='van_helsing_silver_defense')return attackId==='meute'?'Van Helsing repousse la meute avec une balle d’argent, mais perd 1 goutte.':'Van Helsing repousse le loup-garou avec une balle d’argent : aucune goutte perdue.';
+ const atk=cardName(attackId),def=defenseId?cardName(defenseId):'';
+ const aName=pName(attacker),vamp=VAMPIRES[target.vampire].name;
+ if(mode==='reflect')return `<strong>${vamp}</strong> repousse ${atk} grâce à <strong>${def}</strong> et renvoie l’assaut vers <strong>${aName}</strong>.`;
+ if(mode==='partial')return `<strong>${vamp}</strong> se couvre de <strong>${def}</strong> : l’attaque ${atk} est freinée et ses dégâts sont réduits.`;
+ if(mode==='endured'){
+   if(defenseId==='plasma')return `<strong>${vamp}</strong> subit ${atk}, mais le <strong>${def}</strong> lui rend aussitôt des forces.`;
+   if(defenseId==='poche_aplus')return `<strong>${vamp}</strong> encaisse ${atk}, puis récupère une goutte grâce à <strong>${def}</strong>.`;
+ }
+ if(mode==='countered'){
+   if(defenseId==='van_helsing_mirror')return `<strong>${aName}</strong> ne voit pas son reflet dans le Miroir d’Erzulie Freda : il abandonne son attaque et perd 1 goutte.`;
+   if(defenseId==='van_helsing_rosary')r
+
+--- balai @ 2603722 ---
+eurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function combatOutcomeMode(defense,id){
+ if(!defense)return 'hit';
+ if(defense==='lame')return 'reflect';
+ if(defense==='brume'&&id==='chasseurs_bayerische')return 'partial';
+ if(defense==='plasma'||defense==='poche_aplus')return 'endured';
+ return 'countered';
+}
+function combatOutcomeChip(mode){
+ return({countered:{txt:'Attaque contrée',cls:'good'},reflect:{txt:'Attaque renvoyée',cls:'good'},partial:{txt:'Attaque freinée',cls:'good'},endured:{txt:'Attaque subie',cls:'bad'},hit:{txt:'Attaque subie',cls:'bad'}}[mode]||{txt:'Résolution',cls:''});
+}
+function combatSceneLine(attacker,target,attackId,defenseId,mode){
+ if(defenseId==='van_helsing_broom')return 'Van Helsing prend la fuite sur son balai d’Hexennacht.';
+ if(defenseId==='van_helsing_armed_broom')return 'Van Helsing prend la fuite et lance les missiles de son balai d’Oeting : −3 gouttes au vampire attaquant.';
+ if(defenseId==='van_helsing_silver_defense')return attackId==='meute'?'Van Helsing repousse la meute avec une balle d’argent, mais perd 1 goutte.':'Van Helsing repousse le loup-garou avec une balle d’argent : aucune goutte perdue.';
+ const atk=cardName(attackId),def=defenseId?cardName(defenseId):'';
+ const aName=pName(attacker),vamp=VAMPIRES[target.vampire].name;
+ if(mode==='reflect')return `<strong>${vamp}</strong> repousse ${atk} grâce à <strong>${def}</strong> et renvoie l’assaut vers <strong>${aName}</strong>.`;
+ if(mode==='partial')return `<strong>${vamp}</strong> se couvre de <strong>${def}</strong> : l’attaque ${atk} est freinée et ses dégâts sont réduits.`;
+ if(mode==='endured'){
+   if(defenseId==='plasma')return `<strong>${vamp}</strong> subit ${atk}, mais le <strong>${def}</strong> lui rend aussitôt des forces.`;
+   if(defenseId==='poche_aplus')return `<strong>${vamp}</strong> encaisse ${atk}, puis récupère une goutte grâce à <strong>${def}</strong>.`;
+ }
+ if(mode==='countered'){
+   if(defenseId==='van_helsing_mirror')return `<strong>${aName}</strong> ne voit pas son reflet dans le Miroir d’Erzulie Freda : il abandonne son attaque et perd 1 goutte.`;
+   if(defenseId==='van_helsing_rosary')return `<strong>${vamp}</strong> présente le chapelet de sainte Marguerite : l’attaque de <strong>${aName}</strong> est annulée.`
+
+--- balai @ 2625014 ---
+re contre ce renvoi.':'Cette attaque porte le bouclier barré : elle est imparable. Tu n’as aucune carte permettant une exception.')
+     :'Tu n’as aucune carte de défense adaptée à cette attaque.';
+   log(explanation,'important');
+   await openModal({
+     title:imparable?'Attaque imparable':'Aucune défense adaptée',
+     text:explanation,
+     buttons:[{label:'Continuer',value:true}]
+   });
+ }
+ const defense=await chooseDefense(target,attacker,id,defs);let postHeal=0;
+ if(defense){
+   if(defense==='van_helsing_broom'||defense==='van_helsing_armed_broom'){
+     if(!canUseHelsingBroom(target,attacker,id,defense,uncounterable))return;
+     const armed=defense==='van_helsing_armed_broom';target[armed?'armedBroomCharges':'broomCharges']--;render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     log('Van Helsing échappe à l’attaque avec son balai'+(armed?' et tire ses missiles consacrés : −3 gouttes à l’attaquant.':'.'),'good');
+     if(armed)await loseBlood(attacker,3,'missiles du balai d’Oeting');
+     await maybeGameOver();return;
+   }
+   if(defense==='van_helsing_silver_defense'){
+     if(!canUseSilverPistol(target,attacker,id,uncounterable))return;
+     target.blessedBullets--;
+     const pack=id==='meute';
+     log('Van Helsing tire une balle d’argent consacrée : '+(pack?'la meute recule, mais il perd 1 goutte.':'le loup-garou est repoussé.'),'good');
+     const summary=pack?await applyAttackEffect(attacker,target,id,{damageOverride:1}):{damage:0,discarded:[],eliminated:false};
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:pack?'partial':'countered',effectSummary:summary});
+     return;
+   }
+   if(defense==='van_helsing_mirror'){
+     if(!canUseMirror(target,attacker,id,uncounterable))return;
+     target.mirrorCharges--;
+     log(pName(target)+' présente le Miroir d’Erzulie Freda : le vampire ne voit pas son reflet et abandonne son attaque.','good');
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     await loseBlood(attacker,1,'effroi devant le Miroir d’Erzulie Freda');
+     await maybeGameOver();
+     return;
+   }
+   if(defense==='van_helsing_rosary'){
+     if(!canUseRosary(target,attacker,id,uncou
+
+--- balai @ 2625158 ---
+as aucune carte de défense adaptée à cette attaque.';
+   log(explanation,'important');
+   await openModal({
+     title:imparable?'Attaque imparable':'Aucune défense adaptée',
+     text:explanation,
+     buttons:[{label:'Continuer',value:true}]
+   });
+ }
+ const defense=await chooseDefense(target,attacker,id,defs);let postHeal=0;
+ if(defense){
+   if(defense==='van_helsing_broom'||defense==='van_helsing_armed_broom'){
+     if(!canUseHelsingBroom(target,attacker,id,defense,uncounterable))return;
+     const armed=defense==='van_helsing_armed_broom';target[armed?'armedBroomCharges':'broomCharges']--;render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     log('Van Helsing échappe à l’attaque avec son balai'+(armed?' et tire ses missiles consacrés : −3 gouttes à l’attaquant.':'.'),'good');
+     if(armed)await loseBlood(attacker,3,'missiles du balai d’Oeting');
+     await maybeGameOver();return;
+   }
+   if(defense==='van_helsing_silver_defense'){
+     if(!canUseSilverPistol(target,attacker,id,uncounterable))return;
+     target.blessedBullets--;
+     const pack=id==='meute';
+     log('Van Helsing tire une balle d’argent consacrée : '+(pack?'la meute recule, mais il perd 1 goutte.':'le loup-garou est repoussé.'),'good');
+     const summary=pack?await applyAttackEffect(attacker,target,id,{damageOverride:1}):{damage:0,discarded:[],eliminated:false};
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:pack?'partial':'countered',effectSummary:summary});
+     return;
+   }
+   if(defense==='van_helsing_mirror'){
+     if(!canUseMirror(target,attacker,id,uncounterable))return;
+     target.mirrorCharges--;
+     log(pName(target)+' présente le Miroir d’Erzulie Freda : le vampire ne voit pas son reflet et abandonne son attaque.','good');
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     await loseBlood(attacker,1,'effroi devant le Miroir d’Erzulie Freda');
+     await maybeGameOver();
+     return;
+   }
+   if(defense==='van_helsing_rosary'){
+     if(!canUseRosary(target,attacker,id,uncounterable))return;
+     target.rosaryCharges--;
+     log(pName(target)+' présente le chapelet de sainte Marguerite du Habsterdick : attaque annul
+
+--- Oeting @ 2502116 ---
+n-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
+ van_helsing_broom:{name:'Balai d’Hexennacht',img:'assets/van-helsing-balai-hexennacht.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_armed_broom:{name:'Balai de contre-attaque d’Oeting',img:'assets/van-helsing-balai-oeting-missiles.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
+ cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
+ aube:{name:'Aube naissante sur le jardin 
+
+--- Oeting @ 2506240 ---
+se'},
+ mortetrouille:{name:'Mortetrouille',img:'assets/de093a7cd6e608a1f358.webp',qty:2,kind:'immediate'},
+ monstre:{name:'Le monstre du Schafbach',img:'assets/b8e9370d9912834404c9.webp',qty:3,kind:'immediate'},
+ abomination:{name:"L’Abomination de Folsterhöhe",img:'assets/c22bf78784f77b0cedf9.webp',qty:1,kind:'attack',unblockable:true},
+ proie_brandenbusch:{name:'Proie saignée dans la forêt du Brandenbourg',img:'assets/02b1753381f3a85b4531.webp',qty:2,kind:'immediate'},
+ proie_schalkenthal:{name:'Proie saignée dans la forêt de Schalkenthal',img:'assets/8de9051b8d28c514739b.webp',qty:2,kind:'immediate'},
+ proie_bahnhof:{name:'Proie saignée à la gare centrale',img:'assets/dfce8e59ed1caba853d6.webp',qty:2,kind:'immediate'},
+ chasseurs_bayerische:{name:'Les chasseurs de la Hochjagdloge bavaroise',img:'assets/557a29c0be645b72a5b5.webp',qty:2,kind:'attack'},
+ sorcieres:{name:"Les Sorcières d’Oeting",img:'assets/f1d851dd8798412ff117.webp',qty:1,kind:'immediate'},
+ poche_aplus:{name:'Poche de sang A+',img:'assets/5c70a10148b12b91e286.webp',qty:2,kind:'defense'},
+ meute:{name:'Meute de loups-garous',img:'assets/c2f50e62286e85824921.webp',qty:2,kind:'attack'},
+ lycanthrope:{name:'Attaque de loup-garou',img:'assets/90be0337bb8c370db146.webp',qty:2,kind:'attack'},
+ furie:{name:'Frénésie sanguinaire',img:'assets/4a407263d1a5bd062d9d.webp',qty:3,kind:'hybrid'},
+ chute_sarre:{name:'Chute dans la Sarre',img:'assets/fd8f8e6fcbd408cfe1fb.webp',qty:2,kind:'immediate'},
+ fleau:{name:'Le Fléau Purificateur de la Ludwigskirche',img:'assets/0ea03fc9a33527ac9eff.webp',qty:1,kind:'immediate'},
+ fantome:{name:'Le Fantôme illustre du château de Sarrebruck',img:'assets/e7a45b8d495f68412ea7.webp',qty:1,kind:'immediate'},
+ peste:{name:'Épidémie de peste à Sarrebruck',img:'assets/e9ab49a5b1ae033e8492.webp',qty:1,kind:'immediate'},
+ empalement:{name:"L’Empalement de l’oncle Vlad",img:'assets/8cc478b20cbca3a1410c.webp',qty:2,kind:'defense'},
+ brume:{name:'Brume vampirique',img:'assets/0b6d1539b34ee47499eb.webp',qty:2,kind:'hybrid'},
+ lame:{name:'Lame vorace du prince des Carpates',img:'assets/5319e5c4a2f931fb5db6.webp',qty:1,kind:'hybrid'}
+};
+
+const VAMPIRES={
+ draco:{name:'Draco von Blutstern',img:'assets/eba16f5e93fb78d2628f.webp',family:'both',maxHp:5,maxHand:6},
+ rudiger:{name:'Comte Rüd
+
+--- Oeting @ 2514676 ---
+ire pioche 2 nouvelles cartes dans la pioche commune. Si ta main dépasse sa limite, tu choisiras ensuite quoi défausser.",
+ hexennacht:"La Nuit des sorcières entraîne toute la table : chaque vampire vole 1 carte face cachée à son voisin de droite.",
+ fossoyeur:"Le Fossoyeur te fait perdre 1 goutte de sang.",
+ mortetrouille:"Mortetrouille fouille la défausse : tu choisis 1 carte parmi les 5 dernières et tu appliques immédiatement son effet.",
+ monstre:"Le monstre du Schafbach t’attaque : tu perds 2 gouttes de sang.",
+ proie_brandenbusch:"Tu saignes une proie dans la forêt du Brandenbourg : tu récupères 2 gouttes de sang.",
+ proie_schalkenthal:"Tu saignes une proie dans la forêt de Schalkenthal : tu récupères 1 goutte de sang.",
+ proie_bahnhof:"Tu saignes une proie devant la gare centrale : tu récupères 1 goutte de sang et tu pioches 2 cartes supplémentaires.",
+ sorcieres:"Les Sorcières d’Oeting s’installent à tes côtés : ta main maximale passe à 7 cartes.",
+ chute_sarre:"Tu chutes dans la Sarre : tu dois défausser 1 carte puis passer ton prochain tour, sauf si un pouvoir ou une carte te permet d’éviter la chute.",
+ fleau:"Le Fléau Purificateur frappe toute la table : chaque vampire perd 1 goutte de sang.",
+ fantome:"Le Fantôme te demande de choisir un autre vampire : il reçoit 1 goutte de sang provenant de la réserve commune.",
+ peste:"La peste frappe les vampires encore bien nourris : tous ceux qui ont au moins 4 gouttes de sang en perdent 2."
+};
+
+const CARD_EXPLAIN={
+ impots:"Tous les autres vampires perdent 1 goutte de sang et défaussent 1 carte. Ermanno applique en plus son pouvoir spécial.",
+ marche_noel:"🎁 Cadeau de Noël pour toute la table : chaque vampire vivant pioche 2 nouvelles cartes dans la pioche commune. Si la main dépasse ensuite sa limite, le jeu demandera simplement quelles cartes défausser.",
+ cercueil:"La cible perd 1 goutte. Défense normalement impossible, sauf exception écrite sur une carte.",
+ aube:"La cible perd 2 gouttes. Draculito est immunisé ; Draco gagne 1 goutte à la place.",
+ morsure:"La cible perd 1 goutte. Si elle est exactement à 1 goutte, elle peut défausser 1 carte pour survivre à 1.",
+ hypnose:"Regarde la main d’un adversaire et vole 1 carte. Défense impossible. Elisabetta est immunisée.",
+ fuite_chauve:"Défense : évite une 
+
+--- Oeting @ 2516382 ---
+ nouvelles cartes dans la pioche commune. Si la main dépasse ensuite sa limite, le jeu demandera simplement quelles cartes défausser.",
+ cercueil:"La cible perd 1 goutte. Défense normalement impossible, sauf exception écrite sur une carte.",
+ aube:"La cible perd 2 gouttes. Draculito est immunisé ; Draco gagne 1 goutte à la place.",
+ morsure:"La cible perd 1 goutte. Si elle est exactement à 1 goutte, elle peut défausser 1 carte pour survivre à 1.",
+ hypnose:"Regarde la main d’un adversaire et vole 1 carte. Défense impossible. Elisabetta est immunisée.",
+ fuite_chauve:"Défense : évite une attaque, sauf Hypnose. Peut aussi éviter Chute dans la Sarre.",
+ tablettes:"Défense : annule les effets de Poche périmée, Gewürztraminer au Sang Noir et Saucisson à l’ail.",
+ hexennacht:"🌙 Hexennacht entraîne toute la table : chaque vampire vole 1 carte face cachée à son voisin de droite. Les Sorcières d’Oeting restent protégées et ne peuvent pas être volées ainsi.",
+ poche_perimee:"La cible perd 1 goutte. Pour Ermanno, l’effet est inversé : il gagne 1 goutte.",
+ saint_nicolas:"La cible passe ses 2 prochains tours. Elisabetta ne passe jamais son tour. Sur Van Helsing, Saint-Nicolas offre 1 goutte d’or supplémentaire (+2 vie), sans tour perdu.",
+ griffures:"La cible perd 1 goutte.",
+ chateau:"Régénération : Dunkelwald +2 ; Del Rattello +1 ; Rüdiger +3 ; Draco bénéficie du bonus Dunkelwald.",
+ tour_schlossberg:"Régénération : Del Rattello +2 ; Dunkelwald +1 ; Draco bénéficie du bonus Del Rattello.",
+ plasma:"Défense après une perte de sang : récupère 2 gouttes. Ne sauve pas un vampire déjà tombé à 0.",
+ gewurz:"Dunkelwald : +1 goutte ; Ilsa : +2. Del Rattello passe son prochain tour. Draco bénéficie du bonus Dunkelwald.",
+ saucisson:"Del Rattello : +1 goutte. Dunkelwald passe son prochain tour. Draco bénéficie du bonus Del Rattello.",
+ fossoyeur:"Effet immédiat : tu perds 1 goutte. Défense impossible.",
+ chasseur_grande_loge:"La cible perd 2 gouttes. Défense impossible, sauf exceptions indiquées par certaines cartes.",
+ fuite_warndt:"Défense : évite une attaque, sauf Attaque de loup-garou et Meute de loups-garous.",
+ mortetrouille:"Effet immédiat : choisis une carte parmi les 5 premières de la défausse et applique son effet.",
+ monstre:"Effet immédiat : tu perds 2 gouttes. Défens
+
+--- Oeting @ 2527314 ---
+entListener('click',()=>useSecretPower('van_helsing_dawn'));
+     el('rosaryInfoBtn')?.addEventListener('click',showRosaryInfo);
+   }
+   el('exchangeBtn').disabled=!playable||isVanHelsing(h);
+   el('exchangeBtn').classList.toggle('hidden',isVanHelsing(h));
+   const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
+   el('manfredBtn').classList.toggle('hidden',h.vampire!=='manfred');
+   el('manfredBtn').disabled=!manfredAvailable;
+ }
+ const dv=el('discardVisual');
+ if(dv){if(S.discard.length){const id=S.discard[S.discard.length-1];dv.innerHTML=`<img src="${imgCard(id)}">`}else dv.textContent=''}
+ const last=el('lastActionLine');if(last&&S.lastAction)last.textContent=String(S.lastAction).replace(/<[^>]*>/g,'');
+}
+function playerCardHTML(p,current,isHuman=false){
+ const witchMarker=p.witches?`<div class="witch-card-badge" title="Les Sorcières d’Oeting actives — main maximale 7"><img src="${imgCard('sorcieres')}" alt="Les Sorcières d’Oeting"><div class="witch-card-tag">Sorcières</div></div>`:'';
+ const deathMarker=!p.alive?`<div class="death-eliminated-label" aria-label="Vampire éliminé">ÉLIMINÉ</div>`:'';
+ return `<div class="featured-portrait-wrap ${p===current?'current':''} ${!p.alive?'dead':''}" data-player-id="${p.id}"><img class="featured-portrait" src="${imgVamp(p)}" alt="${playerVampireName(p)}">${witchMarker}${deathMarker}</div>`;
+}
+function playerInfoBarHTML(p,isHuman=false){
+ if(!p)return '';
+ if(isHuman)return `<div class="vamp-info-main"><strong>${p.name||'Toi'}</strong><span>${playerVampireName(p)}</span></div><div class="vamp-info-blood">${bloodDisplayHTML(p)}</div>`;
+ return `<div class="vamp-info-main"><strong>${VAMPIRES[p.vampire].name} (IA)</strong></div><div class="vamp-info-blood">🩸 × ${p.hp}</div>`;
+}
+
+function openModal({title='',text='',content='',buttons=[],closable=false}){
+ return new Promise(resolve=>{
+   modalResolve=resolve;el('modalTitle').textContent=title;el('modalText').innerHTML=text;el('modalContent').innerHTML=content;const b=el('modalButtons');b.innerHTML='';
+   buttons.forEach(x=>{const bt=document.createElement('button');bt.textContent=x.label;bt.className=x.className||'';bt.onclick=()=>closeModal(x.value);b.appendChild(bt)});
+   el('modalX').style.display=closable?'block':'none'
+
+--- Oeting @ 2527404 ---
+EventListener('click',showRosaryInfo);
+   }
+   el('exchangeBtn').disabled=!playable||isVanHelsing(h);
+   el('exchangeBtn').classList.toggle('hidden',isVanHelsing(h));
+   const manfredAvailable=h.vampire==='manfred'&&!h.manfredUsed&&h.hp<playerMaxHp(h)&&S.pool>0&&h.alive;
+   el('manfredBtn').classList.toggle('hidden',h.vampire!=='manfred');
+   el('manfredBtn').disabled=!manfredAvailable;
+ }
+ const dv=el('discardVisual');
+ if(dv){if(S.discard.length){const id=S.discard[S.discard.length-1];dv.innerHTML=`<img src="${imgCard(id)}">`}else dv.textContent=''}
+ const last=el('lastActionLine');if(last&&S.lastAction)last.textContent=String(S.lastAction).replace(/<[^>]*>/g,'');
+}
+function playerCardHTML(p,current,isHuman=false){
+ const witchMarker=p.witches?`<div class="witch-card-badge" title="Les Sorcières d’Oeting actives — main maximale 7"><img src="${imgCard('sorcieres')}" alt="Les Sorcières d’Oeting"><div class="witch-card-tag">Sorcières</div></div>`:'';
+ const deathMarker=!p.alive?`<div class="death-eliminated-label" aria-label="Vampire éliminé">ÉLIMINÉ</div>`:'';
+ return `<div class="featured-portrait-wrap ${p===current?'current':''} ${!p.alive?'dead':''}" data-player-id="${p.id}"><img class="featured-portrait" src="${imgVamp(p)}" alt="${playerVampireName(p)}">${witchMarker}${deathMarker}</div>`;
+}
+function playerInfoBarHTML(p,isHuman=false){
+ if(!p)return '';
+ if(isHuman)return `<div class="vamp-info-main"><strong>${p.name||'Toi'}</strong><span>${playerVampireName(p)}</span></div><div class="vamp-info-blood">${bloodDisplayHTML(p)}</div>`;
+ return `<div class="vamp-info-main"><strong>${VAMPIRES[p.vampire].name} (IA)</strong></div><div class="vamp-info-blood">🩸 × ${p.hp}</div>`;
+}
+
+function openModal({title='',text='',content='',buttons=[],closable=false}){
+ return new Promise(resolve=>{
+   modalResolve=resolve;el('modalTitle').textContent=title;el('modalText').innerHTML=text;el('modalContent').innerHTML=content;const b=el('modalButtons');b.innerHTML='';
+   buttons.forEach(x=>{const bt=document.createElement('button');bt.textContent=x.label;bt.className=x.className||'';bt.onclick=()=>closeModal(x.value);b.appendChild(bt)});
+   el('modalX').style.display=closable?'block':'none';el('modalX').onclick=()=>closable&&closeModal(null);el('modal').classList.remove('hidden'
+
+--- Oeting @ 2539770 ---
+Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ if(!ok)return;
+ if(id==='van_helsing_goggles')return useHelsingGoggles();
+ if(id==='van_helsing_medkit')return useHelsingMedkit();
+ if(id==='van_helsing_elixir')return useHelsingElixir();
+ return useSecretPower(id);
+}
+function secretPowersHTML(p){
+ if(!p?.human||!S?.secretMode)return '';
+ if(S.secretMode==='dracula'){
+ const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
+ return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
+}
+
+ const gear=[
+ ['broomInfoBtn','van_helsing_broom','Balai d’Hexennacht',(p.broomCharges||0)+' utilisation restante',defenseCopy('van_helsing_broom')],
+ ['armedBroomInfoBtn','van_helsing_armed_broom','Balai d’Oeting',(p.armedBroomCharges||0)+' utilisation restante',defenseCopy('van_helsing_armed_broom')],
+ ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire'],
+ ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / '+p.initialMirrorCharges+' utilisations','Annule une attaque de vampire défendable · −1 goutte à l’attaquant · Sans effet sur les loups-garous'],
+ ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
+ ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / '+p.initialElixirDoses+' doses','Rend jusqu’à 2 gouttes · maximum 10'],
+ ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
+ ['blessedBulletBtn','van_helsing_bullet','Pistolet à balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
+ ['gepettoBtn','van_helsing_stake','Pieu pneumatique Gepetto',p.gepettoStakes+' pieu(x)','Retire la moitié des gouttes, arrondie au supérieur'],
+ ['crucifixBtn','van_helsing_cross','Crucifix',!p.crossLimit?'Non fourni':p.crucifixUsed?'Déjà utilisé':'1 utilisation','−2 gouttes'],
+ ['consecratedWhipBtn','van_helsing_whip','Fouet consacré',!p.whipLimit?'Non fourni':p.whipUsed?'Déjà utilisé':'1 utilisation','
+
+--- Oeting @ 2580679 ---
+ind==='defense') return `<div class="action-copy"><div class="action-kicker">🛡 DÉFENSE</div><div class="action-main">Garde cette carte en main. Si une attaque compatible te vise, le jeu te proposera automatiquement de l’utiliser au bon moment.</div></div>`;
+ if(c.kind==='immediate') return `<div class="action-copy"><div class="action-kicker">✦ EFFET IMMÉDIAT</div><div class="action-main">Cette carte agit automatiquement lorsqu’elle est piochée.</div></div>`;
+ return `<div class="action-copy"><div class="action-main">${CARD_EXPLAIN[id]||'Effet indiqué sur la carte.'}</div></div>`;
+}
+function defenseCopy(id,incoming){
+ if(id==='van_helsing_broom')return 'Évite une attaque de vampire défendable. Un seul usage. Reçu à Hexennacht.';
+ if(id==='van_helsing_armed_broom')return 'Évite une attaque de vampire défendable et inflige 3 gouttes au vampire attaquant. Un seul usage. Reçu des Sorcières d’Oeting.';
+ if(id==='van_helsing_silver_defense')return 'Consomme 1 balle d’argent consacrée, sans utiliser ton action. Annule le loup-garou solitaire ; contre la meute, tu perds 1 goutte au lieu de 2.';
+ if(id==='van_helsing_mirror')return 'Annule cette attaque défendable et retire 1 goutte à l’attaquant, horrifié de ne pas voir son reflet. Utilisations limitées selon la difficulté.';
+ if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Consomme 1 utilisation disponible, sans défausser de carte ni utiliser ton action du tour.';
+ if(id==='fuite_chauve') return `Transforme-toi en chauve-souris et <strong>esquive complètement l’attaque</strong>.`;
+ if(id==='fuite_warndt') return `Disparais dans la forêt du Warndt et <strong>échappe à l’attaque</strong>.`;
+ if(id==='tablettes') return `Neutralise l’effet avec tes comprimés d’hémoglobine.`;
+ if(id==='furie') return `Déchaîne ta Furie et <strong>repousse les loups-garous</strong>.`;
+ if(id==='empalement') return `Empale l’assaillant : tu évites l’attaque et <strong>il perd 1 goutte de sang</strong>.`;
+ if(id==='brume') return incoming==='chasseurs_bayerische'?`Transforme-toi en brume : l’attaque des chasseurs ne te fera plus perdre que <strong>1 goutte</strong>.`:`Transforme-toi en brume et <strong>échappez aux chasseurs</strong>.`;
+ if(id==='lame') return `Retourne l’attaque co
+
+--- Oeting @ 2603730 ---
+erische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function combatOutcomeMode(defense,id){
+ if(!defense)return 'hit';
+ if(defense==='lame')return 'reflect';
+ if(defense==='brume'&&id==='chasseurs_bayerische')return 'partial';
+ if(defense==='plasma'||defense==='poche_aplus')return 'endured';
+ return 'countered';
+}
+function combatOutcomeChip(mode){
+ return({countered:{txt:'Attaque contrée',cls:'good'},reflect:{txt:'Attaque renvoyée',cls:'good'},partial:{txt:'Attaque freinée',cls:'good'},endured:{txt:'Attaque subie',cls:'bad'},hit:{txt:'Attaque subie',cls:'bad'}}[mode]||{txt:'Résolution',cls:''});
+}
+function combatSceneLine(attacker,target,attackId,defenseId,mode){
+ if(defenseId==='van_helsing_broom')return 'Van Helsing prend la fuite sur son balai d’Hexennacht.';
+ if(defenseId==='van_helsing_armed_broom')return 'Van Helsing prend la fuite et lance les missiles de son balai d’Oeting : −3 gouttes au vampire attaquant.';
+ if(defenseId==='van_helsing_silver_defense')return attackId==='meute'?'Van Helsing repousse la meute avec une balle d’argent, mais perd 1 goutte.':'Van Helsing repousse le loup-garou avec une balle d’argent : aucune goutte perdue.';
+ const atk=cardName(attackId),def=defenseId?cardName(defenseId):'';
+ const aName=pName(attacker),vamp=VAMPIRES[target.vampire].name;
+ if(mode==='reflect')return `<strong>${vamp}</strong> repousse ${atk} grâce à <strong>${def}</strong> et renvoie l’assaut vers <strong>${aName}</strong>.`;
+ if(mode==='partial')return `<strong>${vamp}</strong> se couvre de <strong>${def}</strong> : l’attaque ${atk} est freinée et ses dégâts sont réduits.`;
+ if(mode==='endured'){
+   if(defenseId==='plasma')return `<strong>${vamp}</strong> subit ${atk}, mais le <strong>${def}</strong> lui rend aussitôt des forces.`;
+   if(defenseId==='poche_aplus')return `<strong>${vamp}</strong> encaisse ${atk}, puis récupère une goutte grâce à <strong>${def}</strong>.`;
+ }
+ if(mode==='countered'){
+   if(defenseId==='van_helsing_mirror')return `<strong>${aName}</strong> ne voit pas son reflet dans le Miroir d’Erzulie Freda : il abandonne son attaque et perd 1 goutte.`;
+   if(defenseId==='van_helsing_rosary')return `<strong>${vamp}</strong> présente le chapelet de sainte Marguerite : l’attaque de <strong>${aName}</strong> est annulée.`;
+   if(
+
+--- Oeting @ 2625166 ---
+e carte de défense adaptée à cette attaque.';
+   log(explanation,'important');
+   await openModal({
+     title:imparable?'Attaque imparable':'Aucune défense adaptée',
+     text:explanation,
+     buttons:[{label:'Continuer',value:true}]
+   });
+ }
+ const defense=await chooseDefense(target,attacker,id,defs);let postHeal=0;
+ if(defense){
+   if(defense==='van_helsing_broom'||defense==='van_helsing_armed_broom'){
+     if(!canUseHelsingBroom(target,attacker,id,defense,uncounterable))return;
+     const armed=defense==='van_helsing_armed_broom';target[armed?'armedBroomCharges':'broomCharges']--;render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     log('Van Helsing échappe à l’attaque avec son balai'+(armed?' et tire ses missiles consacrés : −3 gouttes à l’attaquant.':'.'),'good');
+     if(armed)await loseBlood(attacker,3,'missiles du balai d’Oeting');
+     await maybeGameOver();return;
+   }
+   if(defense==='van_helsing_silver_defense'){
+     if(!canUseSilverPistol(target,attacker,id,uncounterable))return;
+     target.blessedBullets--;
+     const pack=id==='meute';
+     log('Van Helsing tire une balle d’argent consacrée : '+(pack?'la meute recule, mais il perd 1 goutte.':'le loup-garou est repoussé.'),'good');
+     const summary=pack?await applyAttackEffect(attacker,target,id,{damageOverride:1}):{damage:0,discarded:[],eliminated:false};
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:pack?'partial':'countered',effectSummary:summary});
+     return;
+   }
+   if(defense==='van_helsing_mirror'){
+     if(!canUseMirror(target,attacker,id,uncounterable))return;
+     target.mirrorCharges--;
+     log(pName(target)+' présente le Miroir d’Erzulie Freda : le vampire ne voit pas son reflet et abandonne son attaque.','good');
+     render();
+     await showCombatScene({attacker,target,attackId:id,defenseId:defense,mode:'countered'});
+     await loseBlood(attacker,1,'effroi devant le Miroir d’Erzulie Freda');
+     await maybeGameOver();
+     return;
+   }
+   if(defense==='van_helsing_rosary'){
+     if(!canUseRosary(target,attacker,id,uncounterable))return;
+     target.rosaryCharges--;
+     log(pName(target)+' présente le chapelet de sainte Marguerite du Habsterdick : attaque annulée. '+ta
+
+--- Oeting @ 2631596 ---
+}
+ let chosen;
+ if(attacker.human){const content=`<div class="choice-grid">${opts.map((x,i)=>`<div class="choice-card" data-hyp="${i}"><img src="${imgCard(x.id)}"><b>${cardName(x.id)}</b></div>`).join('')}</div>`;const pr=openModal({title:`Main de ${pName(target)}`,text:'Choisis la carte à voler.',content});setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-hyp]')].forEach(n=>n.onclick=()=>closeModal(Number(n.dataset.hyp)))},0);chosen=opts[await pr]}else chosen=opts[Math.floor(Math.random()*opts.length)];
+ if(chosen.type==='witches'){await transferWitches(target,attacker);return}
+ const [id]=target.hand.splice(chosen.i,1);attacker.hand.push(id);log(`${pName(attacker)} vole ${cardName(id)} à ${pName(target)}.`,'good');await enforceHandLimit(attacker);
+
+render();
+}
+async function transferWitches(from,to){from.witches=false;to.witches=true;log(`${pName(to)} vole Les Sorcières d’Oeting à ${pName(from)}.`,'important');await enforceHandLimit(from);while(to.alive&&to.hand.length<7)await drawOneToHand(to);render()}
+async function ermannoTaxesBonus(p){if(!p.alive)return;const room=playerMaxHp(p)-p.hp;if(room<=0)return;let need=Math.min(2,room);const taken=await gainBlood(p,need,'pouvoir Impôts et taxes');need-=taken;if(need>0){const targets=alivePlayers().filter(x=>x!==p);for(let k=0;k<need&&targets.length;k++){const t=p.human?await choosePlayer('La réserve est insuffisante : choisis un vampire à qui voler le complément.',targets):aiTarget(p,targets);await stealBlood(t,p,1)}}}
+
+async function executeRegen(p,id){
+ if(id==='chateau'){let n=family(p,'dunkelwald')?2:1;if(p.vampire==='rudiger')n=3;if(p.vampire==='draco')n=2;await gainBlood(p,n,cardName(id));return}
+ if(id==='tour_schlossberg'){let n=family(p,'rattello')?2:1;if(p.vampire==='draco')n=2;await gainBlood(p,n,cardName(id));return}
+ if(id==='gewurz'){if(family(p,'dunkelwald')){await gainBlood(p,p.vampire==='ilsa'?2:1,cardName(id))}else await poisonSkip(p,id);return}
+ if(id==='saucisson'){if(family(p,'rattello'))await gainBlood(p,1,cardName(id));else await poisonSkip(p,id);return}
+}
+async function poisonSkip(p,id){let cancel=false;if(p.hand.includes('tablettes')){if(p.human)cancel=await openModal({title:'Carte Poison',text:`${cardName(id)} te ferait passer ton prochain tour. Utiliser les Comprimés d’hém
+
+--- Oeting @ 2636117 ---
+x);log('Marché de Noël : Van Helsing reçoit deux objets.','good');continue;}log(`${pName(x)} : pioche de 2 cartes dans la pioche commune (Marché de Noël).`,'important');await drawCards(x,2,'marche_noel');}return}
+ if(id==='hexennacht'){await grantHelsingBroom(p,id,drawReason);await resolveHexennacht(p);return}
+ if(id==='fossoyeur'){await loseBlood(p,1,cardName(id));return}
+ if(id==='mortetrouille'){await resolveMortetrouille(p);return}
+ if(id==='monstre'){await loseBlood(p,2,cardName(id));return}
+ if(id==='proie_brandenbusch'){await gainBlood(p,2,cardName(id));return}
+ if(id==='proie_schalkenthal'){await gainBlood(p,1,cardName(id));return}
+ if(id==='proie_bahnhof'){await gainBlood(p,1,cardName(id));if(p.alive)await drawCards(p,2);return}
+ if(id==='sorcieres'){
+   await grantHelsingBroom(p,id,drawReason);
+   if(!p.witches){
+     p.witches=true;
+     log(`${pName(p)} place Les Sorcières d’Oeting à côté de ses gouttes : main maximale 7.`,'good');
+     render();
+     // La pioche normale reprend après cet effet ; aucun cadeau supplémentaire au vampire.
+   }
+   return;
+ }
+ if(id==='chute_sarre'){await resolveChute(p);return}
+ if(id==='fleau'){const victims=alivePlayers().slice();for(const x of victims)if(x.alive)await loseBlood(x,1,cardName(id));return}
+ if(id==='fantome'){if(S.pool<=0){log('Le Fantôme ne trouve aucune goutte dans la réserve commune.');return}const targets=alivePlayers().filter(x=>x!==p&&x.hp<playerMaxHp(x));if(!targets.length){log('Aucun autre vampire ne peut recevoir la goutte du Fantôme.');return}const t=p.human?await choosePlayer('Le Fantôme : offrez 1 goutte depuis la réserve commune',targets):aiTarget(p,targets);await gainBlood(t,1,'don du Fantôme');return}
+ if(id==='peste'){const victims=alivePlayers().filter(x=>x.hp>=4);for(const x of victims)if(x.alive)await loseBlood(x,2,cardName(id));return}
+}
+async function resolveChute(p){if(p.vampire==='manfred'){log(`Manfred ignore entièrement la Chute dans la Sarre.`,'good');return}if(p.hand.includes('fuite_chauve')){let use=p.human?await openModal({title:'Chute dans la Sarre',text:'Tu peux éviter entièrement la chute avec Fuite en chauve-souris.',buttons:[{label:'Utiliser Fuite en chauve-souris',value:true,className:'good'},{label:'Subir la chute',value:false}]}):true;if(use){removeOneFromHand(p,'f
+
+--- Oeting @ 2649394 ---
+actionBusy)return;const game=S;const p=S.players.find(x=>x.human);actionBusy=true;try{const idx=await chooseCardFromHand(p,'Choisis la carte à changer',()=>true,true);if(S!==game||game.gameOver||idx==null)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} change ${cardName(id)}.`);log(`Fin du tour de ${pName(p)} : tu pioches 1 carte.`,'important');await drawOneToHand(p,'exchange');if(S===game)endHumanTurn()}finally{if(S===game){actionBusy=false;render()}}}
+
+function showRules(){openModal({title:'Règles du jeu',content:`<div class="rules"><h3>But</h3><p>Être le dernier vampire encore en vie.</p><h3>Tour</h3><p>Une seule action : attaquer, se régénérer ou changer une carte. Après une attaque ou une régénération, tu pioches une carte. Une défense jouée hors de ton tour ne fait pas repiocher.</p><h3>Main</h3><p>Maximum 6 cartes, 7 pour Elisabetta ou le propriétaire des Sorcières d’Oeting. Quand les Sorcières sont piochées, leur propriétaire pioche immédiatement 1 carte supplémentaire ; cette carte ne remplace pas la pioche normale de fin de tour. Au début de ton tour, si tu as moins de 3 cartes, tu complètes jusqu’à 3.</p><h3>Sang</h3><p>5 gouttes au départ, sauf Draculito : 6. À 0 goutte, le vampire meurt immédiatement.</p><h3>Règle d’or</h3><p>Le texte d’une carte ou d’un pouvoir particulier prime sur les règles générales. Le texte d’une carte ou d’un pouvoir particulier reste prioritaire sur les règles générales.</p></div>`,buttons:[{label:'Fermer',value:true}],closable:true})}
+
+
+const DISCOVERY_STORAGE_KEY='vampires-discovery-seen-v1';
+function rememberDiscovery(){try{localStorage.setItem(DISCOVERY_STORAGE_KEY,'1');}catch(_){}}
+async function offerFirstNightGuide(){
+ try{if(localStorage.getItem(DISCOVERY_STORAGE_KEY)==='1')return;}catch(_){}
+ const choice=await openModal({
+   title:'Première nuit à Sarrebruck ?',
+   text:'Tu découvres le jeu ? Une minute suffit pour apprendre à survivre à la nuit.',
+   buttons:[{label:'Découvrir le jeu',value:'guide',className:'good'},{label:'Je connais déjà',value:'skip'}]
+ });
+ rememberDiscovery();
+ if(choice==='guide')await showQuickGuide();
+}
+async function showQuickGuide(){
+ const steps=[
+  {title:'Survis à la nuit',content:'<h3>Garde tes gouttes de sang !</h3><p>Ton objectif : être le dernier vampire encore en 
+
+--- Hexennacht @ 2501959 ---
+van-helsing-sacoche-soins.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
+ van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
+ van_helsing_broom:{name:'Balai d’Hexennacht',img:'assets/van-helsing-balai-hexennacht.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_armed_broom:{name:'Balai de contre-attaque d’Oeting',img:'assets/van-helsing-balai-oeting-missiles.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_whip:{name:'Fouet consacré de Van Helsing',img:'assets/van-helsing-fouet-consacre.webp',qty:0,kind:'attack',secretPower:true},
+ van_helsing_bolt:{name:'Carreau d’argent — Tir d’arbalète',img:'assets/van-helsing-arbalete-sarrebruck.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ van_helsing_cross:{name:'Crucifix de Van Helsing',img:'assets/van-helsing-crucifix-ludwigskirche.webp?v=valide-2',qty:0,kind:'attack',secretPower:true},
+ impots:{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
+
+
+--- Hexennacht @ 2504046 ---
+{name:'Del Rattello — Impôts et taxes',img:'assets/362232f1d185857b16cf.webp',qty:2,kind:'attack'},
+ marche_noel:{name:'Marché de Noël à Sarrebruck',img:'assets/04ac973fff066a6abd80.webp',qty:2,kind:'immediate'},
+ cercueil:{name:'Cercueil endommagé',img:'assets/b8c70ba756eafe53272e.webp',qty:2,kind:'attack',unblockable:true},
+ aube:{name:'Aube naissante sur le jardin franco-allemand',img:'assets/50dce702b58f8bd97256.webp',qty:2,kind:'attack',unblockable:true},
+ morsure:{name:'Morsure',img:'assets/ecd5a133c20aac5561d3.webp',qty:3,kind:'attack'},
+ hypnose:{name:'Hypnose',img:'assets/d3150c8b9f204a38f859.webp',qty:2,kind:'attack',unblockable:true},
+ fuite_chauve:{name:'Fuite en chauve-souris',img:'assets/243781c7550da05f6d13.webp',qty:3,kind:'defense'},
+ tablettes:{name:"Comprimés d’hémoglobine à la camomille",img:'assets/0dbdfbd19e24e24abe57.webp',qty:3,kind:'defense'},
+ hexennacht:{name:'Hexennacht — Nuit des sorcières',img:'assets/fead69bf7b161de5e4d9.webp',qty:2,kind:'immediate'},
+ poche_perimee:{name:'Poche périmée',img:'assets/7bba90b2c9d2c86d59c1.webp',qty:2,kind:'attack'},
+ saint_nicolas:{name:'Goutte de sang de Saint-Nicolas',img:'assets/2e57fa9882f76797be66.webp',qty:2,kind:'attack'},
+ griffures:{name:'Griffures',img:'assets/bc59f0277832c7b70591.webp',qty:2,kind:'attack'},
+ chateau:{name:'Château de Sarrebruck',img:'assets/b09d3e29a2f256d07639.webp',qty:1,kind:'regen'},
+ tour_schlossberg:{name:'Tour du Schlossberg',img:'assets/be70e55cac16549c1e3b.webp',qty:2,kind:'regen'},
+ plasma:{name:'Poche de plasma des aristocrates',img:'assets/b21023969b6146b913ea.webp',qty:1,kind:'defense'},
+ gewurz:{name:'Gewürztraminer au Sang noir',img:'assets/5ce3757de1b8986bae0e.webp',qty:2,kind:'regen'},
+ saucisson:{name:"Saucisse à l’ail",img:'assets/e63bd87550c2138420f0.webp',qty:2,kind:'regen'},
+ fossoyeur:{name:'Le Fossoyeur du Hauptfriedhof',img:'assets/16d117546e41fe65f79a.webp',qty:1,kind:'immediate'},
+ chasseur_grande_loge:{name:'Le Chasseur de la Grande Loge de Schneckenbusch',img:'assets/5f99c929879cda4ae63c.webp',qty:1,kind:'attack',unblockable:true},
+ fuite_warndt:{name:'Fuite dans la forêt du Warndt',img:'assets/48aa85946d72e7f59242.webp',qty:3,kind:'defense'},
+ mortetrouille:{name:'Mortetrouille',img:'assets/de093a7cd6e608a1f358.webp',qty:2,kind:'immediate'},
+
+--- Hexennacht @ 2516265 ---
+ue en plus son pouvoir spécial.",
+ marche_noel:"🎁 Cadeau de Noël pour toute la table : chaque vampire vivant pioche 2 nouvelles cartes dans la pioche commune. Si la main dépasse ensuite sa limite, le jeu demandera simplement quelles cartes défausser.",
+ cercueil:"La cible perd 1 goutte. Défense normalement impossible, sauf exception écrite sur une carte.",
+ aube:"La cible perd 2 gouttes. Draculito est immunisé ; Draco gagne 1 goutte à la place.",
+ morsure:"La cible perd 1 goutte. Si elle est exactement à 1 goutte, elle peut défausser 1 carte pour survivre à 1.",
+ hypnose:"Regarde la main d’un adversaire et vole 1 carte. Défense impossible. Elisabetta est immunisée.",
+ fuite_chauve:"Défense : évite une attaque, sauf Hypnose. Peut aussi éviter Chute dans la Sarre.",
+ tablettes:"Défense : annule les effets de Poche périmée, Gewürztraminer au Sang Noir et Saucisson à l’ail.",
+ hexennacht:"🌙 Hexennacht entraîne toute la table : chaque vampire vole 1 carte face cachée à son voisin de droite. Les Sorcières d’Oeting restent protégées et ne peuvent pas être volées ainsi.",
+ poche_perimee:"La cible perd 1 goutte. Pour Ermanno, l’effet est inversé : il gagne 1 goutte.",
+ saint_nicolas:"La cible passe ses 2 prochains tours. Elisabetta ne passe jamais son tour. Sur Van Helsing, Saint-Nicolas offre 1 goutte d’or supplémentaire (+2 vie), sans tour perdu.",
+ griffures:"La cible perd 1 goutte.",
+ chateau:"Régénération : Dunkelwald +2 ; Del Rattello +1 ; Rüdiger +3 ; Draco bénéficie du bonus Dunkelwald.",
+ tour_schlossberg:"Régénération : Del Rattello +2 ; Dunkelwald +1 ; Draco bénéficie du bonus Del Rattello.",
+ plasma:"Défense après une perte de sang : récupère 2 gouttes. Ne sauve pas un vampire déjà tombé à 0.",
+ gewurz:"Dunkelwald : +1 goutte ; Ilsa : +2. Del Rattello passe son prochain tour. Draco bénéficie du bonus Dunkelwald.",
+ saucisson:"Del Rattello : +1 goutte. Dunkelwald passe son prochain tour. Draco bénéficie du bonus Del Rattello.",
+ fossoyeur:"Effet immédiat : tu perds 1 goutte. Défense impossible.",
+ chasseur_grande_loge:"La cible perd 2 gouttes. Défense impossible, sauf exceptions indiquées par certaines cartes.",
+ fuite_warndt:"Défense : évite une attaque, sauf Attaque de loup-garou et Meute de loups-garous.",
+ mortetrouille:"Effet immédiat : choisis une cart
+
+--- Hexennacht @ 2539622 ---
+ adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>'+unavailableReason+'</p>':'')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ if(!ok)return;
+ if(id==='van_helsing_goggles')return useHelsingGoggles();
+ if(id==='van_helsing_medkit')return useHelsingMedkit();
+ if(id==='van_helsing_elixir')return useHelsingElixir();
+ return useSecretPower(id);
+}
+function secretPowersHTML(p){
+ if(!p?.human||!S?.secretMode)return '';
+ if(S.secretMode==='dracula'){
+ const bonus=p.goldBlood||0,gold=Math.floor(bonus/2),red=bonus%2;
+ return '<div class="secret-mode-info">✦ Dracula — '+gold+' goutte(s) d’or'+(red?' + 1 goutte rouge de bonus':'')+' restante(s). Une goutte d’or vaut 2 gouttes rouges. Les IA te ménagent.</div>';
+}
+
+ const gear=[
+ ['broomInfoBtn','van_helsing_broom','Balai d’Hexennacht',(p.broomCharges||0)+' utilisation restante',defenseCopy('van_helsing_broom')],
+ ['armedBroomInfoBtn','van_helsing_armed_broom','Balai d’Oeting',(p.armedBroomCharges||0)+' utilisation restante',defenseCopy('van_helsing_armed_broom')],
+ ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire'],
+ ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / '+p.initialMirrorCharges+' utilisations','Annule une attaque de vampire défendable · −1 goutte à l’attaquant · Sans effet sur les loups-garous'],
+ ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
+ ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / '+p.initialElixirDoses+' doses','Rend jusqu’à 2 gouttes · maximum 10'],
+ ['silverBoltBtn','van_helsing_bolt','Tir d’arbalète',p.silverBolts+' carreau(x)','−1 goutte · −1 carte au hasard'],
+ ['blessedBulletBtn','van_helsing_bullet','Pistolet à balles consacrées',p.blessedBullets+' balle(s)','−2 gouttes · aucune carte perdue'],
+ ['gepettoBtn','van_helsing_stake','Pieu pneumatique Gepetto',p.gepettoStakes+' pieu(x)','Retire la moitié des gouttes, arrondie au supérieur'],
+ ['crucifixBtn','van_helsing_cross','Crucifix',!p.crossLimit?'Non fourni':p.crucifixUsed?'Déjà utilisé':'1 utilisat
+
+--- Hexennacht @ 2564896 ---
+     ? (isHuman?"TA PIOCHE DE FIN DE TOUR RÉVÈLE UNE CARTE À EFFET IMMÉDIAT":`FIN DU TOUR DE ${pName(player).toUpperCase()} — CARTE À EFFET IMMÉDIAT`)
+      : (isHuman?"TON TOUR S’ACHÈVE AVEC LA PIOCHE DE :":`FIN DU TOUR DE ${pName(player).toUpperCase()} — PIOCHE DE :`));
+ const info=immediate
+   ? "Effet immédiat : applique l’action de cette carte maintenant."
+   : christmasDraw
+   ? "🎁 Cadeau de Noël ! Voici l’une des deux nouvelles cartes que tu reçois. Elle rejoint ta main. Après la seconde, si ta main est trop pleine, tu choisiras simplement quoi défausser."
+   : (witchesBonus?"Cette carte profite immédiatement de ta nouvelle main maximale de 7.":"Prends le temps de regarder la carte avant de continuer.");
+ const effectDetail=immediate?(IMMEDIATE_EXPLAIN[id]||CARD_EXPLAIN[id]||"L’effet indiqué sur la carte s’applique immédiatement."):"";
+ const title=immediate&&id==='hexennacht'?"🌙 Hexennacht — tout le monde participe":immediate&&id==='marche_noel'?"🎁 Marché de Noël — cadeaux pour tous":christmasDraw?"🎁 Marché de Noël — ton cadeau":witchesBonus?"Carte supplémentaire":"";
+ const content=`<div class="immediate-scene draw-scene"><div class="scene-kicker draw-kicker">${kicker}</div><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${info}</div>${immediate?`<div class="scene-effect-detail">${effectDetail}</div>`:""}<div class="scene-small">${immediate?"":"La carte rejoint ta main."}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
+ if(immediate)setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
+ await openTapDismissInfo({title,content});
+}
+async function showImmediateRepickNotice(){
+ const content=`<div class="immediate-repick-notice"><div class="immediate-repick-icon">✦</div><div><strong>Effet immédiat effectué — tu repioches.</strong></div><div class="tap-dismiss-note">Touche pour continuer</div></div>`;
+ await openTapDismissInfo({title:'',content});
+}
+function settleImmediateDraw(game,id){
+ if(S!==game)return;
+ // The unique witches card may already have been returned by an elimination during its bonus draw.
+ if(id==='sorcieres'&&(game.players.some(p=>p.witches||p.hand.includes(id))||game.deck.includes(id)||gam
+
+--- Hexennacht @ 2580503 ---
+kicker">🩸 RÉGÉNÉRATION</div><div class="action-main">${regenPreviewText(p,id)}</div><div class="action-question">Veux-tu utiliser cette carte maintenant ?</div></div>`;
+ if(c.kind==='defense') return `<div class="action-copy"><div class="action-kicker">🛡 DÉFENSE</div><div class="action-main">Garde cette carte en main. Si une attaque compatible te vise, le jeu te proposera automatiquement de l’utiliser au bon moment.</div></div>`;
+ if(c.kind==='immediate') return `<div class="action-copy"><div class="action-kicker">✦ EFFET IMMÉDIAT</div><div class="action-main">Cette carte agit automatiquement lorsqu’elle est piochée.</div></div>`;
+ return `<div class="action-copy"><div class="action-main">${CARD_EXPLAIN[id]||'Effet indiqué sur la carte.'}</div></div>`;
+}
+function defenseCopy(id,incoming){
+ if(id==='van_helsing_broom')return 'Évite une attaque de vampire défendable. Un seul usage. Reçu à Hexennacht.';
+ if(id==='van_helsing_armed_broom')return 'Évite une attaque de vampire défendable et inflige 3 gouttes au vampire attaquant. Un seul usage. Reçu des Sorcières d’Oeting.';
+ if(id==='van_helsing_silver_defense')return 'Consomme 1 balle d’argent consacrée, sans utiliser ton action. Annule le loup-garou solitaire ; contre la meute, tu perds 1 goutte au lieu de 2.';
+ if(id==='van_helsing_mirror')return 'Annule cette attaque défendable et retire 1 goutte à l’attaquant, horrifié de ne pas voir son reflet. Utilisations limitées selon la difficulté.';
+ if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Consomme 1 utilisation disponible, sans défausser de carte ni utiliser ton action du tour.';
+ if(id==='fuite_chauve') return `Transforme-toi en chauve-souris et <strong>esquive complètement l’attaque</strong>.`;
+ if(id==='fuite_warndt') return `Disparais dans la forêt du Warndt et <strong>échappe à l’attaque</strong>.`;
+ if(id==='tablettes') return `Neutralise l’effet avec tes comprimés d’hémoglobine.`;
+ if(id==='furie') return `Déchaîne ta Furie et <strong>repousse les loups-garous</strong>.`;
+ if(id==='empalement') return `Empale l’assaillant : tu évites l’attaque et <strong>il perd 1 goutte de sang</strong>.`;
+ if(id==='brume') return incoming==='chasseurs_bayerische'?`Transforme-toi en brume : l’attaque des chasse
+
+--- Hexennacht @ 2603602 ---
+lsing_whip:1,impots:1,cercueil:1,aube:2,morsure:1,poche_perimee:1,griffures:1,chasseur_grande_loge:2,abomination:2,chasseurs_bayerische:2,meute:2,lycanthrope:1,furie:2,brume:1,lame:2}[id]||0)}
+function combatOutcomeMode(defense,id){
+ if(!defense)return 'hit';
+ if(defense==='lame')return 'reflect';
+ if(defense==='brume'&&id==='chasseurs_bayerische')return 'partial';
+ if(defense==='plasma'||defense==='poche_aplus')return 'endured';
+ return 'countered';
+}
+function combatOutcomeChip(mode){
+ return({countered:{txt:'Attaque contrée',cls:'good'},reflect:{txt:'Attaque renvoyée',cls:'good'},partial:{txt:'Attaque freinée',cls:'good'},endured:{txt:'Attaque subie',cls:'bad'},hit:{txt:'Attaque subie',cls:'bad'}}[mode]||{txt:'Résolution',cls:''});
+}
+function combatSceneLine(attacker,target,attackId,defenseId,mode){
+ if(defenseId==='van_helsing_broom')return 'Van Helsing prend la fuite sur son balai d’Hexennacht.';
+ if(defenseId==='van_helsing_armed_broom')return 'Van Helsing prend la fuite et lance les missiles de son balai d’Oeting : −3 gouttes au vampire attaquant.';
+ if(defenseId==='van_helsing_silver_defense')return attackId==='meute'?'Van Helsing repousse la meute avec une balle d’argent, mais perd 1 goutte.':'Van Helsing repousse le loup-garou avec une balle d’argent : aucune goutte perdue.';
+ const atk=cardName(attackId),def=defenseId?cardName(defenseId):'';
+ const aName=pName(attacker),vamp=VAMPIRES[target.vampire].name;
+ if(mode==='reflect')return `<strong>${vamp}</strong> repousse ${atk} grâce à <strong>${def}</strong> et renvoie l’assaut vers <strong>${aName}</strong>.`;
+ if(mode==='partial')return `<strong>${vamp}</strong> se couvre de <strong>${def}</strong> : l’attaque ${atk} est freinée et ses dégâts sont réduits.`;
+ if(mode==='endured'){
+   if(defenseId==='plasma')return `<strong>${vamp}</strong> subit ${atk}, mais le <strong>${def}</strong> lui rend aussitôt des forces.`;
+   if(defenseId==='poche_aplus')return `<strong>${vamp}</strong> encaisse ${atk}, puis récupère une goutte grâce à <strong>${def}</strong>.`;
+ }
+ if(mode==='countered'){
+   if(defenseId==='van_helsing_mirror')return `<strong>${aName}</strong> ne voit pas son reflet dans le Miroir d’Erzulie Freda : il abandonne son attaque et perd 1 goutte.`;
+   if(defenseId==='van_helsing_rosary')return `<
+
+--- Hexennacht @ 2633605 ---
+ gainBlood(p,1,cardName(id));else await poisonSkip(p,id);return}
+}
+async function poisonSkip(p,id){let cancel=false;if(p.hand.includes('tablettes')){if(p.human)cancel=await openModal({title:'Carte Poison',text:`${cardName(id)} te ferait passer ton prochain tour. Utiliser les Comprimés d’hémoglobine à la camomille ?`,buttons:[{label:'Utiliser les comprimés',value:true,className:'good'},{label:'Subir le poison',value:false}]});else cancel=true}if(cancel){removeOneFromHand(p,'tablettes',true);log(`${pName(p)} annule ${cardName(id)} avec les Comprimés.`,'good')}else if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour à cause de ${cardName(id)}.`,'bad')}}
+
+async function showGlobalImmediateNotice(p,id){
+ const who=p.human?'Tu as':`${pName(p)} a`;
+ let title='',text='';
+ if(id==='hexennacht'){
+   title='🌙 Hexennacht — tout le monde participe';
+   text=`<strong>${who} tiré Hexennacht.</strong><br><br>Tous les vampires sont entraînés dans la ronde : chacun va voler <strong>1 carte face cachée à son voisin de droite</strong>.<br><br>Quand ce sera ton tour, le jeu te montrera les cartes de ton voisin.`;
+ }else if(id==='marche_noel'){
+   title='🎁 Marché de Noël — cadeaux pour tous';
+   text=`<strong>${who} tiré le Marché de Noël.</strong><br><br>🎁 Cadeau pour toute la table ! Chaque vampire va piocher <strong>2 nouvelles cartes dans la pioche commune</strong>.<br><br>Tes deux cadeaux s’afficheront juste après.`;
+ }else return;
+ const content=`<div class="immediate-scene draw-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${text}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
+ setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
+ await openTapDismissInfo({title,content});
+}
+
+async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
+ const game=S;
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive)return;
+ if(!skipScene)await showImmediateScene(p,id);
+ if(S!==game||game.gameOver)return;
+ if(id==='marche_noel'){log('Marché de Noël : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le s
+
+--- Hexennacht @ 2633673 ---
+sync function poisonSkip(p,id){let cancel=false;if(p.hand.includes('tablettes')){if(p.human)cancel=await openModal({title:'Carte Poison',text:`${cardName(id)} te ferait passer ton prochain tour. Utiliser les Comprimés d’hémoglobine à la camomille ?`,buttons:[{label:'Utiliser les comprimés',value:true,className:'good'},{label:'Subir le poison',value:false}]});else cancel=true}if(cancel){removeOneFromHand(p,'tablettes',true);log(`${pName(p)} annule ${cardName(id)} avec les Comprimés.`,'good')}else if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour à cause de ${cardName(id)}.`,'bad')}}
+
+async function showGlobalImmediateNotice(p,id){
+ const who=p.human?'Tu as':`${pName(p)} a`;
+ let title='',text='';
+ if(id==='hexennacht'){
+   title='🌙 Hexennacht — tout le monde participe';
+   text=`<strong>${who} tiré Hexennacht.</strong><br><br>Tous les vampires sont entraînés dans la ronde : chacun va voler <strong>1 carte face cachée à son voisin de droite</strong>.<br><br>Quand ce sera ton tour, le jeu te montrera les cartes de ton voisin.`;
+ }else if(id==='marche_noel'){
+   title='🎁 Marché de Noël — cadeaux pour tous';
+   text=`<strong>${who} tiré le Marché de Noël.</strong><br><br>🎁 Cadeau pour toute la table ! Chaque vampire va piocher <strong>2 nouvelles cartes dans la pioche commune</strong>.<br><br>Tes deux cadeaux s’afficheront juste après.`;
+ }else return;
+ const content=`<div class="immediate-scene draw-scene"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="immediate-scene-copy"><div class="scene-title">${cardName(id)}</div><div class="scene-text">${text}</div><div class="tap-dismiss-note">Touche cette notification pour continuer</div></div></div>`;
+ setTimeout(()=>{try{stormBurst()}catch(_){}} ,70);
+ await openTapDismissInfo({title,content});
+}
+
+async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
+ const game=S;
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive)return;
+ if(!skipScene)await showImmediateScene(p,id);
+ if(S!==game||game.gameOver)return;
+ if(id==='marche_noel'){log('Marché de Noël : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus. Aucune carte n’est prise au voisin.','important');for(const 
+
+--- Hexennacht @ 2635507 ---
+enTapDismissInfo({title,content});
+}
+
+async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
+ const game=S;
+ if(!S||S.gameOver||!S.players.includes(p)||!p.alive)return;
+ if(!skipScene)await showImmediateScene(p,id);
+ if(S!==game||game.gameOver)return;
+ if(id==='marche_noel'){log('Marché de Noël : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus. Aucune carte n’est prise au voisin.','important');for(const x of alivePlayers().slice()){if(S!==game||game.gameOver)break;if(!x.alive)continue;if(isVanHelsing(x)){recoverHelsingAmmo(x);recoverHelsingAmmo(x);log('Marché de Noël : Van Helsing reçoit deux objets.','good');continue;}log(`${pName(x)} : pioche de 2 cartes dans la pioche commune (Marché de Noël).`,'important');await drawCards(x,2,'marche_noel');}return}
+ if(id==='hexennacht'){await grantHelsingBroom(p,id,drawReason);await resolveHexennacht(p);return}
+ if(id==='fossoyeur'){await loseBlood(p,1,cardName(id));return}
+ if(id==='mortetrouille'){await resolveMortetrouille(p);return}
+ if(id==='monstre'){await loseBlood(p,2,cardName(id));return}
+ if(id==='proie_brandenbusch'){await gainBlood(p,2,cardName(id));return}
+ if(id==='proie_schalkenthal'){await gainBlood(p,1,cardName(id));return}
+ if(id==='proie_bahnhof'){await gainBlood(p,1,cardName(id));if(p.alive)await drawCards(p,2);return}
+ if(id==='sorcieres'){
+   await grantHelsingBroom(p,id,drawReason);
+   if(!p.witches){
+     p.witches=true;
+     log(`${pName(p)} place Les Sorcières d’Oeting à côté de ses gouttes : main maximale 7.`,'good');
+     render();
+     // La pioche normale reprend après cet effet ; aucun cadeau supplémentaire au vampire.
+   }
+   return;
+ }
+ if(id==='chute_sarre'){await resolveChute(p);return}
+ if(id==='fleau'){const victims=alivePlayers().slice();for(const x of victims)if(x.alive)await loseBlood(x,1,cardName(id));return}
+ if(id==='fantome'){if(S.pool<=0){log('Le Fantôme ne trouve aucune goutte dans la réserve commune.');return}const targets=alivePlayers().filter(x=>x!==p&&x.hp<playerMaxHp(x));if(!targets.length){log('Aucun autre vampire ne peut recevoir la goutte du Fantôme.');return}const t=p.human?await choosePlayer('Le Fantôme : offrez 1 goutte depuis la réserve commune',targets):aiTarget(p,targets);await gainBlood(t,1,'don du Fant
+
+--- Hexennacht @ 2637876 ---
+=>x.hp>=4);for(const x of victims)if(x.alive)await loseBlood(x,2,cardName(id));return}
+}
+async function resolveChute(p){if(p.vampire==='manfred'){log(`Manfred ignore entièrement la Chute dans la Sarre.`,'good');return}if(p.hand.includes('fuite_chauve')){let use=p.human?await openModal({title:'Chute dans la Sarre',text:'Tu peux éviter entièrement la chute avec Fuite en chauve-souris.',buttons:[{label:'Utiliser Fuite en chauve-souris',value:true,className:'good'},{label:'Subir la chute',value:false}]}):true;if(use){removeOneFromHand(p,'fuite_chauve',true);log(`${pName(p)} évite la Chute dans la Sarre avec Fuite en chauve-souris.`,'good');return}}await discardRandomOrChosen(p,1,'Chute dans la Sarre : défausse 1 carte.');if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour.`,'bad')}}
+async function chooseHexennachtBack(victim){
+ const content=`<div class="opponent-hand-backs hexennacht-backs">${victim.hand.map((_,i)=>`<div class="card-back-lite hexennacht-back-choice" data-hex-back="${i}"><span>Carte ${i+1}</span></div>`).join('')}</div>`;
+ const promise=openModal({title:'🌙 Hexennacht — à toi de voler !',text:`Ton voisin de droite est ${pName(victim)}. Choisis l’une de ses cartes face cachée : elle rejoindra immédiatement ta main.`,content});
+ setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-hex-back]')].forEach(n=>n.onclick=()=>closeModal(Number(n.dataset.hexBack)))},0);
+ return await promise;
+}
+async function resolveHexennacht(starter){
+ const game=S;
+ const alive=alivePlayers().filter(p=>!isVanHelsing(p));
+ for(const p of alive)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
+ try{
+ let start=alive.indexOf(starter);if(start<0)start=0;
+ const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
+ for(const thief of order){
+   if(S!==game||game.gameOver)return;
+   if(!thief.alive)continue;
+   const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
+   const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
+   if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
+   const j=thief.human?awai
+
+--- Hexennacht @ 2638151 ---
+ openModal({title:'Chute dans la Sarre',text:'Tu peux éviter entièrement la chute avec Fuite en chauve-souris.',buttons:[{label:'Utiliser Fuite en chauve-souris',value:true,className:'good'},{label:'Subir la chute',value:false}]}):true;if(use){removeOneFromHand(p,'fuite_chauve',true);log(`${pName(p)} évite la Chute dans la Sarre avec Fuite en chauve-souris.`,'good');return}}await discardRandomOrChosen(p,1,'Chute dans la Sarre : défausse 1 carte.');if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour.`,'bad')}}
+async function chooseHexennachtBack(victim){
+ const content=`<div class="opponent-hand-backs hexennacht-backs">${victim.hand.map((_,i)=>`<div class="card-back-lite hexennacht-back-choice" data-hex-back="${i}"><span>Carte ${i+1}</span></div>`).join('')}</div>`;
+ const promise=openModal({title:'🌙 Hexennacht — à toi de voler !',text:`Ton voisin de droite est ${pName(victim)}. Choisis l’une de ses cartes face cachée : elle rejoindra immédiatement ta main.`,content});
+ setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-hex-back]')].forEach(n=>n.onclick=()=>closeModal(Number(n.dataset.hexBack)))},0);
+ return await promise;
+}
+async function resolveHexennacht(starter){
+ const game=S;
+ const alive=alivePlayers().filter(p=>!isVanHelsing(p));
+ for(const p of alive)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
+ try{
+ let start=alive.indexOf(starter);if(start<0)start=0;
+ const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
+ for(const thief of order){
+   if(S!==game||game.gameOver)return;
+   if(!thief.alive)continue;
+   const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
+   const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
+   if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
+   const j=thief.human?await chooseHexennachtBack(victim):Math.floor(Math.random()*victim.hand.length);
+   if(S!==game||game.gameOver)return;
+   if(j==null||j<0||j>=victim.hand.length)continue;
+   const [id]=victim.hand.splice(j,1);thief.hand.push(id);
+   log(thief.human?`${pName(thief)} vole ${cardNa
+
+--- Hexennacht @ 2638516 ---
+d');return}}await discardRandomOrChosen(p,1,'Chute dans la Sarre : défausse 1 carte.');if(p.vampire==='elisabetta')log(`Elisabetta ne passe jamais son tour.`,'good');else{p.skipTurns++;log(`${pName(p)} passera son prochain tour.`,'bad')}}
+async function chooseHexennachtBack(victim){
+ const content=`<div class="opponent-hand-backs hexennacht-backs">${victim.hand.map((_,i)=>`<div class="card-back-lite hexennacht-back-choice" data-hex-back="${i}"><span>Carte ${i+1}</span></div>`).join('')}</div>`;
+ const promise=openModal({title:'🌙 Hexennacht — à toi de voler !',text:`Ton voisin de droite est ${pName(victim)}. Choisis l’une de ses cartes face cachée : elle rejoindra immédiatement ta main.`,content});
+ setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-hex-back]')].forEach(n=>n.onclick=()=>closeModal(Number(n.dataset.hexBack)))},0);
+ return await promise;
+}
+async function resolveHexennacht(starter){
+ const game=S;
+ const alive=alivePlayers().filter(p=>!isVanHelsing(p));
+ for(const p of alive)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
+ try{
+ let start=alive.indexOf(starter);if(start<0)start=0;
+ const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
+ for(const thief of order){
+   if(S!==game||game.gameOver)return;
+   if(!thief.alive)continue;
+   const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
+   const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
+   if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
+   const j=thief.human?await chooseHexennachtBack(victim):Math.floor(Math.random()*victim.hand.length);
+   if(S!==game||game.gameOver)return;
+   if(j==null||j<0||j>=victim.hand.length)continue;
+   const [id]=victim.hand.splice(j,1);thief.hand.push(id);
+   log(thief.human?`${pName(thief)} vole ${cardName(id)} à ${pName(victim)} avec Hexennacht.`:`${pName(thief)} vole une carte face cachée à ${pName(victim)} (Hexennacht).`,thief.human?'good':'');
+   await enforceHandLimit(thief);
+   render();
+ }
+ }finally{
+   for(const p of alive)p.deferredHandLimits--;
+   if(S===game&&!game.gameOver)for(const p of alive)await enforceHandLimit(p);
+ }
+ if(S===game)render();
+}
+
+a
+
+--- Hexennacht @ 2639284 ---
+ta-hex-back]')].forEach(n=>n.onclick=()=>closeModal(Number(n.dataset.hexBack)))},0);
+ return await promise;
+}
+async function resolveHexennacht(starter){
+ const game=S;
+ const alive=alivePlayers().filter(p=>!isVanHelsing(p));
+ for(const p of alive)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
+ try{
+ let start=alive.indexOf(starter);if(start<0)start=0;
+ const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
+ for(const thief of order){
+   if(S!==game||game.gameOver)return;
+   if(!thief.alive)continue;
+   const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
+   const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
+   if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
+   const j=thief.human?await chooseHexennachtBack(victim):Math.floor(Math.random()*victim.hand.length);
+   if(S!==game||game.gameOver)return;
+   if(j==null||j<0||j>=victim.hand.length)continue;
+   const [id]=victim.hand.splice(j,1);thief.hand.push(id);
+   log(thief.human?`${pName(thief)} vole ${cardName(id)} à ${pName(victim)} avec Hexennacht.`:`${pName(thief)} vole une carte face cachée à ${pName(victim)} (Hexennacht).`,thief.human?'good':'');
+   await enforceHandLimit(thief);
+   render();
+ }
+ }finally{
+   for(const p of alive)p.deferredHandLimits--;
+   if(S===game&&!game.gameOver)for(const p of alive)await enforceHandLimit(p);
+ }
+ if(S===game)render();
+}
+
+async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates,p);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
+async function applyFreeCardEffect(p,id){const c=CARDS[id];if(c.kind==='attack'||c.kind==='hybrid'){await executeAttack(p,id,{free:true})}else if(c
+
+--- Hexennacht @ 2639583 ---
+ry{
+ let start=alive.indexOf(starter);if(start<0)start=0;
+ const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
+ for(const thief of order){
+   if(S!==game||game.gameOver)return;
+   if(!thief.alive)continue;
+   const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
+   const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
+   if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
+   const j=thief.human?await chooseHexennachtBack(victim):Math.floor(Math.random()*victim.hand.length);
+   if(S!==game||game.gameOver)return;
+   if(j==null||j<0||j>=victim.hand.length)continue;
+   const [id]=victim.hand.splice(j,1);thief.hand.push(id);
+   log(thief.human?`${pName(thief)} vole ${cardName(id)} à ${pName(victim)} avec Hexennacht.`:`${pName(thief)} vole une carte face cachée à ${pName(victim)} (Hexennacht).`,thief.human?'good':'');
+   await enforceHandLimit(thief);
+   render();
+ }
+ }finally{
+   for(const p of alive)p.deferredHandLimits--;
+   if(S===game&&!game.gameOver)for(const p of alive)await enforceHandLimit(p);
+ }
+ if(S===game)render();
+}
+
+async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates,p);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
+async function applyFreeCardEffect(p,id){const c=CARDS[id];if(c.kind==='attack'||c.kind==='hybrid'){await executeAttack(p,id,{free:true})}else if(c.kind==='regen'){await executeRegen(p,id)}else if(c.kind==='immediate'){if(id==='sorcieres'){const pos=S.discard.lastIndexOf('sorcieres');if(pos>=0)S.discard.splice(pos,1);await resolveImmediate(p,id)}else await resolveImmediate(p,id)}else log(`${cardName(id)} est une défense : son effet ne peut pa
+
+--- Hexennacht @ 2639660 ---
+(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
+ for(const thief of order){
+   if(S!==game||game.gameOver)return;
+   if(!thief.alive)continue;
+   const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
+   const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
+   if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
+   const j=thief.human?await chooseHexennachtBack(victim):Math.floor(Math.random()*victim.hand.length);
+   if(S!==game||game.gameOver)return;
+   if(j==null||j<0||j>=victim.hand.length)continue;
+   const [id]=victim.hand.splice(j,1);thief.hand.push(id);
+   log(thief.human?`${pName(thief)} vole ${cardName(id)} à ${pName(victim)} avec Hexennacht.`:`${pName(thief)} vole une carte face cachée à ${pName(victim)} (Hexennacht).`,thief.human?'good':'');
+   await enforceHandLimit(thief);
+   render();
+ }
+ }finally{
+   for(const p of alive)p.deferredHandLimits--;
+   if(S===game&&!game.gameOver)for(const p of alive)await enforceHandLimit(p);
+ }
+ if(S===game)render();
+}
+
+async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates,p);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
+async function applyFreeCardEffect(p,id){const c=CARDS[id];if(c.kind==='attack'||c.kind==='hybrid'){await executeAttack(p,id,{free:true})}else if(c.kind==='regen'){await executeRegen(p,id)}else if(c.kind==='immediate'){if(id==='sorcieres'){const pos=S.discard.lastIndexOf('sorcieres');if(pos>=0)S.discard.splice(pos,1);await resolveImmediate(p,id)}else await resolveImmediate(p,id)}else log(`${cardName(id)} est une défense : son effet ne peut pas être appliqué maintenant.`)}
+
+async function aiTurn(p){
+ if(!p.alive)return
