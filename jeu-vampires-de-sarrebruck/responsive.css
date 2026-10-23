@@ -150,3 +150,25 @@ body{width:100%;min-width:0;overflow-x:hidden}
 
 /* V5.67 — Van Helsing searches for supplies automatically; remove the manual portrait button. */
 #humanStage > button{display:none!important}
+
+/* V5.68 — origins page: present the real cover as a thin physical booklet. */
+#clanStoryScreen .story-cover{
+ width:min(88%,500px)!important;
+ height:auto!important;
+ margin:30px auto 34px!important;
+ border:0!important;
+ border-radius:5px!important;
+ clip-path:inset(1px 2px 2px 2px round 5px)!important;
+ transform:perspective(1100px) rotateY(-8deg) rotateZ(.5deg)!important;
+ transform-origin:50% 50%!important;
+ box-shadow:8px 7px 0 -5px rgba(240,235,220,.78),10px 9px 0 -5px rgba(135,132,124,.52),0 20px 42px rgba(0,0,0,.62)!important;
+ backface-visibility:hidden;
+}
+@media(max-width:650px){
+ #clanStoryScreen .story-cover{
+  width:min(92%,500px)!important;
+  margin:24px auto 30px!important;
+  transform:perspective(900px) rotateY(-6deg) rotateZ(.35deg)!important;
+  box-shadow:6px 6px 0 -4px rgba(240,235,220,.76),8px 8px 0 -4px rgba(135,132,124,.46),0 16px 34px rgba(0,0,0,.6)!important;
+ }
+}
