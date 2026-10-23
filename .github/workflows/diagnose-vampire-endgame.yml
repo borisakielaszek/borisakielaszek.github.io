@@ -1,0 +1,37 @@
+name: Diagnose Vampire Endgame
+
+on:
+  push:
+    paths:
+      - '.github/workflows/diagnose-vampire-endgame.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract endgame audio logic
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('jeu-vampires-de-sarrebruck/index.html')
+          lines=p.read_text(encoding='utf-8').splitlines()
+          needles=('victoryMusic','defeatMusic','vanHelsing','VanHelsing','playEndgameMusic','humanWin','hunterVictory')
+          out=[]
+          for i,line in enumerate(lines,1):
+              if any(n in line for n in needles):
+                  a=max(1,i-2); b=min(len(lines),i+3)
+                  out.append(f'--- around line {i} ---')
+                  for j in range(a,b+1): out.append(f'{j}: {lines[j-1]}')
+          Path('.github/vampire-endgame-diagnostic.txt').write_text('\n'.join(out),encoding='utf-8')
+          PY
+      - name: Commit diagnostic
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/vampire-endgame-diagnostic.txt
+          git diff --cached --quiet || git commit -m "Diagnose vampire endgame audio logic"
+          git push
