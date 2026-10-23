@@ -1,0 +1,28 @@
+name: Restore Du livre au jeu paragraph
+
+on:
+  push:
+    paths:
+      - '.github/workflows/restore-du-livre-au-jeu.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore paragraph
+        run: python3 .github/scripts/restore-du-livre-au-jeu.py
+      - name: Commit restored paragraph
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Restore Du livre au jeu paragraph"
+            git push
+          fi
