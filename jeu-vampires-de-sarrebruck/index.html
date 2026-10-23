@@ -2538,8 +2538,8 @@ function cardActionCopy(p,id,c,canAct){
  return `<div class="action-copy"><div class="action-main">${CARD_EXPLAIN[id]||'Effet indiqué sur la carte.'}</div></div>`;
 }
 function defenseCopy(id,incoming){
- if(id==='van_helsing_broom')return 'Évite une attaque de vampire défendable. Un seul usage. Reçu à Hexennacht.';
- if(id==='van_helsing_armed_broom')return 'Évite une attaque de vampire défendable et inflige 3 gouttes au vampire attaquant. Un seul usage. Reçu des Sorcières d’Oeting.';
+ if(id==='van_helsing_broom')return 'Évite une attaque de vampire. Usage unique. Balai offert par une aimable sorcière lors de la Hexennacht.';
+ if(id==='van_helsing_armed_broom')return 'Évite une attaque de vampire et lui inflige 3 gouttes de dégâts. Usage unique. Balai offert par les Sorcières d’Oeting.';
  if(id==='van_helsing_silver_defense')return 'Consomme 1 balle d’argent consacrée, sans utiliser ton action. Annule le loup-garou solitaire ; contre la meute, tu perds 1 goutte au lieu de 2.';
  if(id==='van_helsing_mirror')return 'Annule cette attaque défendable et retire 1 goutte à l’attaquant, horrifié de ne pas voir son reflet. Utilisations limitées selon la difficulté.';
  if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Consomme 1 utilisation disponible, sans défausser de carte ni utiliser ton action du tour.';
