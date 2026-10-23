@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261023-arsenal-munitions-validees">
+<meta name="game-build" content="20261023-card-tap-dismiss">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1390,9 +1390,11 @@ body.van-helsing-mode .helsing-category .secret-power-grid{padding:10px}
 <style id="screen-visibility-guard">
 #startScreen.hidden,#gameScreen.hidden,#introScreen.hidden{display:none!important}
 </style>
-<style id="card-zoom-close-fix">
-#imageViewer #imageViewerClose{display:flex!important;pointer-events:auto!important;z-index:10!important;align-items:center;justify-content:center;position:absolute;top:8px;right:8px;width:44px!important;height:44px!important;background:#101620ed!important;color:#fff!important;border:1px solid #a0a7b9!important;border-radius:50%!important}
-#imageViewer .image-viewer-card{padding-top:52px!important}
+<style id="card-zoom-tap-dismiss">
+#imageViewer .image-viewer-card{padding-top:14px!important;cursor:pointer;max-height:94dvh}
+#imageViewer,#imageViewer *{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
+#imageViewer{touch-action:manipulation}
+#imageViewerImg{max-height:76dvh;cursor:pointer;-webkit-user-drag:none}
 </style>
 <style id="active-game-viewport">
 body.game-active{overflow:hidden!important;overscroll-behavior:none}
@@ -1621,7 +1623,6 @@ body.game-active #gameScreen:not(.hidden){position:fixed!important;inset:0!impor
 
 <div id="imageViewer" class="image-viewer hidden" aria-modal="true" role="dialog">
   <div class="image-viewer-card">
-    <button id="imageViewerClose" class="image-viewer-close">×</button>
     <img id="imageViewerImg" src="" alt="">
     <div id="imageViewerCaption" class="image-viewer-caption"></div>
   </div>
@@ -1904,8 +1905,24 @@ async function openTapDismissInfo({title='',content=''}){
  await pr;
  if(card){card.onclick=null;card.classList.remove('tap-dismiss-info');}
 }
-function openImageViewer(src,caption=''){const wrap=el('imageViewer'),img=el('imageViewerImg');img.src=src;img.alt=caption||'Carte';el('imageViewerCaption').textContent=(caption?caption+' — ':'')+'Touche l’image ou × pour fermer';wrap.classList.remove('hidden')}
-function closeImageViewer(){el('imageViewer').classList.add('hidden');el('imageViewerImg').src='';el('imageViewerCaption').textContent=''}
+function openImageViewer(src,caption=''){
+ const wrap=el('imageViewer'),img=el('imageViewerImg');
+ const dismiss=e=>{if(e){e.preventDefault();e.stopPropagation();}closeImageViewer();};
+ // Bind on every opening, independent of game actions such as Hypnose.
+ wrap.onclick=dismiss;
+ wrap.onpointerup=e=>{if(e.isPrimary!==false&&(e.button===undefined||e.button===0))dismiss(e);};
+ wrap.oncontextmenu=e=>{e.preventDefault();e.stopPropagation();};
+ img.draggable=false;
+ img.src=src;img.alt=caption||'Carte';
+ el('imageViewerCaption').textContent=(caption?caption+' — ':'')+'Touche l’image pour fermer';
+ wrap.classList.remove('hidden');
+}
+function closeImageViewer(){
+ el('imageViewer').classList.add('hidden');
+ el('imageViewerImg').removeAttribute('src');
+ el('imageViewerCaption').textContent='';
+}
+
 async function choosePlayer(prompt,players,allowCancel=false){
  const game=S;
  players=players.filter(p=>game?.players.includes(p)&&p.alive);
@@ -2941,14 +2958,7 @@ async function hypnoseSteal(attacker,target){
  if(attacker.human){const content=`<div class="choice-grid">${opts.map((x,i)=>`<div class="choice-card" data-hyp="${i}"><img src="${imgCard(x.id)}"><b>${cardName(x.id)}</b></div>`).join('')}</div>`;const pr=openModal({title:`Main de ${pName(target)}`,text:'Choisis la carte à voler.',content});setTimeout(()=>{[...el('modalContent').querySelectorAll('[data-hyp]')].forEach(n=>n.onclick=()=>closeModal(Number(n.dataset.hyp)))},0);chosen=opts[await pr]}else chosen=opts[Math.floor(Math.random()*opts.length)];
  if(chosen.type==='witches'){await transferWitches(target,attacker);return}
  const [id]=target.hand.splice(chosen.i,1);attacker.hand.push(id);log(`${pName(attacker)} vole ${cardName(id)} à ${pName(target)}.`,'good');await enforceHandLimit(attacker);
-const imageViewerCloseNow=e=>{if(e){e.preventDefault();e.stopPropagation();}closeImageViewer();return false};
-const ivCloseBtn=el('imageViewerClose');
-if(ivCloseBtn){['click','pointerdown','pointerup','touchstart','touchend','mousedown','mouseup'].forEach(evt=>ivCloseBtn.addEventListener(evt,imageViewerCloseNow,{passive:false,capture:true}));ivCloseBtn.onclick=imageViewerCloseNow;}
-const ivWrap=el('imageViewer'),ivCard=ivWrap?ivWrap.querySelector('.image-viewer-card'):null,ivImg=el('imageViewerImg'),ivCap=el('imageViewerCaption');
-if(ivWrap)ivWrap.addEventListener('click',e=>{imageViewerCloseNow(e)});
-if(ivCard){ivCard.addEventListener('click',e=>{imageViewerCloseNow(e)});ivCard.addEventListener('pointerdown',e=>{e.stopPropagation()});}
-if(ivImg)ivImg.addEventListener('click',e=>{imageViewerCloseNow(e)});
-if(ivCap)ivCap.addEventListener('click',e=>{imageViewerCloseNow(e)});
+
 render();
 }
 async function transferWitches(from,to){from.witches=false;to.witches=true;log(`${pName(to)} vole Les Sorcières d’Oeting à ${pName(from)}.`,'important');await enforceHandLimit(from);while(to.alive&&to.hand.length<7)await drawOneToHand(to);render()}
