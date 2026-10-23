@@ -189,3 +189,17 @@ body{width:100%;min-width:0;overflow-x:hidden}
 #clanStoryScreen .clan-story>h2:nth-of-type(3)::after{content:"Le mystérieux parchemin";font-size:1.45rem}
 #clanStoryScreen .clan-story>p:nth-of-type(5)::after{content:"Une nuit, l’un des vampires Del Rattello découvre un vieux parchemin faisant mention d’un trésor hors du commun. Pour y accéder, les deux clans n’ont d’autre choix que de travailler en équipe. Parviendront-ils à mettre leurs querelles de côté pour s’emparer de l’héritage ?"}
 #clanStoryScreen .clan-story>p:nth-of-type(6){display:none!important}
+
+/* V5.70 — align the discard action heading with the first two action headings. */
+#humanPanel .drawer-help .action-option-discard{
+ padding-top:16px!important;
+ padding-bottom:6px!important;
+}
+@media(max-width:430px){
+ #humanPanel .drawer-help .action-option-discard{
+  padding-top:14px!important;
+  padding-right:11px!important;
+  padding-bottom:4px!important;
+  padding-left:11px!important;
+ }
+}
