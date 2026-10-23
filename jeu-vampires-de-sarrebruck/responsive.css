@@ -172,3 +172,20 @@ body{width:100%;min-width:0;overflow-x:hidden}
   box-shadow:6px 6px 0 -4px rgba(240,235,220,.76),8px 8px 0 -4px rgba(135,132,124,.46),0 16px 34px rgba(0,0,0,.6)!important;
  }
 }
+
+/* V5.69 — validated editorial copy for the Origins page. */
+#clanStoryScreen .clan-story>p:nth-of-type(2),
+#clanStoryScreen .clan-story>p:nth-of-type(3),
+#clanStoryScreen .clan-story>p:nth-of-type(5){font-size:0!important}
+#clanStoryScreen .clan-story>p:nth-of-type(2)::after,
+#clanStoryScreen .clan-story>p:nth-of-type(3)::after,
+#clanStoryScreen .clan-story>p:nth-of-type(5)::after{font-size:1.08rem;line-height:1.7}
+#clanStoryScreen .clan-story>p:nth-of-type(2)::after{content:"Le jeu de cartes est né du livre illustré portant le même titre : Les Vampires de Sarrebruck. L’histoire se déroule à la frontière franco-allemande, où deux familles de vampires se querellent depuis des générations."}
+#clanStoryScreen .clan-story>figure:nth-of-type(1) figcaption{font-size:0!important}
+#clanStoryScreen .clan-story>figure:nth-of-type(1) figcaption strong{display:block;font-size:1.08rem}
+#clanStoryScreen .clan-story>figure:nth-of-type(1) figcaption::after{content:"Les Del Rattello vivent à Forbach ; les Von Dunkelwald, à Sarrebruck. Leur rivalité naît de leurs habitudes et de leur manière opposée de gérer leurs cheptels humains.";font-size:1.08rem;line-height:1.7}
+#clanStoryScreen .clan-story>p:nth-of-type(3)::after{content:"Le comte Ermanno, son épouse Elisabetta et leur fils Draculito vivent dans les ruines du château du Schlossberg, dont il ne reste aujourd’hui qu’une tour. Ermanno aime le sang bien gras, les saucissons à l’ail et les économies de ses voisins. Elisabetta, plus mondaine, préfère les poches de sang premium, les tenues raffinées, les bijoux et les lingots de son mari."}
+#clanStoryScreen .clan-story>h2:nth-of-type(3){font-size:0!important}
+#clanStoryScreen .clan-story>h2:nth-of-type(3)::after{content:"Le mystérieux parchemin";font-size:1.45rem}
+#clanStoryScreen .clan-story>p:nth-of-type(5)::after{content:"Une nuit, l’un des vampires Del Rattello découvre un vieux parchemin faisant mention d’un trésor hors du commun. Pour y accéder, les deux clans n’ont d’autre choix que de travailler en équipe. Parviendront-ils à mettre leurs querelles de côté pour s’emparer de l’héritage ?"}
+#clanStoryScreen .clan-story>p:nth-of-type(6){display:none!important}
