@@ -1,82 +1,47 @@
 @import url('./responsive-base-v570.css?v=20261023-2008');
 
-/* V5.71 — Origins book: slight angle with a very thin, realistic page block. */
+/* V5.73 — approved French book mockup in the correct Origins position. */
 #clanStoryScreen .story-cover{
- width:min(88%,500px)!important;
- height:auto!important;
- margin:30px auto 34px!important;
- border:1px solid rgba(20,16,14,.9)!important;
- border-radius:4px!important;
- clip-path:none!important;
- transform:perspective(1200px) rotateY(-9deg) rotateZ(.45deg)!important;
- transform-origin:50% 50%!important;
- box-shadow:
-  1px 1px 0 rgba(246,243,235,.95),
-  2px 2px 0 rgba(224,220,211,.92),
-  3px 3px 0 rgba(198,193,183,.9),
-  4px 4px 0 rgba(156,151,142,.72),
-  9px 14px 24px rgba(0,0,0,.48)!important;
- backface-visibility:hidden;
-}
-@media(max-width:650px){
- #clanStoryScreen .story-cover{
-  width:min(92%,500px)!important;
-  margin:24px auto 30px!important;
-  transform:perspective(1000px) rotateY(-7deg) rotateZ(.3deg)!important;
-  box-shadow:
-   1px 1px 0 rgba(246,243,235,.94),
-   2px 2px 0 rgba(220,216,207,.9),
-   3px 3px 0 rgba(178,173,164,.8),
-   7px 11px 20px rgba(0,0,0,.46)!important;
- }
-}
-
-/* V5.72 — approved French book mockup with restrained gothic framing. */
-#clanStoryScreen .clan-story>figure:nth-of-type(1){
+ content:url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==")!important;
+ display:block!important;
  width:min(92%,560px)!important;
  max-width:560px!important;
+ height:auto!important;
+ aspect-ratio:3/2!important;
+ object-fit:contain!important;
  margin:30px auto 34px!important;
- position:relative;
-}
-#clanStoryScreen .clan-story>figure:nth-of-type(1) .story-cover{
- display:none!important;
-}
-#clanStoryScreen .clan-story>figure:nth-of-type(1)::before{
- content:"";
- display:block;
- width:100%;
- aspect-ratio:560/373;
- background-color:#151112;
+ padding:0!important;
+ background-color:#151112!important;
  background-image:
   url('./assets/origins-book-fr-1.webp'),
   url('./assets/origins-book-fr-2.webp'),
   url('./assets/origins-book-fr-3.webp'),
-  url('./assets/origins-book-fr-4.webp');
- background-position:left top,right top,left bottom,right bottom;
- background-size:50% 50%,50% 50%,50% 50%,50% 50%;
- background-repeat:no-repeat;
- border:1px solid rgba(112,24,31,.86);
- border-radius:7px;
+  url('./assets/origins-book-fr-4.webp')!important;
+ background-position:left top,right top,left bottom,right bottom!important;
+ background-size:calc(50% + 1px) calc(50% + 1px),calc(50% + 1px) calc(50% + 1px),calc(50% + 1px) calc(50% + 1px),calc(50% + 1px) calc(50% + 1px)!important;
+ background-repeat:no-repeat!important;
+ border:1px solid rgba(112,24,31,.86)!important;
+ border-radius:7px!important;
+ clip-path:none!important;
+ transform:none!important;
+ transform-origin:50% 50%!important;
  box-shadow:
   0 0 0 1px rgba(222,207,177,.24),
   0 0 0 5px rgba(12,8,9,.94),
   0 0 0 6px rgba(108,22,29,.38),
-  0 18px 38px rgba(0,0,0,.52);
+  0 18px 38px rgba(0,0,0,.52)!important;
+ backface-visibility:visible!important;
 }
-#clanStoryScreen .clan-story>figure:nth-of-type(1) figcaption{
- margin-top:18px!important;
-}
+
 @media(max-width:650px){
- #clanStoryScreen .clan-story>figure:nth-of-type(1){
+ #clanStoryScreen .story-cover{
   width:min(92%,560px)!important;
   margin:24px auto 30px!important;
- }
- #clanStoryScreen .clan-story>figure:nth-of-type(1)::before{
-  border-radius:6px;
+  border-radius:6px!important;
   box-shadow:
    0 0 0 1px rgba(222,207,177,.22),
    0 0 0 4px rgba(12,8,9,.94),
    0 0 0 5px rgba(108,22,29,.34),
-   0 14px 28px rgba(0,0,0,.5);
+   0 14px 28px rgba(0,0,0,.5)!important;
  }
 }
