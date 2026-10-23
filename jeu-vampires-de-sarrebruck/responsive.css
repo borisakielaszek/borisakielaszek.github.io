@@ -20,3 +20,36 @@
 @media(max-width:650px){
  #clanStoryScreen .story-cover{margin:24px auto 30px!important;}
 }
+
+/* Desktop: use nearly the whole viewport instead of the old 1440 x 620 cap. */
+@media(min-width:900px){
+ #gameScreen{
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+ }
+ #gameScreen .duel-screen{
+  width:calc(100vw - 28px)!important;
+  max-width:1760px!important;
+  height:calc(100dvh - 24px)!important;
+  max-height:none!important;
+  padding:12px 0!important;
+  margin:0 auto!important;
+  grid-template-columns:minmax(0,1.08fr) minmax(330px,.88fr) minmax(0,1.08fr)!important;
+  grid-template-rows:minmax(0,1fr) 72px!important;
+ }
+ #gameScreen .action-stage{
+  margin:0 8px!important;
+ }
+}
+
+/* Van Helsing searches automatically: never show the obsolete manual supplies button. */
+#gameScreen > button,
+#gameScreen .duel-screen > button,
+#gameScreen button[onclick*="suppl" i],
+#gameScreen button[id*="suppl" i],
+#gameScreen button[class*="suppl" i],
+#gameScreen button[title*="fournitures" i],
+#gameScreen button[aria-label*="fournitures" i]{
+ display:none!important;
+}
