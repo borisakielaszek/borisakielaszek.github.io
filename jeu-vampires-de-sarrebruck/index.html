@@ -1394,6 +1394,11 @@ body.van-helsing-mode .helsing-category .secret-power-grid{padding:10px}
 #imageViewer #imageViewerClose{display:flex!important;pointer-events:auto!important;z-index:10!important;align-items:center;justify-content:center;position:absolute;top:8px;right:8px;width:44px!important;height:44px!important;background:#101620ed!important;color:#fff!important;border:1px solid #a0a7b9!important;border-radius:50%!important}
 #imageViewer .image-viewer-card{padding-top:52px!important}
 </style>
+<style id="active-game-viewport">
+body.game-active{overflow:hidden!important;overscroll-behavior:none}
+body.game-active #startScreen,body.game-active #introScreen{display:none!important}
+body.game-active #gameScreen:not(.hidden){position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:0!important;margin:0!important}
+</style>
 </head>
 <body>
 <div id="app">
@@ -2121,6 +2126,11 @@ async function showTurnNotice(p){
 }
 
 
+function resetCombatViewport(){
+ window.scrollTo(0,0);
+ const game=el('gameScreen');if(game)game.scrollTop=0;
+ requestAnimationFrame(()=>{if(document.body.classList.contains('game-active')){window.scrollTo(0,0);if(game)game.scrollTop=0;}});
+}
 async function startGame(){
  actionBusy=false;humanTurnResolve=null;
  const requestedCount=Number(el('playerCount').value);
@@ -2137,7 +2147,9 @@ async function startGame(){
  if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)if(!isVanHelsing(p))p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
- el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');window.scrollTo(0,0);switchToGameMusic();refreshMusicButton();
+ document.activeElement?.blur?.();
+ el('startScreen').classList.add('hidden');el('gameScreen').classList.remove('hidden');document.body.classList.add('game-active');
+ resetCombatViewport();switchToGameMusic();refreshMusicButton();
  if(secretMode==='dracula')log('✦ Dracula entre dans la nuit : 2 gouttes d’or supplémentaires (4 gouttes rouges) et des adversaires indulgents.','good');
  if(secretMode==='van_helsing')log('✦ Van Helsing : 10 gouttes de sang, '+human.silverBolts+' carreau(x) d’argent, un crucifix, un fouet consacré et une pression stratégique renforcée de 10 %.','important');
  log(`La nuit commence à Sarrebruck. ${pName(players[S.turnIndex])} commence la partie.`,'important');
@@ -2471,6 +2483,7 @@ function endHumanTurn(){if(humanTurnResolve)humanTurnResolve()}
 function attackBlockReason(attacker,id){
  const opponents=alivePlayers().filter(t=>t!==attacker&&t.alive);
  if(!opponents.length)return 'Aucun adversaire vivant ne peut être ciblé.';
+ if(id==='aube'&&opponents.every(isVanHelsing))return 'Le soleil ne blesse pas Van Helsing : il est humain.';
  if((id==='lycanthrope'||id==='meute')&&opponents.every(t=>t.vampire==='rudiger'))return 'Rüdiger est immunisé contre les attaques de lycanthropes.';
  if(id==='hypnose'){
    if(attacker.vampire==='elisabetta'&&opponents.length>=2)return '';
@@ -2488,6 +2501,7 @@ function attackBlockReason(attacker,id){
 function attackUnavailableLabel(attacker,id){
  const reason=attackBlockReason(attacker,id);
  if(!reason)return '';
+ if(reason.includes('soleil'))return 'VAN HELSING EST HUMAIN';
  if(reason.includes('chasseurs humains'))return 'AUCUNE CIBLE VAMPIRE';
  if(reason.includes('Rüdiger'))return 'RÜDIGER IMMUNISÉ';
  if(reason.includes('Elisabetta'))return 'ELISABETTA IMMUNISÉE';
@@ -2497,6 +2511,7 @@ function attackUnavailableLabel(attacker,id){
 }
 function validAttackTargets(attacker,id){
  let targets=alivePlayers().filter(t=>t!==attacker&&t.alive);
+ if(id==='aube')targets=targets.filter(t=>!isVanHelsing(t));
  if(id==='hypnose')targets=targets.filter(t=>t.vampire!=='elisabetta'&&(t.hand.length||t.witches));
  if(id==='lycanthrope'||id==='meute')targets=targets.filter(t=>t.vampire!=='rudiger');
  if(isHunter(id))targets=targets.filter(t=>t.vampire!=='ilsa'&&!isVanHelsing(t));
@@ -2559,7 +2574,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,forcedTar
    if(!normal.length)return false;
  }
  let candidates=validAttackTargets(attacker,id);
- if(isHunter(id)&&forcedTarget&&!candidates.includes(forcedTarget))return false;
+ if((isHunter(id)||id==='aube')&&forcedTarget&&!candidates.includes(forcedTarget))return false;
  if(!candidates.length){log(attackBlockReason(attacker,id)||'Aucune cible valide.');return false;}
  let target=forcedTarget||(attacker.human?await choosePlayer(`Cible de ${cardName(id)}`,candidates,true):aiTarget(attacker,candidates,id));if(!target){toast(attackBlockReason(attacker,id)||'Aucune cible choisie.');return false;}
  if(!attacker.human)await showAttackReveal(attacker,target,id);
@@ -2801,6 +2816,7 @@ function aiChooseDefense(t,a,id,eligible){
 
 async function resolveAttackInstance(attacker,target,id,{uncounterable=false,allowDeadAttacker=false}={}){
  if((!attacker.alive&&!allowDeadAttacker)||!target.alive)return;
+ if(id==='aube'&&isVanHelsing(target)){log('Van Helsing est humain : la lumière du soleil ne lui fait aucun mal.','good');return;}
  if(isHunter(id)&&isVanHelsing(target)){
   log('Les chasseurs humains reconnaissent Van Helsing et renoncent à l’attaquer.','good');
   return;
@@ -2882,7 +2898,7 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
 async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  const summary={damage:0,discarded:[],eliminated:false};
  if(!target.alive)return summary;
- if(isHunter(id)&&isVanHelsing(target))return summary;
+ if((isHunter(id)||id==='aube')&&isVanHelsing(target))return summary;
  if(id==='van_helsing_dawn'){
    summary.discarded=await discardRandomOrChosen(target,2,'L’Aube du jour : défausse 2 cartes.');
    return summary;
