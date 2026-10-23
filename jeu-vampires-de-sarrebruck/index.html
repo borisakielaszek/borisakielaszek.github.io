@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261023-helsing-half-chance">
+<meta name="game-build" content="20261023-immediate-chain-fix">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1773,7 +1773,7 @@ const IMMEDIATE_EXPLAIN={
  proie_brandenbusch:"Tu saignes une proie dans la forêt du Brandenbourg : tu récupères 2 gouttes de sang.",
  proie_schalkenthal:"Tu saignes une proie dans la forêt de Schalkenthal : tu récupères 1 goutte de sang.",
  proie_bahnhof:"Tu saignes une proie devant la gare centrale : tu récupères 1 goutte de sang et tu pioches 2 cartes supplémentaires.",
- sorcieres:"Les Sorcières d’Oeting s’installent à tes côtés : ta main maximale passe à 7 cartes et tu pioches immédiatement 1 carte supplémentaire.",
+ sorcieres:"Les Sorcières d’Oeting s’installent à tes côtés : ta main maximale passe à 7 cartes.",
  chute_sarre:"Tu chutes dans la Sarre : tu dois défausser 1 carte puis passer ton prochain tour, sauf si un pouvoir ou une carte te permet d’éviter la chute.",
  fleau:"Le Fléau Purificateur frappe toute la table : chaque vampire perd 1 goutte de sang.",
  fantome:"Le Fantôme te demande de choisir un autre vampire : il reçoit 1 goutte de sang provenant de la réserve commune.",
@@ -2077,7 +2077,7 @@ function secretPowersHTML(p){
 
 }
 async function grantHelsingBroom(drawer,id,drawReason){
- if(!drawReason||!drawer||drawer.human||isVanHelsing(drawer))return;
+ if(S?.secretMode!=='van_helsing'||!drawReason||!drawer||drawer.human||isVanHelsing(drawer))return;
  const p=alivePlayers().find(isVanHelsing);if(!p)return;
  const field=id==='hexennacht'?'broomCharges':'armedBroomCharges',gear=id==='hexennacht'?'van_helsing_broom':'van_helsing_armed_broom';
  if((p[field]||0)>=1)return;
@@ -2320,9 +2320,25 @@ function settleImmediateDraw(game,id){
  if(S!==game)return;
  // The unique witches card may already have been returned by an elimination during its bonus draw.
  if(id==='sorcieres'&&(game.players.some(p=>p.witches||p.hand.includes(id))||game.deck.includes(id)||game.discard.includes(id)))return;
+ if(game.drawChainDepth>0){(game.pendingImmediateDiscards||=[]).push(id);return;}
  discardCard(id);
 }
 async function drawOneToHand(p,reason='normal'){
+ const game=S;
+ if(!game)return null;
+ game.drawChainDepth=(game.drawChainDepth||0)+1;
+ try{return await drawOneToHandInChain(p,reason);}
+ finally{
+   game.drawChainDepth--;
+   if(game.drawChainDepth===0){
+     // Keep resolved events out of refills until all nested draws have finished.
+     const pending=game.pendingImmediateDiscards||[];
+     game.pendingImmediateDiscards=[];
+     if(S===game)for(const id of pending)settleImmediateDraw(game,id);
+   }
+ }
+}
+async function drawOneToHandInChain(p,reason='normal'){
  const game=S;
  if(isVanHelsing(p))return null;
  if(!game||game.gameOver||!game.players.includes(p)||!p.alive)return null;for(let guard=0;guard<100&&S===game&&!game.gameOver;guard++){
@@ -3169,11 +3185,9 @@ async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
    await grantHelsingBroom(p,id,drawReason);
    if(!p.witches){
      p.witches=true;
-     log(`${pName(p)} place Les Sorcières d’Oeting à côté de ses gouttes : main maximale 7 et 1 carte supplémentaire.`,'good');
+     log(`${pName(p)} place Les Sorcières d’Oeting à côté de ses gouttes : main maximale 7.`,'good');
      render();
-     // Quand les Sorcières sont réellement piochées, leur nouvelle 7e place donne immédiatement une carte bonus.
-     // La fonction de pioche appelante poursuit ensuite sa propre pioche : la carte bonus ne remplace donc jamais la pioche de fin de tour.
-     if(drawReason&&p.alive)await drawOneToHand(p,p.human?'witchesBonus':'normal');
+     // La pioche normale reprend après cet effet ; aucun cadeau supplémentaire au vampire.
    }
    return;
  }
@@ -3190,21 +3204,31 @@ async function chooseHexennachtBack(victim){
  return await promise;
 }
 async function resolveHexennacht(starter){
- const alive=alivePlayers().filter(p=>!isVanHelsing(p));let start=alive.indexOf(starter);if(start<0)start=0;
+ const game=S;
+ const alive=alivePlayers().filter(p=>!isVanHelsing(p));
+ for(const p of alive)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
+ try{
+ let start=alive.indexOf(starter);if(start<0)start=0;
  const order=[];for(let k=0;k<alive.length;k++)order.push(alive[(start+k)%alive.length]);
  for(const thief of order){
+   if(S!==game||game.gameOver)return;
    if(!thief.alive)continue;
    const currentAlive=alivePlayers().filter(x=>!isVanHelsing(x));const idx=currentAlive.indexOf(thief);if(idx<0||currentAlive.length<2)continue;
    const victim=currentAlive[(idx-1+currentAlive.length)%currentAlive.length];
    if(!victim.hand.length){log(`${pName(thief)} ne peut rien voler à ${pName(victim)}.`);continue}
    const j=thief.human?await chooseHexennachtBack(victim):Math.floor(Math.random()*victim.hand.length);
+   if(S!==game||game.gameOver)return;
    if(j==null||j<0||j>=victim.hand.length)continue;
    const [id]=victim.hand.splice(j,1);thief.hand.push(id);
    log(thief.human?`${pName(thief)} vole ${cardName(id)} à ${pName(victim)} avec Hexennacht.`:`${pName(thief)} vole une carte face cachée à ${pName(victim)} (Hexennacht).`,thief.human?'good':'');
    await enforceHandLimit(thief);
    render();
  }
- render();
+ }finally{
+   for(const p of alive)p.deferredHandLimits--;
+   if(S===game&&!game.gameOver)for(const p of alive)await enforceHandLimit(p);
+ }
+ if(S===game)render();
 }
 
 async function resolveMortetrouille(p){if(S.mortDepth>=2){log('Mortetrouille se perd dans un écho de la défausse…');return}const candidates=S.discard.slice(-5);if(!candidates.length){log('Mortetrouille ne trouve aucune carte dans la défausse.');return}let idx;if(p.human)idx=await chooseDiscardCandidate('Mortetrouille — choisis 1 carte parmi les 5 premières de la défausse',candidates);else idx=aiBestDiscardEffect(candidates,p);const selected=candidates[idx];log(`${pName(p)} invoque ${cardName(selected)} avec Mortetrouille.`,'important');S.mortDepth++;try{await applyFreeCardEffect(p,selected)}finally{S.mortDepth--}}
