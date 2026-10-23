@@ -26,3 +26,5 @@ jobs:
             git commit -m "Install final Vampires banner as direct WebP"
             git push
           fi
+
+# retrigger 2026-10-23
