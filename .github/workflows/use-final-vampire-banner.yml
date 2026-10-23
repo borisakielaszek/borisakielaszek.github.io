@@ -1,0 +1,28 @@
+name: Use final Vampires banner
+
+on:
+  push:
+    paths:
+      - '.github/workflows/use-final-vampire-banner.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Replace HTML CTA with final banner
+        run: python3 .github/scripts/use-final-vampire-banner.py
+      - name: Commit final banner integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Use final Vampires de Sarrebruck banner on personal site"
+            git push
+          fi
