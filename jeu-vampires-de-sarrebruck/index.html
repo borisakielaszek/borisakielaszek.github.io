@@ -2247,7 +2247,7 @@ async function startGame(){
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
- if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;}
+ if(secretMode==='dracula'){human.hp+=4;human.goldBlood=4;human.profileName='Dracula';human.portrait='assets/dracula-transylvanie.webp';}
  const full=buildActionDeck(), non=shuffle(full.filter(id=>CARDS[id].kind!=='immediate')), imm=full.filter(id=>CARDS[id].kind==='immediate');
  for(let r=0;r<6;r++)for(const p of players)if(!isVanHelsing(p))p.hand.push(non.pop());S.deck=shuffle(non.concat(imm));
  document.activeElement?.blur?.();
@@ -2548,7 +2548,7 @@ async function finishAction(p,drawAfter){
  await maybeGameOver();
  // A winning action ends the turn immediately; never draw into a finished or replaced game.
  if(!game||S!==game||game.gameOver)return;
- if(p.alive&&drawAfter&&isVanHelsing(p)){recoverHelsingTurnSupplies(p);}
+ if(p.alive&&drawAfter&&isVanHelsing(p)){await recoverHelsingTurnSupplies(p);}
  else if(p.alive&&drawAfter){log(`Fin du tour de ${pName(p)} : ${p.human?'tu pioches':'il pioche'} 1 carte.`,'important');await drawOneToHand(p,p.human?'endturn':'normal');}
  if(S!==game)return;
  await maybeGameOver();render();
@@ -2564,9 +2564,24 @@ function recoverHelsingAmmo(p,roll=Math.random()){
  const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle d’argent consacrée':field==='gepettoStakes'?'un pieu Gepetto':field==='medkitUses'?'une sacoche médicale':'une dose d’élixir';
  log('Tu récupères '+label+'.','good');render();return field;
 }
-function recoverHelsingTurnSupplies(p,roll=Math.random()){
- if(roll<currentHelsingBalance().supplyChance)recoverHelsingAmmo(p);
- else log('Cette fois, tu ne trouves aucune fourniture.','important');
+async function recoverHelsingTurnSupplies(p,roll=Math.random()){
+ const game=S;
+ if(!game||game.gameOver||!isVanHelsing(p)||!p.alive)return;
+ const field=roll<currentHelsingBalance().supplyChance?recoverHelsingAmmo(p):null;
+ const finds={
+ silverBolts:{label:'un carreau à tête d’argent',image:A+'assets/van-helsing-carreaux-argent-valide.webp'},
+ blessedBullets:{label:'une balle d’argent consacrée',image:A+'assets/van-helsing-balles-consacrees-valide.webp'},
+ gepettoStakes:{label:'un pieu en bois pour Gepetto',image:A+'assets/van-helsing-pieux-bois-valide.webp'},
+ medkitUses:{label:'une sacoche médicale',image:imgCard('van_helsing_medkit')},
+ elixirDoses:{label:'une dose d’élixir de survie',image:imgCard('van_helsing_elixir')}
+ };
+ const found=finds[field];
+ const text=found?'Au coin d’une rue, tu as trouvé '+found.label+'. Cet objet rejoint tes réserves.':'Tu fouilles les environs, mais tu ne trouves aucune fourniture à emporter cette fois.';
+ if(!found)log('Cette fois, tu ne trouves aucune fourniture.','important');
+ if(S!==game||game.gameOver)return;
+ await openModal({title:found?'Une trouvaille dans les parages !':'Recherche dans les environs',text,
+ content:found?'<div class="card-preview"><img src="'+found.image+'" alt="'+found.label+'"></div>':'',
+ buttons:[{label:'Continuer',value:true}],closable:true});
 }
 async function useHelsingGoggles(){
  const game=S,p=game?.players.find(x=>x.human);
