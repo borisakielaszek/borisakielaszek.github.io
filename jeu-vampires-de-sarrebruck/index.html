@@ -1413,7 +1413,17 @@ body.van-helsing-mode .helsing-gear strong{font-size:clamp(.85rem,2.7vw,1.05rem)
 </style><style id="helsing-unavailable-equipment">
 body.van-helsing-mode .helsing-gear.helsing-gear-unavailable{filter:grayscale(1);opacity:.48}
 body.van-helsing-mode .helsing-gear.helsing-gear-unavailable:hover,body.van-helsing-mode .helsing-gear.helsing-gear-unavailable:focus-visible{opacity:.75}
-</style></head>
+</style><style id="combat-portrait-fill">
+/* Both combat portraits fill their stage with their natural proportions. */
+#opponentStage .featured-portrait,
+#humanStage .featured-portrait{
+ display:block!important;
+ width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:50% 45%!important;
+}
+#humanStage[data-profile="dracula"] .featured-portrait{object-position:35% 40%!important}
+</style>
+</head>
 <body>
 <div id="app">
   
@@ -1845,7 +1855,7 @@ function render(){
    el('humanPanel')?.setAttribute('aria-label',isVanHelsing(h)?'Équipement de Van Helsing':'Ta main');
    el('humanStage')?.setAttribute('aria-label',isVanHelsing(h)?'Van Helsing — ouvrir ton équipement':'Ton vampire — ouvrir tes cartes');
    const drawerTitle=document.querySelector('#humanPanel .drawer-head b');if(drawerTitle)drawerTitle.textContent=isVanHelsing(h)?'Ton équipement':'Ton vampire';
-   if(humanStage){humanStage.className=`vamp-stage human-stage ${effectClassFor(h.vampire)}`.trim();humanStage.dataset.vamp=h.vampire;}
+   if(humanStage){humanStage.className=`vamp-stage human-stage ${effectClassFor(h.vampire)}`.trim();humanStage.dataset.vamp=h.vampire;humanStage.dataset.profile=isDraculaPlayer(h)?'dracula':h.vampire;}
    el('humanInfo').innerHTML=playerCardHTML(h,current,true);
    const hb=el('humanInfoBar');if(hb)hb.innerHTML=playerInfoBarHTML(h,true);
    const playable=S.awaitingHuman&&!actionBusy&&h.alive;
