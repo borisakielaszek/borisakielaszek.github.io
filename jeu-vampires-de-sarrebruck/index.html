@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261023-saint-nicolas-human">
+<meta name="game-build" content="20261023-helsing-search-music">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1423,6 +1423,11 @@ body.van-helsing-mode .helsing-gear.helsing-gear-unavailable:hover,body.van-hels
 }
 #humanStage[data-profile="dracula"] .featured-portrait{object-position:35% 40%!important}
 </style>
+<style id="search-and-global-music">
+body.music-controls-ready #musicToggle{display:block!important;position:fixed;top:max(10px,env(safe-area-inset-top));right:10px;z-index:10000;font-size:.78rem;padding:8px 10px;opacity:.95}
+.helsing-search-action{width:100%;padding:14px;background:#38523a;border-color:#b3ad71;font-weight:bold}
+.helsing-board-search{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:12px;z-index:30;max-width:65vw;background:#38523a;border:1px solid #b3ad71;box-shadow:0 5px 20px #000a;font-weight:bold}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1543,6 +1548,7 @@ body.van-helsing-mode .helsing-gear.helsing-gear-unavailable:hover,body.van-hels
       </section>
     </main>
 
+    <button type="button" id="helsingBoardSearchBtn" class="helsing-board-search hidden">Chercher des fournitures</button>
     <section id="humanPanel" class="card-drawer hidden" aria-label="Ta main">
       <div class="drawer-head">
         <div><b>Ton vampire</b><span id="drawerHandCount" class="drawer-count"></span></div>
@@ -1755,7 +1761,7 @@ function log(msg,type=''){
 }
 function toast(msg){const t=el('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.add('hidden'),2200)}
 function musicBtnLabel(){return musicEnabled?'🔊 Musique':'🔇 Musique'}
-function refreshMusicButton(){const b=el('musicToggle');if(b)b.textContent=musicBtnLabel()}
+function refreshMusicButton(){const b=el('musicToggle');document.body.classList.toggle('music-controls-ready',!!el('introScreen')?.classList.contains('hidden'));if(b){b.textContent=musicBtnLabel();b.setAttribute('aria-pressed',String(!musicEnabled));}}
 function currentMusic(){if(endgameMusicId)return el(endgameMusicId);return document.body.classList.contains('game-active')?el('gameMusic'):el('bgMusic')}
 function stopMusic(a,reset=false){if(!a)return;try{a.pause();if(reset)a.currentTime=0}catch(e){}}
 function stopAllMusic(reset=false){for(const id of ['bgMusic','gameMusic','victoryMusic','defeatMusic','helsingVictoryMusic','helsingDefeatMusic'])stopMusic(el(id),reset)}
@@ -1865,6 +1871,8 @@ function render(){
    el('humanInfo').innerHTML=playerCardHTML(h,current,true);
    const hb=el('humanInfoBar');if(hb)hb.innerHTML=playerInfoBarHTML(h,true);
    const playable=S.awaitingHuman&&!actionBusy&&h.alive;
+   const search=el('helsingBoardSearchBtn');
+   if(search){search.classList.toggle('hidden',!isVanHelsing(h)||!h.alive||S.gameOver);search.disabled=!secretPowerAvailable(h,'van_helsing_resupply');}
    const handCardHTML=(cid,i)=>{const kind=CARDS[cid]?.kind;const altUse=(h.vampire==='rudiger'&&(cid==='lycanthrope'||cid==='meute'))||(h.vampire==='ermanno'&&cid==='poche_perimee');const blocked=playable&&(kind==='attack'||kind==='hybrid')&&!canPlayAttack(h,cid)&&!altUse;const badge=blocked?`<div class="card-unavailable-badge">${attackUnavailableLabel(h,cid)}</div>`:'';return `<div class="hand-card ${playable?'playable':''} ${blocked?'attack-unavailable':''}" data-index="${i}"><div class="hand-card-image-wrap"><img src="${imgCard(cid)}" alt="${cardName(cid)}">${badge}</div><div class="cardtag">${cardName(cid)}</div></div>`;};
    const attackCards=[],regenCards=[],defenseCards=[],otherCards=[];
    h.hand.forEach((cid,i)=>{const kind=CARDS[cid]?.kind;if(kind==='attack'||kind==='hybrid')attackCards.push([cid,i]);else if(kind==='regen')regenCards.push([cid,i]);else if(kind==='defense')defenseCards.push([cid,i]);else otherCards.push([cid,i]);});
@@ -2077,9 +2085,10 @@ function secretPowersHTML(p){
  return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum</div>'+
  '<div class="helsing-ammo-summary" aria-label="Réserve de munitions" aria-live="polite">'+
  [['carreaux-argent','Carreaux à tête d’argent',p.silverBolts],['balles-consacrees','Balles d’argent consacrées',p.blessedBullets],['pieux-bois','Pieux en bois',p.gepettoStakes]].map(([asset,label,count])=>'<figure class="helsing-ammo-item"><img src="assets/van-helsing-'+asset+'-valide.webp?v=20261023" alt="'+label+'"><figcaption>'+label+'<b>'+count+'</b></figcaption></figure>').join('')+'</div>'+
+ '<button type="button" class="helsing-search-action" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_resupply')?'':'disabled')+'>Chercher des fournitures — termine le tour</button><p class="tiny">Recherche volontaire : un objet garanti. Sans aucune munition, tu trouves un carreau d’argent.</p>'+
  groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
  '<p class="tiny">Fin de tour : '+Math.round(currentHelsingBalance().supplyChance*100)+' % de chance de trouver un objet. Répartition des objets trouvés : '+currentHelsingBalance().weights.map((w,i)=>w+' % '+['carreau','balle','pieu','sacoche','élixir'][i]).join(' · ')+'. Noël donne toujours deux objets si la réserve n’est pas pleine.</p>'+
- '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_resupply')?'':'disabled')+'>Passer l’action et chercher du matériel</button>';
+ '';
 
 }
 async function grantHelsingBroom(drawer,id,drawReason){
@@ -2598,10 +2607,14 @@ function recoverHelsingAmmo(p,roll=Math.random()){
  const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle d’argent consacrée':field==='gepettoStakes'?'un pieu Gepetto':field==='medkitUses'?'une sacoche médicale':'une dose d’élixir';
  log('Tu récupères '+label+'.','good');render();return field;
 }
-async function recoverHelsingTurnSupplies(p,roll=Math.random()){
+async function recoverHelsingTurnSupplies(p,roll=Math.random(),{guaranteed=false}={}){
  const game=S;
  if(!game||game.gameOver||!isVanHelsing(p)||!p.alive)return;
- const field=roll<currentHelsingBalance().supplyChance?recoverHelsingAmmo(p):null;
+ let field=null;
+ if(guaranteed&&!(p.silverBolts>0||p.blessedBullets>0||p.gepettoStakes>0)){
+   p.silverBolts=(p.silverBolts||0)+1;field='silverBolts';
+   log('Recherche sans munition : tu trouves un carreau d’argent garanti.','good');render();
+ }else if(guaranteed||roll<currentHelsingBalance().supplyChance)field=recoverHelsingAmmo(p);
  const finds={
  silverBolts:{label:'un carreau à tête d’argent',image:A+'assets/van-helsing-carreaux-argent-valide.webp'},
  blessedBullets:{label:'une balle d’argent consacrée',image:A+'assets/van-helsing-balles-consacrees-valide.webp'},
@@ -2661,10 +2674,10 @@ async function useHelsingMedkit(){
 async function helsingResupply(){
  const game=S,p=game?.players.find(x=>x.human);
  if(!secretPowerAvailable(p,'van_helsing_resupply'))return;
- const ok=await openModal({title:'Chercher du matériel',text:'Chercher des munitions ou des soins ? La recherche peut être infructueuse.',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
+ const ok=await openModal({title:'Chercher du matériel',text:'Tu renonces à ton action pour chercher un objet garanti. Sans aucune munition, tu trouves un carreau d’argent. Cette recherche termine ton tour.',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
  if(!ok||S!==game||!secretPowerAvailable(p,'van_helsing_resupply'))return;
  actionBusy=true;
- try{closeHand();await finishAction(p,true);}finally{if(S===game){actionBusy=false;render();endHumanTurn();}}
+ try{closeHand();await recoverHelsingTurnSupplies(p,0,{guaranteed:true});if(S===game&&!game.gameOver)await finishAction(p,false);}finally{if(S===game){actionBusy=false;render();endHumanTurn();}}
 }
 function endHumanTurn(){if(humanTurnResolve)humanTurnResolve()}
 
@@ -3583,6 +3596,7 @@ function wireUI(){
  const startBtn=el('startBtn');
  el('enterNightBtn').addEventListener('click',enterNight); el('enterNightBtn').addEventListener('pointerup',e=>{e.preventDefault();enterNight();},{passive:false});
  el('musicToggle').addEventListener('click',toggleMusic);
+ el('helsingBoardSearchBtn')?.addEventListener('click',helsingResupply);
  el('quickGuideBtn').addEventListener('click',showQuickGuide);
  el('clanStoryBtn').addEventListener('click',showClanStory);
  el('clanStoryBackBtn').addEventListener('click',closeClanStory);
