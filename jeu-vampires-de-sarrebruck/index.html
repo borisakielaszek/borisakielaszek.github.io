@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261023-helsing-end-sounds">
+<meta name="game-build" content="20261023-saint-nicolas-human">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1797,7 +1797,7 @@ const CARD_EXPLAIN={
  tablettes:"Défense : annule les effets de Poche périmée, Gewürztraminer au Sang Noir et Saucisson à l’ail.",
  hexennacht:"🌙 Hexennacht entraîne toute la table : chaque vampire vole 1 carte face cachée à son voisin de droite. Les Sorcières d’Oeting restent protégées et ne peuvent pas être volées ainsi.",
  poche_perimee:"La cible perd 1 goutte. Pour Ermanno, l’effet est inversé : il gagne 1 goutte.",
- saint_nicolas:"La cible passe ses 2 prochains tours. Elisabetta ne passe jamais son tour.",
+ saint_nicolas:"La cible passe ses 2 prochains tours. Elisabetta ne passe jamais son tour. Sur Van Helsing, Saint-Nicolas offre 1 goutte d’or supplémentaire (+2 vie), sans tour perdu.",
  griffures:"La cible perd 1 goutte.",
  chateau:"Régénération : Dunkelwald +2 ; Del Rattello +1 ; Rüdiger +3 ; Draco bénéficie du bonus Dunkelwald.",
  tour_schlossberg:"Régénération : Del Rattello +2 ; Dunkelwald +1 ; Draco bénéficie du bonus Del Rattello.",
@@ -3006,8 +3006,25 @@ function aiChooseDefense(t,a,id,eligible){
  return randomUnit()<.75?eligible[0]:null;
 }
 
+function grantSaintNicolasGold(target){
+ const summary={damage:0,discarded:[],eliminated:false,goldGained:0};
+ if(!isVanHelsing(target)||!target.alive)return summary;
+ target.maxHp=playerMaxHp(target)+2;
+ target.hp+=2;
+ target.goldBlood=(target.goldBlood||0)+2;
+ summary.goldGained=1;
+ log('Saint-Nicolas est du côté des humains : Van Helsing reçoit 1 goutte d’or supplémentaire (+2 vie et +2 vie maximale), sans perdre de tour.','good');
+ render();
+ return summary;
+}
+
 async function resolveAttackInstance(attacker,target,id,{uncounterable=false,allowDeadAttacker=false}={}){
  if((!attacker.alive&&!allowDeadAttacker)||!target.alive)return;
+ if(id==='saint_nicolas'&&isVanHelsing(target)){
+   grantSaintNicolasGold(target);
+   await openModal({title:'Saint-Nicolas soutient Van Helsing',text:'Saint-Nicolas est humain et se range de ton côté ! Tu reçois 1 goutte d’or supplémentaire : +2 gouttes de vie et +2 à ta vie maximale. Tu ne passes aucun tour.',content:'<div class="card-preview"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"></div>',buttons:[{label:'Continuer',value:true}]});
+   return;
+ }
  if(['poche_perimee','cercueil'].includes(id)&&isVanHelsing(target)){log('Van Helsing est humain : cette carte de vampire est sans effet sur lui.','good');return;}
  if(id==='aube'&&isVanHelsing(target)){log('Van Helsing est humain : la lumière du soleil ne lui fait aucun mal.','good');return;}
  if(isHunter(id)&&isVanHelsing(target)){
@@ -3118,6 +3135,7 @@ async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  }
  if(id==='hypnose'){await hypnoseSteal(attacker,target);return summary}
  if(id==='saint_nicolas'){
+   if(isVanHelsing(target))return grantSaintNicolasGold(target);
    if(target.vampire==='elisabetta'){log(`Elisabetta ne passe jamais son tour.`,'good');return summary}
    target.skipTurns+=2;log(`${pName(target)} devra passer ses 2 prochains tours.`,'bad');render();return summary
  }
