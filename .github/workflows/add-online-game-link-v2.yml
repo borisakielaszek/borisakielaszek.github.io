@@ -1,0 +1,48 @@
+name: Add online game link to card game section v2
+on:
+  push:
+    paths:
+      - '.github/workflows/add-online-game-link-v2.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add link at bottom of card game section
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'class="online-game-cta"'
+          if marker in s:
+              print('Online game CTA already present')
+              raise SystemExit(0)
+          start = s.find('<section id="jeux">')
+          if start < 0:
+              raise SystemExit('Games section not found')
+          end = s.find('</section>', start)
+          if end < 0:
+              raise SystemExit('Games section closing tag not found')
+          section = s[start:end]
+          close_article = section.rfind('</article>')
+          if close_article < 0:
+              raise SystemExit('Game article closing tag not found')
+          insert_at = start + close_article
+          block = ('<div class="online-game-cta" style="margin-top:2rem;text-align:center">'
+                   '<p><strong>Le jeu est également disponible gratuitement en version numérique, jouable directement dans votre navigateur.</strong></p>'
+                   '<div class="links" style="justify-content:center"><a href="/jeu-vampires-de-sarrebruck/" aria-label="Jouer en ligne aux Vampires de Sarrebruck">Jouer en ligne</a></div>'
+                   '</div>')
+          s = s[:insert_at] + block + s[insert_at:]
+          p.write_text(s, encoding='utf-8')
+          print('Online game CTA added')
+          PY
+      - name: Commit update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Add online game link below card gallery"
+          git push
