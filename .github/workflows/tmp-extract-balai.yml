@@ -1,4 +1,4 @@
-name: Extract Balai Snippets
+name: Apply Broom Texts
 
 on:
   push:
@@ -9,35 +9,29 @@ permissions:
   contents: write
 
 jobs:
-  extract:
+  update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Extract snippets around balai and Oeting
+      - name: Replace validated broom descriptions
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('jeu-vampires-de-sarrebruck/index.html')
           s=p.read_text(encoding='utf-8')
-          terms=['Balai','balai','Oeting','Hexennacht']
-          out=[]
-          seen=set()
-          for term in terms:
-              start=0
-              while True:
-                  i=s.find(term,start)
-                  if i<0: break
-                  a=max(0,i-900); b=min(len(s),i+1400)
-                  key=(a,b)
-                  if key not in seen:
-                      seen.add(key)
-                      out.append(f'--- {term} @ {i} ---\n'+s[a:b])
-                  start=i+len(term)
-          Path('tmp-balai-snippets.txt').write_text('\n\n'.join(out),encoding='utf-8')
+          replacements={
+            "Évite une attaque de vampire défendable. Un seul usage. Reçu à Hexennacht.": "Évite une attaque de vampire. Usage unique. Balai offert par une aimable sorcière lors de la Hexennacht.",
+            "Évite une attaque de vampire défendable et inflige 3 gouttes au vampire attaquant. Un seul usage. Reçu des Sorcières d’Oeting.": "Évite une attaque de vampire et lui inflige 3 gouttes de dégâts. Usage unique. Balai offert par les Sorcières d’Oeting."
+          }
+          for old,new in replacements.items():
+              count=s.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly 1 occurrence of {old!r}, found {count}')
+              s=s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tmp-balai-snippets.txt
-          git commit -m "Extract balai snippets for correction" || exit 0
+          git add jeu-vampires-de-sarrebruck/index.html
+          git commit -m "Update Hexennacht and Oeting broom descriptions"
           git push
-# trigger 2
