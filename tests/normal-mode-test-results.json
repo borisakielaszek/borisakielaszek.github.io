@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-23",
+  "mode": "Normal vampire game; no secret mode",
+  "games": 168,
+  "errors": 0,
+  "coverage": {
+    "human_vampires": [
+      "manfred",
+      "rudiger",
+      "ilsa",
+      "ermanno",
+      "elisabetta",
+      "draculito",
+      "draco"
+    ],
+    "ai_counts": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "difficulties": [
+      "easy",
+      "normal",
+      "hard"
+    ],
+    "seeds_per_combination": 2
+  },
+  "scope": "Real game engine, automated player decisions using own cards, mocked DOM, dialogs/media/delays. No browser rendering or touchscreen test.",
+  "invariants": [
+    "No secret characters or hunter equipment",
+    "Difficulty honored",
+    "HP and alive status agree",
+    "Blood total 26",
+    "All 74 action cards individually conserved",
+    "Hand limits respected",
+    "Normal winner resolution",
+    "Finish before 1000 turns and 5 seconds"
+  ],
+  "attacks": 2250,
+  "immediate_effects": 2941,
+  "events": {
+    "proie_schalkenthal": 270,
+    "fleau": 151,
+    "chute_sarre": 261,
+    "fantome": 133,
+    "marche_noel": 233,
+    "monstre": 423,
+    "mortetrouille": 282,
+    "proie_brandenbusch": 266,
+    "peste": 138,
+    "proie_bahnhof": 242,
+    "sorcieres": 116,
+    "hexennacht": 285,
+    "fossoyeur": 141
+  },
+  "longest_game_turns": 37,
+  "summary": [
+    {
+      "ais": 1,
+      "difficulty": "easy",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 5,
+      "avgTurns": 11
+    },
+    {
+      "ais": 1,
+      "difficulty": "normal",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 6,
+      "avgTurns": 12
+    },
+    {
+      "ais": 1,
+      "difficulty": "hard",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 3,
+      "avgTurns": 10
+    },
+    {
+      "ais": 2,
+      "difficulty": "easy",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 4,
+      "avgTurns": 15
+    },
+    {
+      "ais": 2,
+      "difficulty": "normal",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 4,
+      "avgTurns": 13
+    },
+    {
+      "ais": 2,
+      "difficulty": "hard",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 4,
+      "avgTurns": 15
+    },
+    {
+      "ais": 3,
+      "difficulty": "easy",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 3,
+      "avgTurns": 17
+    },
+    {
+      "ais": 3,
+      "difficulty": "normal",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 4,
+      "avgTurns": 16
+    },
+    {
+      "ais": 3,
+      "difficulty": "hard",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 4,
+      "avgTurns": 19
+    },
+    {
+      "ais": 4,
+      "difficulty": "easy",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 2,
+      "avgTurns": 17
+    },
+    {
+      "ais": 4,
+      "difficulty": "normal",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 5,
+      "avgTurns": 17
+    },
+    {
+      "ais": 4,
+      "difficulty": "hard",
+      "games": 14,
+      "errors": 0,
+      "humanWins": 1,
+      "avgTurns": 18
+    }
+  ],
+  "game_source_sha256": "2f762b4556fff117224ce7a6d275de0d8bbb2adde0bc86df7c54c948c8d15caa",
+  "command": "node tests/normal-mode-simulation.cjs jeu-vampires-de-sarrebruck/index.html 2 results.json"
+}
