@@ -1428,6 +1428,12 @@ body.music-controls-ready #musicToggle{display:block!important;position:fixed;to
 .helsing-search-action{width:100%;padding:14px;background:#38523a;border-color:#b3ad71;font-weight:bold}
 .helsing-board-search{position:fixed;bottom:max(14px,env(safe-area-inset-bottom));left:12px;z-index:30;max-width:65vw;background:#38523a;border:1px solid #b3ad71;box-shadow:0 5px 20px #000a;font-weight:bold}
 </style>
+<style id="compact-journal-music">
+body.game-active.music-controls-ready #musicToggle{display:none!important}
+#journalMusicToggle{position:absolute!important;left:6px!important;top:50%!important;transform:translateY(-50%);z-index:12!important}
+body.music-controls-ready #musicToggle{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;border-radius:50%!important;background:linear-gradient(145deg,#a81524,#520710)!important;border:1px solid #d8b66d!important;color:#f7e1ae!important;font:900 20px Georgia,serif!important;line-height:28px!important;box-shadow:0 3px 9px #000a!important;right:54px!important}
+.music-muted{ text-decoration:line-through!important }
+</style>
 </head>
 <body>
 <div id="app">
@@ -1526,7 +1532,7 @@ body.music-controls-ready #musicToggle{display:block!important;position:fixed;to
       <section class="action-stage">
         <div id="turnBanner" class="action-turn">La nuit commence…</div>
         <div id="actionInstruction" class="action-instruction">Le journal de la nuit conserve toutes les actions.</div>
-        <div class="journal-head"><strong>Journal nocturne</strong><span>Fais défiler au doigt pour relire.</span></div>
+        <div class="journal-head"><button id="journalMusicToggle" class="help-orb" type="button" aria-label="Couper la musique" title="Couper la musique">♪</button><strong>Journal nocturne</strong><span>Fais défiler au doigt pour relire.</span></div>
         <div id="gameLog" class="game-log journal-live" role="log" aria-live="polite" aria-label="Historique de la partie"></div>
         <div id="lastActionLine" class="last-action"></div>
         <div class="action-tools help-only">
@@ -1760,8 +1766,8 @@ function log(msg,type=''){
  const last=el('lastActionLine'); if(last)last.textContent=String(msg).replace(/<[^>]*>/g,'');
 }
 function toast(msg){const t=el('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.add('hidden'),2200)}
-function musicBtnLabel(){return musicEnabled?'🔊 Musique':'🔇 Musique'}
-function refreshMusicButton(){const b=el('musicToggle');document.body.classList.toggle('music-controls-ready',!!el('introScreen')?.classList.contains('hidden'));if(b){b.textContent=musicBtnLabel();b.setAttribute('aria-pressed',String(!musicEnabled));}}
+function musicBtnLabel(){return '♪'}
+function refreshMusicButton(){const b=el('musicToggle');document.body.classList.toggle('music-controls-ready',!!el('introScreen')?.classList.contains('hidden'));for(const button of [b,el('journalMusicToggle')]){if(button){button.textContent=musicBtnLabel();button.setAttribute('aria-pressed',String(!musicEnabled));button.setAttribute('aria-label',musicEnabled?'Couper la musique':'Remettre la musique');button.title=musicEnabled?'Couper la musique':'Remettre la musique';button.classList.toggle('music-muted',!musicEnabled);}}}
 function currentMusic(){if(endgameMusicId)return el(endgameMusicId);return document.body.classList.contains('game-active')?el('gameMusic'):el('bgMusic')}
 function stopMusic(a,reset=false){if(!a)return;try{a.pause();if(reset)a.currentTime=0}catch(e){}}
 function stopAllMusic(reset=false){for(const id of ['bgMusic','gameMusic','victoryMusic','defeatMusic','helsingVictoryMusic','helsingDefeatMusic'])stopMusic(el(id),reset)}
@@ -3596,6 +3602,7 @@ function wireUI(){
  const startBtn=el('startBtn');
  el('enterNightBtn').addEventListener('click',enterNight); el('enterNightBtn').addEventListener('pointerup',e=>{e.preventDefault();enterNight();},{passive:false});
  el('musicToggle').addEventListener('click',toggleMusic);
+ el('journalMusicToggle').addEventListener('click',toggleMusic);
  el('helsingBoardSearchBtn')?.addEventListener('click',helsingResupply);
  el('quickGuideBtn').addEventListener('click',showQuickGuide);
  el('clanStoryBtn').addEventListener('click',showClanStory);
