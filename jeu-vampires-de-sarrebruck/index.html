@@ -1786,7 +1786,7 @@ function stopMusic(a,reset=false){if(!a)return;try{a.pause();if(reset)a.currentT
 function stopAllMusic(reset=false){for(const id of ['bgMusic','gameMusic','victoryMusic','defeatMusic','helsingVictoryMusic','helsingDefeatMusic'])stopMusic(el(id),reset)}
 async function startMusic(){const a=currentMusic();if(!a)return;a.loop=!endgameMusicId;a.volume=endgameMusicId?.34:(document.body.classList.contains('game-active')?.24:.22);try{await a.play();musicStarted=true}catch(e){}refreshMusicButton()}
 function switchToGameMusic(){endgameMusicId=null;const menu=el('bgMusic'),game=el('gameMusic');stopMusic(menu,true);stopMusic(el('victoryMusic'),true);stopMusic(el('defeatMusic'),true);stopMusic(el('helsingVictoryMusic'),true);stopMusic(el('helsingDefeatMusic'),true);if(!game)return;game.loop=true;game.volume=.24;game.currentTime=0;if(musicEnabled){try{const pr=game.play();if(pr&&pr.catch)pr.catch(()=>{});musicStarted=true}catch(e){}}refreshMusicButton()}
-function playEndgameMusic(id){stopAllMusic(true);if(S?.secretMode==='van_helsing')id=id==='victoryMusic'?'helsingVictoryMusic':'helsingDefeatMusic';endgameMusicId=id;const a=currentMusic();if(!a){refreshMusicButton();return;}a.loop=false;a.currentTime=0;a.volume=(id==='victoryMusic'||id==='helsingVictoryMusic')?.38:.30;if(musicEnabled){try{const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});musicStarted=true}catch(e){}}refreshMusicButton()}
+function playEndgameMusic(id){stopAllMusic(true);endgameMusicId=id;const a=currentMusic();if(!a){refreshMusicButton();return;}a.loop=false;a.currentTime=0;a.volume=(id==='victoryMusic'||id==='helsingVictoryMusic')?.38:.30;if(musicEnabled){try{const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});musicStarted=true}catch(e){}}refreshMusicButton()}
 function stopEndgameMusic({resumeGame=false}={}){if(endgameMusicId)stopMusic(el(endgameMusicId),true);endgameMusicId=null;if(resumeGame&&musicEnabled&&document.body.classList.contains('game-active')){const game=el('gameMusic');if(game){game.loop=true;game.volume=.24;try{const pr=game.play();if(pr&&pr.catch)pr.catch(()=>{})}catch(e){}}}refreshMusicButton()}
 function playCombatSfx(success=true){
  return;
@@ -2313,7 +2313,7 @@ async function gainBlood(p,n,why=''){
 async function loseBlood(p,n,why=''){
  if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;p.goldBlood=Math.max(0,(p.goldBlood||0)-loss);S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
 async function showHumanEliminationScene(p){
- playEndgameMusic('defeatMusic');
+ playEndgameMusic(isVanHelsing(p)?'helsingDefeatMusic':'defeatMusic');
  const defeatArt=isVanHelsing(p)?'assets/van-helsing-defaite.webp':isDraculaPlayer(p)?'assets/dracula-defaite.webp':ENDGAME_LOSE_ART;
  const defeatAlt=isVanHelsing(p)?'La chasse est terminée. Van Helsing est tombé.':isDraculaPlayer(p)?'Dracula a été vaincu.':'Éliminé ! Tu as succombé à la nuit';
  const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${defeatArt}" alt="${defeatAlt}"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
@@ -2471,8 +2471,8 @@ async function maybeGameOver(){
  render();
  const humanWin=!!winner?.human;
  if(humanWin){
-   playEndgameMusic('victoryMusic');
    const hunterVictory=isVanHelsing(winner);
+   playEndgameMusic(hunterVictory?'helsingVictoryMusic':'victoryMusic');
    const victoryArt=hunterVictory?'assets/van-helsing-victoire-biere.webp':isDraculaPlayer(winner)?'assets/dracula-victoire.webp':ENDGAME_WIN_ART;
    const victoryAlt=hunterVictory?'Félicitations ! Tous les vampires ont été occis. Une bière bien fraîche, voilà une récompense méritée !':isDraculaPlayer(winner)?'Victoire de Dracula ! La nuit t’appartient. Tes rivaux ont succombé.':'Félicitations ! Tu as survécu à la nuit sanglante';
    const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${victoryArt}" alt="${victoryAlt}"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
