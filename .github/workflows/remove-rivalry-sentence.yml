@@ -1,0 +1,43 @@
+name: Remove obsolete rivalry sentence
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  edit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove sentence
+        shell: python
+        run: |
+          from pathlib import Path
+          target = "Les personnages et la rivalité viennent du livre. Les cartes leur offrent ensuite un nouveau terrain d’affrontement."
+          changed = []
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or '.git' in p.parts:
+                  continue
+              try:
+                  text = p.read_text(encoding='utf-8')
+              except (UnicodeDecodeError, OSError):
+                  continue
+              if target in text:
+                  p.write_text(text.replace(target, ''), encoding='utf-8')
+                  changed.append(str(p))
+          print('Changed:', changed)
+      - name: Remove temporary workflow and commit
+        run: |
+          rm -f .github/workflows/remove-rivalry-sentence.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Remove obsolete rivalry sentence"
+            git push
+          fi
