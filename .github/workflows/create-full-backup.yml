@@ -1,0 +1,35 @@
+name: Create full backup archive
+
+on:
+  push:
+    paths:
+      - '.github/workflows/create-full-backup.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build complete backup
+        run: |
+          set -e
+          mkdir -p backup-package/site
+          rsync -a --exclude='.git' --exclude='backup-package' ./ backup-package/site/
+          git bundle create backup-package/git-history.bundle --all
+          git log --all --decorate --oneline > backup-package/git-history.txt
+          printf 'Sauvegarde complète du site et du jeu Les Vampires de Sarrebruck\nDate: 2026-10-23\nDépôt: borisakielaszek/borisakielaszek.github.io\nContenu: copie complète du site + jeu + médias + historique Git complet dans git-history.bundle\n' > backup-package/README-SAUVEGARDE.txt
+          (cd backup-package && sha256sum $(find . -type f -print | sort) > SHA256SUMS.txt)
+          cd backup-package
+          zip -r ../Boris_Akielaszek_Site_Jeu_Backup_2026-10-23.zip .
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Boris_Akielaszek_Site_Jeu_Backup_2026-10-23
+          path: Boris_Akielaszek_Site_Jeu_Backup_2026-10-23.zip
+          retention-days: 30
+          compression-level: 0
