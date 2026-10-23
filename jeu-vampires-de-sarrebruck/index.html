@@ -1390,6 +1390,10 @@ body.van-helsing-mode .helsing-category .secret-power-grid{padding:10px}
 <style id="screen-visibility-guard">
 #startScreen.hidden,#gameScreen.hidden,#introScreen.hidden{display:none!important}
 </style>
+<style id="card-zoom-close-fix">
+#imageViewer #imageViewerClose{display:flex!important;pointer-events:auto!important;z-index:10!important;align-items:center;justify-content:center;position:absolute;top:8px;right:8px;width:44px!important;height:44px!important;background:#101620ed!important;color:#fff!important;border:1px solid #a0a7b9!important;border-radius:50%!important}
+#imageViewer .image-viewer-card{padding-top:52px!important}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1889,7 +1893,7 @@ async function openTapDismissInfo({title='',content=''}){
  await pr;
  if(card){card.onclick=null;card.classList.remove('tap-dismiss-info');}
 }
-function openImageViewer(src,caption=''){const wrap=el('imageViewer'),img=el('imageViewerImg');img.src=src;img.alt=caption||'Carte';el('imageViewerCaption').textContent=caption||'';wrap.classList.remove('hidden')}
+function openImageViewer(src,caption=''){const wrap=el('imageViewer'),img=el('imageViewerImg');img.src=src;img.alt=caption||'Carte';el('imageViewerCaption').textContent=(caption?caption+' — ':'')+'Touche l’image ou × pour fermer';wrap.classList.remove('hidden')}
 function closeImageViewer(){el('imageViewer').classList.add('hidden');el('imageViewerImg').src='';el('imageViewerCaption').textContent=''}
 async function choosePlayer(prompt,players,allowCancel=false){
  const game=S;
@@ -2476,7 +2480,7 @@ function attackBlockReason(attacker,id){
      return 'Aucun adversaire ne possède de carte que l’Hypnose peut voler.';
    }
  }
- if(isHunter(id)&&opponents.every(t=>t.vampire==='ilsa'))return 'Ilsa est immunisée aux chasseurs.';
+ if(isHunter(id)&&opponents.every(t=>t.vampire==='ilsa'||isVanHelsing(t)))return opponents.some(isVanHelsing)?'Les chasseurs humains n’attaquent pas Van Helsing. Aucune cible valide pour cette carte.':'Ilsa est immunisée aux chasseurs.';
  if(id==='saint_nicolas'&&opponents.every(t=>t.vampire==='elisabetta'))return 'Elisabetta ne passe jamais son tour.';
  if(id==='poche_perimee'&&opponents.every(t=>t.vampire==='ermanno'))return 'Ermanno est immunisé contre la Poche périmée.';
  return '';
@@ -2484,6 +2488,7 @@ function attackBlockReason(attacker,id){
 function attackUnavailableLabel(attacker,id){
  const reason=attackBlockReason(attacker,id);
  if(!reason)return '';
+ if(reason.includes('chasseurs humains'))return 'AUCUNE CIBLE VAMPIRE';
  if(reason.includes('Rüdiger'))return 'RÜDIGER IMMUNISÉ';
  if(reason.includes('Elisabetta'))return 'ELISABETTA IMMUNISÉE';
  if(reason.includes('Ilsa'))return 'ILSA IMMUNISÉE';
@@ -2494,7 +2499,7 @@ function validAttackTargets(attacker,id){
  let targets=alivePlayers().filter(t=>t!==attacker&&t.alive);
  if(id==='hypnose')targets=targets.filter(t=>t.vampire!=='elisabetta'&&(t.hand.length||t.witches));
  if(id==='lycanthrope'||id==='meute')targets=targets.filter(t=>t.vampire!=='rudiger');
- if(isHunter(id))targets=targets.filter(t=>t.vampire!=='ilsa');
+ if(isHunter(id))targets=targets.filter(t=>t.vampire!=='ilsa'&&!isVanHelsing(t));
  if(id==='saint_nicolas')targets=targets.filter(t=>t.vampire!=='elisabetta');
  if(id==='poche_perimee')targets=targets.filter(t=>t.vampire!=='ermanno');
  return targets;
@@ -2554,6 +2559,8 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,forcedTar
    if(!normal.length)return false;
  }
  let candidates=validAttackTargets(attacker,id);
+ if(isHunter(id)&&forcedTarget&&!candidates.includes(forcedTarget))return false;
+ if(!candidates.length){log(attackBlockReason(attacker,id)||'Aucune cible valide.');return false;}
  let target=forcedTarget||(attacker.human?await choosePlayer(`Cible de ${cardName(id)}`,candidates,true):aiTarget(attacker,candidates,id));if(!target){toast(attackBlockReason(attacker,id)||'Aucune cible choisie.');return false;}
  if(!attacker.human)await showAttackReveal(attacker,target,id);
  await resolveAttackInstance(attacker,target,id,{uncounterable});await maybeGameOver();return true;
@@ -2794,6 +2801,10 @@ function aiChooseDefense(t,a,id,eligible){
 
 async function resolveAttackInstance(attacker,target,id,{uncounterable=false,allowDeadAttacker=false}={}){
  if((!attacker.alive&&!allowDeadAttacker)||!target.alive)return;
+ if(isHunter(id)&&isVanHelsing(target)){
+  log('Les chasseurs humains reconnaissent Van Helsing et renoncent à l’attaquer.','good');
+  return;
+ }
  if(id==='hypnose'&&target.vampire==='elisabetta'){log(`Elisabetta est immunisée à l’Hypnose.`,'good');await showCombatScene({attacker,target,attackId:id,mode:'countered'});return}
  if(id==='aube'&&(target.vampire==='draculito'||target.vampire==='draco')){log(`${VAMPIRES[target.vampire].name} transforme le lever du jour en régénération.`,'good');await gainBlood(target,1,'lever du jour');return}
  if(isHunter(id)&&target.vampire==='ilsa'){log(`Les chasseurs n’ont aucun effet sur Ilsa.`,'good');await showCombatScene({attacker,target,attackId:id,mode:'countered'});return}
@@ -2871,6 +2882,7 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
 async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  const summary={damage:0,discarded:[],eliminated:false};
  if(!target.alive)return summary;
+ if(isHunter(id)&&isVanHelsing(target))return summary;
  if(id==='van_helsing_dawn'){
    summary.discarded=await discardRandomOrChosen(target,2,'L’Aube du jour : défausse 2 cartes.');
    return summary;
