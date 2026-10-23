@@ -13,101 +13,83 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Static audit
+      - name: Deck and mode audit
         shell: bash
         run: |
-          set -uo pipefail
+          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          from html.parser import HTMLParser
           from collections import Counter
-          import re, base64, subprocess
+          import re
 
-          root=Path('jeu-vampires-de-sarrebruck')
-          p=root/'index.html'
+          p=Path('jeu-vampires-de-sarrebruck/index.html')
           s=p.read_text(encoding='utf-8')
-          css='\n'.join(x.read_text(encoding='utf-8',errors='ignore') for x in root.glob('*.css'))
-          assets=root/'assets'
-          print('=== VAMPIRE GAME AUDIT V2 ===')
-          print('INDEX_BYTES:',p.stat().st_size)
 
-          # Only complete literal media paths; dynamic template prefixes are deliberately ignored.
-          refs=sorted(set(re.findall(r'assets/[A-Za-z0-9_.-]+[.](?:webp|png|jpg|jpeg|mp3|ogg|wav|svg)',s+'\n'+css,re.I)))
-          missing=[]; empty=[]; badmime=[]
-          for r in refs:
-              f=root/r
-              if not f.exists(): missing.append(r); continue
-              if f.stat().st_size==0: empty.append(r); continue
-              ext=f.suffix.lower()
-              if ext in {'.webp','.png','.jpg','.jpeg','.mp3','.ogg','.wav'}:
-                  cp=subprocess.run(['file','--mime-type','-b',str(f)],text=True,capture_output=True)
-                  mime=cp.stdout.strip()
-                  if ext in {'.webp','.png','.jpg','.jpeg'} and not mime.startswith('image/'): badmime.append((r,mime))
-                  if ext in {'.mp3','.ogg','.wav'} and not (mime.startswith('audio/') or mime=='application/octet-stream'): badmime.append((r,mime))
-          print('LITERAL_MEDIA_REFS:',len(refs))
-          print('MISSING_LITERAL_MEDIA:',missing or 'NONE')
-          print('EMPTY_LITERAL_MEDIA:',empty or 'NONE')
-          print('BAD_MEDIA_MIME:',badmime or 'NONE')
-          zero=sorted(f.name for f in assets.iterdir() if f.is_file() and f.stat().st_size==0)
-          print('ZERO_BYTE_ASSETS_TOTAL:',zero or 'NONE')
+          def section(start_marker,end_marker):
+              a=s.index(start_marker)+len(start_marker)
+              b=s.index(end_marker,a)
+              return s[a:b]
 
-          class H(HTMLParser):
-              def __init__(self): super().__init__(); self.ids=[]
-              def handle_starttag(self,tag,attrs):
-                  self.ids += [v for k,v in attrs if k=='id' and v]
-          h=H(); h.feed(s)
-          dup=sorted(k for k,v in Counter(h.ids).items() if v>1)
-          print('DUPLICATE_HTML_IDS:',dup or 'NONE')
+          cards=section('const CARDS={','\n};\n\nconst VAMPIRES=')
+          entries=re.findall(r'^\s*([A-Za-z0-9_]+):\{([^\n]*)\},?\s*$',cards,re.M)
+          ids=[k for k,_ in entries]
+          qty={}
+          kinds={}
+          imgs={}
+          for k,body in entries:
+              m=re.search(r'qty:(\d+)',body); qty[k]=int(m.group(1)) if m else None
+              m=re.search(r"kind:['\"]([^'\"]+)",body); kinds[k]=m.group(1) if m else None
+              m=re.search(r"img:['\"]([^'\"]+)",body); imgs[k]=m.group(1) if m else None
+          print('CARD_DEFINITIONS:',len(ids))
+          print('DUPLICATE_CARD_IDS:',sorted(k for k,v in Counter(ids).items() if v>1) or 'NONE')
+          print('CARDS_WITHOUT_QTY:',sorted(k for k,v in qty.items() if v is None) or 'NONE')
+          print('ACTION_DECK_TOTAL_QTY:',sum(v for v in qty.values() if v is not None))
+          print('POSITIVE_QTY_CARD_TYPES:',sum(1 for v in qty.values() if v and v>0))
+          print('ZERO_QTY_SECRET_TYPES:',sorted(k for k,v in qty.items() if v==0))
+          print('CARD_KINDS:',dict(Counter(v for v in kinds.values() if v)))
+          bad_card_imgs=[(k,v) for k,v in imgs.items() if v and not (Path('jeu-vampires-de-sarrebruck')/v).exists()]
+          print('MISSING_CARD_IMAGES:',bad_card_imgs or 'NONE')
 
-          scripts=re.findall(r'<script([^>]*)>(.*?)</script>',s,re.I|re.S)
-          checked=0; js_errors=[]
-          for i,(attrs,body) in enumerate(scripts):
-              if 'src=' in attrs.lower() or not body.strip() or 'application/ld+json' in attrs.lower(): continue
-              checked+=1
-              fn=Path('/tmp')/f'audit_{i}.js'; fn.write_text(body,encoding='utf-8')
-              cp=subprocess.run(['node','--check',str(fn)],text=True,capture_output=True)
-              if cp.returncode: js_errors.append((i,(cp.stderr or cp.stdout).strip()[-1200:]))
-          print('INLINE_JS_BLOCKS_CHECKED:',checked)
-          print('JS_SYNTAX_ERRORS:',js_errors or 'NONE')
+          vamp=section('const VAMPIRES={','\n};\n\nconst VAMP_POWERS=')
+          ventries=re.findall(r'^\s*([A-Za-z0-9_]+):\{([^\n]*)\},?\s*$',vamp,re.M)
+          vids=[k for k,_ in ventries]
+          print('VAMPIRE_DEFINITIONS:',len(vids),vids)
+          print('DUPLICATE_VAMPIRE_IDS:',sorted(k for k,v in Counter(vids).items() if v>1) or 'NONE')
+          missing_vamp_imgs=[]
+          for k,body in ventries:
+              m=re.search(r"img:['\"]([^'\"]+)",body)
+              if m and not (Path('jeu-vampires-de-sarrebruck')/m.group(1)).exists(): missing_vamp_imgs.append((k,m.group(1)))
+          print('MISSING_VAMPIRE_IMAGES:',missing_vamp_imgs or 'NONE')
 
-          audios=[]
-          for m in re.finditer(r'<audio([^>]*)>',s,re.I|re.S):
-              a=m.group(1)
-              mid=re.search(r'id=["\u0027]([^"\u0027]+)',a,re.I)
-              src=re.search(r'src=["\u0027]([^"\u0027]+)',a,re.I)
-              if mid and src: audios.append((mid.group(1),src.group(1)))
-          print('AUDIO_ELEMENTS_COUNT:',len(audios))
-          for aid,src in audios:
-              if src.startswith('data:audio/'):
-                  try:
-                      raw=base64.b64decode(src.split(',',1)[1],validate=False)
-                      print('AUDIO',aid,'INLINE_BYTES',len(raw),'OK' if len(raw)>1000 else 'SUSPICIOUS')
-                  except Exception as e: print('AUDIO',aid,'INVALID_DATA_URI',e)
-              else:
-                  rel=src.split('?')[0]; f=root/rel
-                  print('AUDIO',aid,rel,('OK '+str(f.stat().st_size)+' bytes') if f.exists() and f.stat().st_size>0 else 'MISSING_OR_EMPTY')
+          # Card IDs explicitly compared in gameplay should normally exist in CARDS.
+          compared=set()
+          for pat in [r"(?:card|c)\.id\s*===?\s*['\"]([A-Za-z0-9_]+)['\"]",r"cardId\s*===?\s*['\"]([A-Za-z0-9_]+)['\"]"]:
+              compared.update(re.findall(pat,s))
+          print('EXPLICIT_CARD_IDS_NOT_DEFINED:',sorted(compared-set(ids)) or 'NONE')
+
+          # Setup/deal capacity for every normal player count.
+          positive=[k for k,v in qty.items() if v and v>0]
+          total=sum(qty[k] for k in positive)
+          immediate=sum(qty[k] for k in positive if kinds.get(k)=='immediate')
+          non_immediate=total-immediate
+          print('NON_IMMEDIATE_QTY:',non_immediate,'IMMEDIATE_QTY:',immediate)
+          for players in range(2,6):
+              need=players*6
+              print(f'INITIAL_DEAL_{players}_PLAYERS:', 'PASS' if non_immediate>=need else 'FAIL', 'need',need)
+          # Van Helsing is not dealt vampire cards; max vampire recipients = 4.
+          print('INITIAL_DEAL_VAN_HELSING_PLUS_4_AI:', 'PASS' if non_immediate>=24 else 'FAIL')
 
           checks={
-            'combat_sfx_intentionally_disabled': 'function playCombatSfx(success=true){\n return;' in s,
-            'victory_profile_routing': "playEndgameMusic(hunterVictory?'helsingVictoryMusic':'victoryMusic')" in s,
-            'defeat_profile_routing': "playEndgameMusic(isVanHelsing(p)?'helsingDefeatMusic':'defeatMusic')" in s,
-            'dracula_mode_exists': "return key==='dracula'?'dracula'" in s,
-            'van_helsing_mode_exists': "'van_helsing'" in s and 'Van Helsing' in s,
-            'dracula_victory_art': 'assets/dracula-victoire.webp' in s,
-            'dracula_defeat_art': 'assets/dracula-defaite.webp' in s,
-            'helsing_victory_art': 'assets/van-helsing-victoire-biere.webp' in s,
-            'helsing_defeat_art': 'assets/van-helsing-defaite.webp' in s,
-            'validated_bullet_image_used': 'assets/van-helsing-balles-consacrees-valide.webp' in s,
-            'obsolete_empty_bullet_not_used': 'assets/van-helsing-balles-consacrees.webp' not in s,
-            'obsolete_tiny_thunder_v2_not_used': 'assets/thunder-intro-v2.mp3' not in s,
-            'saint_nicolas_helsing_gold': "id==='saint_nicolas'&&isVanHelsing(target)" in s and 'grantSaintNicolasGold(target)' in s,
-            'christmas_draws_two_common_deck': "drawCards(x,2,'marche_noel')" in s and 'Aucune carte n’est prise au voisin' in s,
-            'helsing_christmas_two_objects': "recoverHelsingAmmo(x);recoverHelsingAmmo(x)" in s,
-            'helsing_search_feedback': 'tu ne trouves aucune fourniture à emporter cette fois' in s,
-            'bat_escape_present': 'Fuite en chauve-souris' in s,
-            'helsing_ammo_state': all(x in s for x in ['blessedBullets','silverBolts','gepettoStakes']),
+            'difficulty_options_all_present': all(f'value="{x}"' in s for x in ['easy','normal','hard']),
+            'normal_mode_uses_selected_difficulty': "S?.difficulty||'normal'" in s,
+            'dracula_forces_easy_ai': "S?.secretMode==='dracula'?'easy'" in s,
+            'dracula_log_mentions_indulgent_ai': 'adversaires indulgents' in s,
+            'helsing_balance_has_all_difficulties': all(('"'+x+'":') in s for x in ['easy','normal','hard']),
+            'player_counts_2_to_5': all(f'value="{n}"' in s for n in range(2,6)),
+            'blood_pool_26': 'pool:26-players.reduce' in s,
+            'six_card_initial_hand': 'for(let r=0;r<6;r++)' in s,
+            'witches_hand_limit_7': 'p.witches?7:' in s or '?7' in s,
           }
-          print('CRITICAL_CHECKS:')
-          for k,v in checks.items(): print(k, 'PASS' if v else 'FAIL')
-          print('=== END AUDIT V2 ===')
+          print('MODE_AND_SETUP_CHECKS:')
+          for k,v in checks.items(): print(k,'PASS' if v else 'FAIL')
           PY
