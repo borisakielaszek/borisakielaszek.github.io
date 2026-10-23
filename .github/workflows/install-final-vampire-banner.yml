@@ -1,0 +1,28 @@
+name: Install final Vampires banner
+
+on:
+  push:
+    paths:
+      - '.github/workflows/install-final-vampire-banner.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Rebuild final banner and update page
+        run: python3 .github/scripts/install-final-vampire-banner.py
+      - name: Commit final WebP banner
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/vampires-sarrebruck-banner-final.webp index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Install final Vampires banner as direct WebP"
+            git push
+          fi
