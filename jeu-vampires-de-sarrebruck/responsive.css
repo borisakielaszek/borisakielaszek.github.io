@@ -113,3 +113,35 @@ body{width:100%;min-width:0;overflow-x:hidden}
  .modal-card .immediate-scene-copy .scene-kicker{font-size:.88rem!important}
  .modal-card .immediate-scene-copy .scene-small,.modal-card .immediate-scene .tap-dismiss-note{font-size:1rem!important;line-height:1.4!important}
 }
+
+/* V5.65 — compact music control fixed in the upper-left corner. */
+#musicToggle{
+ position:fixed!important;
+ top:max(10px,env(safe-area-inset-top))!important;
+ left:max(10px,env(safe-area-inset-left))!important;
+ right:auto!important;
+ width:38px!important;
+ height:38px!important;
+ min-width:38px!important;
+ min-height:38px!important;
+ max-width:38px!important;
+ max-height:38px!important;
+ padding:0!important;
+ margin:0!important;
+ border-radius:50%!important;
+ aspect-ratio:1/1!important;
+ display:grid!important;
+ place-items:center!important;
+ font-size:0!important;
+ line-height:1!important;
+ z-index:90!important;
+ overflow:hidden!important;
+}
+#musicToggle::before{
+ content:"♪";
+ display:block;
+ font-size:25px!important;
+ line-height:1!important;
+ font-weight:800;
+ transform:translateY(-1px);
+}
