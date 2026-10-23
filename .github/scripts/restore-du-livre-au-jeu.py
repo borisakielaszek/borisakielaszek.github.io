@@ -19,21 +19,28 @@ if button_pos < 0:
 between_start = start + len(heading)
 between = text[between_start:button_pos]
 
-# Ne toucher qu'au paragraphe de transition situé entre le titre et le bouton.
+# Retire l’éventuelle version existante de ce paragraphe pour éviter tout doublon.
 paragraph_re = re.compile(r'\s*<p(?:\s+[^>]*)?>\s*Le jeu de cartes prolonge cet univers\s*:.*?</p>\s*', re.S)
-cleaned, count = paragraph_re.subn('\n', between, count=1)
+cleaned = paragraph_re.sub('\n', between, count=1)
 
-# Nettoie aussi l'ancien emplacement vide éventuel, sans modifier le reste de la page.
+# Retire aussi l’ancien emplacement vide de l’invitation s’il subsiste.
 cleaned = re.sub(r'\s*<p\s+class="story-invitation"\s*>\s*</p>\s*', '\n', cleaned, count=1, flags=re.S)
 
-replacement = f'\n      <p>{desired}</p>\n      ' + cleaned.strip()
+visible_paragraph = (
+    '<p class="du-livre-au-jeu-text" '
+    'style="display:block !important; visibility:visible !important; opacity:1 !important;">'
+    f'{desired}</p>'
+)
+
+replacement = '\n      ' + visible_paragraph
 if cleaned.strip():
-    replacement += '\n      '
+    replacement += '\n      ' + cleaned.strip()
+replacement += '\n      '
 
 new_text = text[:between_start] + replacement + text[button_pos:]
 
 if new_text == text:
-    print('Le paragraphe est déjà exactement en place.')
+    print('Le paragraphe est déjà visible et exactement en place.')
 else:
     path.write_text(new_text, encoding='utf-8')
-    print('Paragraphe « Du livre au jeu » restauré.')
+    print('Paragraphe « Du livre au jeu » remis en place et forcé visible.')
