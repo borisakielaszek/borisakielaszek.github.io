@@ -2371,7 +2371,10 @@ async function maybeGameOver(){
  const humanWin=!!winner?.human;
  if(humanWin){
    playEndgameMusic('victoryMusic');
-   const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${ENDGAME_WIN_ART}" alt="Félicitations ! Tu as survécu à la nuit sanglante"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
+   const hunterVictory=isVanHelsing(winner);
+   const victoryArt=hunterVictory?'assets/van-helsing-victoire-biere.webp':ENDGAME_WIN_ART;
+   const victoryAlt=hunterVictory?'Félicitations ! Tous les vampires ont été occis. Une bière bien fraîche, voilà une récompense méritée !':'Félicitations ! Tu as survécu à la nuit sanglante';
+   const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${victoryArt}" alt="${victoryAlt}"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
    await openTapDismissInfo({title:'',content});
    stopEndgameMusic();
  }
