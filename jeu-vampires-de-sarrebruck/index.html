@@ -2280,7 +2280,9 @@ async function loseBlood(p,n,why=''){
  if(!S||S.gameOver||!S.players.includes(p)||!p.alive||n<=0)return 0;const loss=Math.min(n,p.hp);p.hp-=loss;p.goldBlood=Math.max(0,(p.goldBlood||0)-loss);S.pool+=loss;if(loss)log(`${pName(p)} perd ${loss} goutte${loss>1?'s':''} de sang${why?` (${why})`:''}.`,'bad');render();if(p.hp<=0)await eliminate(p);return loss}
 async function showHumanEliminationScene(p){
  playEndgameMusic('defeatMusic');
- const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${ENDGAME_LOSE_ART}" alt="Éliminé ! Tu as succombé à la nuit"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
+ const defeatArt=isVanHelsing(p)?'assets/van-helsing-defaite.webp':isDraculaPlayer(p)?'assets/dracula-defaite.webp':ENDGAME_LOSE_ART;
+ const defeatAlt=isVanHelsing(p)?'La chasse est terminée. Van Helsing est tombé.':isDraculaPlayer(p)?'Dracula a été vaincu.':'Éliminé ! Tu as succombé à la nuit';
+ const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${defeatArt}" alt="${defeatAlt}"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
  await openTapDismissInfo({title:'',content});
  const gameContinues=!!S&&alivePlayers().length>1;
  stopEndgameMusic({resumeGame:gameContinues});
@@ -2421,8 +2423,8 @@ async function maybeGameOver(){
  if(humanWin){
    playEndgameMusic('victoryMusic');
    const hunterVictory=isVanHelsing(winner);
-   const victoryArt=hunterVictory?'assets/van-helsing-victoire-biere.webp':ENDGAME_WIN_ART;
-   const victoryAlt=hunterVictory?'Félicitations ! Tous les vampires ont été occis. Une bière bien fraîche, voilà une récompense méritée !':'Félicitations ! Tu as survécu à la nuit sanglante';
+   const victoryArt=hunterVictory?'assets/van-helsing-victoire-biere.webp':isDraculaPlayer(winner)?'assets/dracula-victoire.webp':ENDGAME_WIN_ART;
+   const victoryAlt=hunterVictory?'Félicitations ! Tous les vampires ont été occis. Une bière bien fraîche, voilà une récompense méritée !':isDraculaPlayer(winner)?'Victoire de Dracula ! La nuit t’appartient. Tes rivaux ont succombé.':'Félicitations ! Tu as survécu à la nuit sanglante';
    const content=`<div class="endgame-art-wrap"><img class="endgame-art" src="${victoryArt}" alt="${victoryAlt}"><div class="endgame-art-note">Touche l’image pour continuer</div></div>`;
    await openTapDismissInfo({title:'',content});
    stopEndgameMusic();
