@@ -1976,8 +1976,8 @@ async function showHelsingGearDetail(button){
  if(!isVanHelsing(p))return;
  const info=id==='van_helsing_rosary'||id==='van_helsing_mirror';
  const available=secretPowerAvailable(p,id);
- const extra=id==='van_helsing_goggles'?'Regarde toutes les cartes actuellement en main d’un adversaire. Réutilisable. Remplace ton action : aucune attaque ce tour.':id==='van_helsing_bullet'?'Les balles sont en argent et consacrées. En défense : annule un loup-garou seul ; contre la meute, réduit la perte à 1 goutte. Chaque tir consomme une balle.':'';
- const ok=await openModal({title:button.querySelector('strong').textContent,content:'<div class="card-preview"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><div><p>'+button.dataset.stock+'</p><p>'+button.dataset.effect+'</p><p>'+extra+'</p>'+(info?'<p>Cette défense est proposée pendant une attaque adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>Indisponible actuellement : vérifie ton stock, tes gouttes et ton tour.</p>':'<p>Utiliser cet objet remplace ton action.</p>')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ const extra=id==='van_helsing_goggles'?'Regarde toutes les cartes actuellement en main d’un adversaire. Réutilisable.':id==='van_helsing_bullet'?'Les balles sont en argent et consacrées. En défense : annule un loup-garou seul ; contre la meute, réduit la perte à 1 goutte. Chaque tir consomme une balle.':'';
+ const ok=await openModal({title:button.querySelector('strong').textContent,content:'<div class="card-preview"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><div><p>'+button.dataset.stock+'</p><p>'+button.dataset.effect+'</p><p>'+extra+'</p>'+(info?'<p>Cette défense est proposée pendant une attaque adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>Indisponible actuellement : vérifie ton stock, tes gouttes et ton tour.</p>':'')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
  if(!ok)return;
  if(id==='van_helsing_goggles')return useHelsingGoggles();
  if(id==='van_helsing_medkit')return useHelsingMedkit();
@@ -1992,7 +1992,7 @@ function secretPowersHTML(p){
 }
 
  const gear=[
- ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire · remplace ton action'],
+ ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire'],
  ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / 2 utilisations','Annule une attaque de vampire défendable · −1 goutte à l’attaquant · Sans effet sur les loups-garous'],
  ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
  ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / 2 doses','Rend jusqu’à 2 gouttes · maximum 10'],
@@ -2020,7 +2020,7 @@ function secretPowersHTML(p){
  '<div class="helsing-ammo-summary" aria-label="Réserve de munitions" aria-live="polite">'+
  [['carreaux-argent','Carreaux à tête d’argent',p.silverBolts],['balles-consacrees','Balles d’argent consacrées',p.blessedBullets],['pieux-bois','Pieux en bois',p.gepettoStakes]].map(([asset,label,count])=>'<figure class="helsing-ammo-item"><img src="assets/van-helsing-'+asset+'-valide.webp?v=20261023" alt="'+label+'"><figcaption>'+label+'<b>'+count+'</b></figcaption></figure>').join('')+'</div>'+
  groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
- '<p class="tiny">Une arme ou un soin utilisé remplace ton action. En fin de tour : 45 % un carreau, 30 % une balle consacrée, 15 % un pieu, 10 % une sacoche médicale. Les attaques peuvent être défendues.</p>'+
+ '<p class="tiny">En fin de tour : 45 % un carreau, 30 % une balle consacrée, 15 % un pieu, 10 % une sacoche médicale. Les attaques peuvent être défendues.</p>'+
  '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'>Passer l’action et chercher du matériel</button>';
 
 }
@@ -2060,7 +2060,7 @@ async function chooseSecretPowerTarget(game,p,id){
    const dawn=id==='van_helsing_dawn';
    const confirmed=await openModal({
      title:cardName(id),
-     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>${dawn?'':'Une seule utilisation par partie. '}Remplace ton action. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,
+     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>${dawn?'':'Une seule utilisation par partie. '}Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,
      buttons:[{label:dawn?'Libérer la clarté':'Frapper tous les adversaires',value:true,className:'secret-power'},{label:'Retour à l’équipement',value:false}],closable:true
    });
    return S===game&&!game.gameOver&&confirmed===true&&secretPowerTargets(game,p).length>0?true:null;
@@ -2069,7 +2069,7 @@ async function chooseSecretPowerTarget(game,p,id){
  const portraits=targets.map(t=>`<button type="button" class="choice-card" data-secret-target="${t.id}" aria-label="Viser ${VAMPIRES[t.vampire].name}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('');
  const promise=openModal({
    title:cardName(id),
-   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Ce pouvoir remplace ton action du tour. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':id==='van_helsing_bullet'?p.blessedBullets+' balle(s) restante(s).':id==='van_helsing_stake'?p.gepettoStakes+' pieu(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':id==='van_helsing_bullet'?p.blessedBullets+' balle(s) restante(s).':id==='van_helsing_stake'?p.gepettoStakes+' pieu(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
    buttons:[{label:'Retour à l’équipement',value:null}],closable:true
  });
  for(const button of el('modalContent').querySelectorAll('[data-secret-target]')){
@@ -2087,7 +2087,7 @@ async function chooseHolyWaterTargets(game,p,targets){
  if(limit===1)selected.add(targets[0].id);
  const promise=openModal({
    title:cardName('van_helsing_water'),
-   content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_water')}" alt="Vaporisateur d’eau bénite de Gluckenburne l’Ancien"><div class="card-detail-side"><p>${attackPreviewText(p,'van_helsing_water')}</p><p>Une utilisation par partie. Remplace ton action. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div><p>${limit===1?'Ton unique adversaire est sélectionné.':'Sélectionne deux adversaires différents.'}</p><div class="choice-grid">${targets.map(t=>`<button type="button" class="choice-card ${selected.has(t.id)?'selected':''}" data-water-target="${t.id}" aria-pressed="${selected.has(t.id)}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('')}</div><button type="button" id="confirmHolyWater" class="secret-power" ${selected.size===limit?'':'disabled'}>Vaporiser sur ${limit} adversaire(s)</button>`,
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_water')}" alt="Vaporisateur d’eau bénite de Gluckenburne l’Ancien"><div class="card-detail-side"><p>${attackPreviewText(p,'van_helsing_water')}</p><p>Une utilisation par partie. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div><p>${limit===1?'Ton unique adversaire est sélectionné.':'Sélectionne deux adversaires différents.'}</p><div class="choice-grid">${targets.map(t=>`<button type="button" class="choice-card ${selected.has(t.id)?'selected':''}" data-water-target="${t.id}" aria-pressed="${selected.has(t.id)}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('')}</div><button type="button" id="confirmHolyWater" class="secret-power" ${selected.size===limit?'':'disabled'}>Vaporiser sur ${limit} adversaire(s)</button>`,
    buttons:[{label:'Retour à l’équipement',value:null}],closable:true
  });
  const confirm=el('confirmHolyWater');
@@ -2501,7 +2501,7 @@ async function useHelsingGoggles(){
    const targets=secretPowerTargets(game,p);
    const target=await choosePlayer('Observer la main de quel adversaire ?',targets,true);
    if(S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
-   const ok=await openModal({title:'Lunettes steampunk',text:'Observer '+pName(target)+' utilise ton action du tour. Tu ne pourras pas attaquer ce tour.',buttons:[{label:'Observer sa main',value:true},{label:'Retour',value:false}],closable:true});
+   const ok=await openModal({title:'Lunettes steampunk',text:'Voir les cartes de '+pName(target)+' ?',buttons:[{label:'Observer sa main',value:true},{label:'Retour',value:false}],closable:true});
    if(!ok||S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
    used=true;closeHand();
    await openModal({title:'Main de '+pName(target),content:target.hand.length?'<div class="choice-grid">'+target.hand.map(id=>'<div class="choice-card"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><b>'+cardName(id)+'</b></div>').join('')+'</div>':'<p>Cet adversaire ne possède aucune carte.</p>',buttons:[{label:'Terminer mon action',value:true}]});
@@ -2514,7 +2514,7 @@ async function useHelsingElixir(){
  actionBusy=true;render();let used=false;
  try{
   const amount=Math.min(2,playerMaxHp(p)-p.hp,game.pool);
-  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère jusqu’à 2 gouttes, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.elixirDoses} / 2 doses restantes. Boire remplace ton action. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Boire une dose',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
+  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère jusqu’à 2 gouttes, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.elixirDoses} / 2 doses restantes. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Boire une dose',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
   if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.elixirDoses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
   p.elixirDoses--;used=true;closeHand();
   await gainBlood(p,2,cardName(id));
@@ -2527,7 +2527,7 @@ async function useHelsingMedkit(){
  actionBusy=true;render();let used=false;
  try{
   const amount=Math.min(1,playerMaxHp(p)-p.hp,game.pool);
-  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère 1 goutte, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.medkitUses} soin restant. Se soigner remplace ton action. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Utiliser la sacoche',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
+  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère 1 goutte, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.medkitUses} soin restant. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Utiliser la sacoche',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
   if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.medkitUses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
   p.medkitUses--;used=true;closeHand();
   await gainBlood(p,1,cardName(id));
