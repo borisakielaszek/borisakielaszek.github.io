@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Respect selected difficulty while keeping Dracula advantages
         run: |
+          # correction Dracula: le niveau choisi reste actif, les avantages Dracula restent séparés
           python3 - <<'PY'
           from pathlib import Path
           p=Path('jeu-vampires-de-sarrebruck/index.html')
