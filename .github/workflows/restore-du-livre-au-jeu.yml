@@ -26,3 +26,5 @@ jobs:
             git commit -m "Restore Du livre au jeu paragraph"
             git push
           fi
+
+# visibility fix v2
