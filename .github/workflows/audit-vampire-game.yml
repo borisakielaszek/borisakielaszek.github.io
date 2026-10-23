@@ -20,106 +20,94 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           from html.parser import HTMLParser
-          import re, base64, subprocess, tempfile, os
+          from collections import Counter
+          import re, base64, subprocess
 
           root=Path('jeu-vampires-de-sarrebruck')
           p=root/'index.html'
           s=p.read_text(encoding='utf-8')
+          css='\n'.join(x.read_text(encoding='utf-8',errors='ignore') for x in root.glob('*.css'))
           assets=root/'assets'
-          print('=== VAMPIRE GAME AUDIT ===')
-          print('index bytes:', p.stat().st_size)
+          print('=== VAMPIRE GAME AUDIT V2 ===')
+          print('INDEX_BYTES:',p.stat().st_size)
 
-          refs=sorted(set(x.split('?')[0].split('#')[0] for x in re.findall(r"assets/([A-Za-z0-9_.-]+(?:[?#][^\\s\\\"'<>)]*)?)",s)))
-          missing=[]; empty=[]
+          # Only complete literal media paths; dynamic template prefixes are deliberately ignored.
+          refs=sorted(set(re.findall(r'assets/[A-Za-z0-9_.-]+[.](?:webp|png|jpg|jpeg|mp3|ogg|wav|svg)',s+'\n'+css,re.I)))
+          missing=[]; empty=[]; badmime=[]
           for r in refs:
-              f=assets/r
-              if not f.exists(): missing.append(r)
-              elif f.stat().st_size==0: empty.append(r)
-          print('referenced asset files:',len(refs))
-          print('MISSING_REFERENCED_ASSETS:', missing or 'NONE')
-          print('EMPTY_REFERENCED_ASSETS:', empty or 'NONE')
+              f=root/r
+              if not f.exists(): missing.append(r); continue
+              if f.stat().st_size==0: empty.append(r); continue
+              ext=f.suffix.lower()
+              if ext in {'.webp','.png','.jpg','.jpeg','.mp3','.ogg','.wav'}:
+                  cp=subprocess.run(['file','--mime-type','-b',str(f)],text=True,capture_output=True)
+                  mime=cp.stdout.strip()
+                  if ext in {'.webp','.png','.jpg','.jpeg'} and not mime.startswith('image/'): badmime.append((r,mime))
+                  if ext in {'.mp3','.ogg','.wav'} and not (mime.startswith('audio/') or mime=='application/octet-stream'): badmime.append((r,mime))
+          print('LITERAL_MEDIA_REFS:',len(refs))
+          print('MISSING_LITERAL_MEDIA:',missing or 'NONE')
+          print('EMPTY_LITERAL_MEDIA:',empty or 'NONE')
+          print('BAD_MEDIA_MIME:',badmime or 'NONE')
+          zero=sorted(f.name for f in assets.iterdir() if f.is_file() and f.stat().st_size==0)
+          print('ZERO_BYTE_ASSETS_TOTAL:',zero or 'NONE')
 
-          zero=[f.name for f in assets.iterdir() if f.is_file() and f.stat().st_size==0]
-          print('ZERO_BYTE_ASSETS_TOTAL:', zero or 'NONE')
-
-          class P(HTMLParser):
+          class H(HTMLParser):
               def __init__(self): super().__init__(); self.ids=[]
               def handle_starttag(self,tag,attrs):
-                  for k,v in attrs:
-                      if k=='id' and v:self.ids.append(v)
-          hp=P(); hp.feed(s)
-          from collections import Counter
-          dup=sorted(k for k,v in Counter(hp.ids).items() if v>1)
-          print('DUPLICATE_HTML_IDS:', dup or 'NONE')
+                  self.ids += [v for k,v in attrs if k=='id' and v]
+          h=H(); h.feed(s)
+          dup=sorted(k for k,v in Counter(h.ids).items() if v>1)
+          print('DUPLICATE_HTML_IDS:',dup or 'NONE')
 
-          scripts=re.findall(r'<script\\b([^>]*)>(.*?)</script>',s,re.I|re.S)
-          js_errors=[]; checked=0
+          scripts=re.findall(r'<script([^>]*)>(.*?)</script>',s,re.I|re.S)
+          checked=0; js_errors=[]
           for i,(attrs,body) in enumerate(scripts):
-              if 'src=' in attrs.lower() or not body.strip(): continue
-              if 'application/ld+json' in attrs.lower(): continue
+              if 'src=' in attrs.lower() or not body.strip() or 'application/ld+json' in attrs.lower(): continue
               checked+=1
-              fn=f'/tmp/audit_{i}.js'
-              Path(fn).write_text(body,encoding='utf-8')
-              cp=subprocess.run(['node','--check',fn],text=True,capture_output=True)
-              if cp.returncode: js_errors.append((i,(cp.stderr or cp.stdout).strip()[-1000:]))
+              fn=Path('/tmp')/f'audit_{i}.js'; fn.write_text(body,encoding='utf-8')
+              cp=subprocess.run(['node','--check',str(fn)],text=True,capture_output=True)
+              if cp.returncode: js_errors.append((i,(cp.stderr or cp.stdout).strip()[-1200:]))
           print('INLINE_JS_BLOCKS_CHECKED:',checked)
           print('JS_SYNTAX_ERRORS:',js_errors or 'NONE')
 
-          # Audio elements and source sanity
           audios=[]
-          for m in re.finditer(r'<audio\\b([^>]*)>',s,re.I|re.S):
+          for m in re.finditer(r'<audio([^>]*)>',s,re.I|re.S):
               a=m.group(1)
-              mid=re.search(r'\\bid=["\\\']([^"\\\']+)',a,re.I)
-              src=re.search(r'\\bsrc=["\\\']([^"\\\']+)',a,re.I)
+              mid=re.search(r'id=["\u0027]([^"\u0027]+)',a,re.I)
+              src=re.search(r'src=["\u0027]([^"\u0027]+)',a,re.I)
               if mid and src: audios.append((mid.group(1),src.group(1)))
-          print('AUDIO_ELEMENTS:')
+          print('AUDIO_ELEMENTS_COUNT:',len(audios))
           for aid,src in audios:
               if src.startswith('data:audio/'):
                   try:
                       raw=base64.b64decode(src.split(',',1)[1],validate=False)
-                      print(f'  {aid}: inline audio {len(raw)} bytes')
-                  except Exception as e: print(f'  {aid}: INVALID_DATA_URI {e}')
+                      print('AUDIO',aid,'INLINE_BYTES',len(raw),'OK' if len(raw)>1000 else 'SUSPICIOUS')
+                  except Exception as e: print('AUDIO',aid,'INVALID_DATA_URI',e)
               else:
-                  rel=src.split('?')[0]
-                  f=root/rel
-                  print(f'  {aid}: {rel} -> '+(('OK '+str(f.stat().st_size)+' bytes') if f.exists() else 'MISSING'))
+                  rel=src.split('?')[0]; f=root/rel
+                  print('AUDIO',aid,rel,('OK '+str(f.stat().st_size)+' bytes') if f.exists() and f.stat().st_size>0 else 'MISSING_OR_EMPTY')
 
-          # Critical routing/invariants
           checks={
-            'combat_sfx_intentionally_disabled': bool(re.search(r'function\\s+playCombatSfx\\([^)]*\\)\\s*\\{\\s*return\\s*;',s)),
+            'combat_sfx_intentionally_disabled': 'function playCombatSfx(success=true){\n return;' in s,
             'victory_profile_routing': "playEndgameMusic(hunterVictory?'helsingVictoryMusic':'victoryMusic')" in s,
             'defeat_profile_routing': "playEndgameMusic(isVanHelsing(p)?'helsingDefeatMusic':'defeatMusic')" in s,
-            'dracula_victory_art': "assets/dracula-victoire.webp" in s,
-            'dracula_defeat_art': "assets/dracula-defaite.webp" in s,
-            'helsing_victory_art': "assets/van-helsing-victoire-biere.webp" in s,
-            'helsing_defeat_art': "assets/van-helsing-defaite.webp" in s,
-            'validated_bullet_image_used': "assets/van-helsing-balles-consacrees-valide.webp" in s,
-            'obsolete_empty_bullet_not_used': "assets/van-helsing-balles-consacrees.webp" not in s,
-            'obsolete_tiny_thunder_v2_not_used': "assets/thunder-intro-v2.mp3" not in s,
+            'dracula_mode_exists': "return key==='dracula'?'dracula'" in s,
+            'van_helsing_mode_exists': "'van_helsing'" in s and 'Van Helsing' in s,
+            'dracula_victory_art': 'assets/dracula-victoire.webp' in s,
+            'dracula_defeat_art': 'assets/dracula-defaite.webp' in s,
+            'helsing_victory_art': 'assets/van-helsing-victoire-biere.webp' in s,
+            'helsing_defeat_art': 'assets/van-helsing-defaite.webp' in s,
+            'validated_bullet_image_used': 'assets/van-helsing-balles-consacrees-valide.webp' in s,
+            'obsolete_empty_bullet_not_used': 'assets/van-helsing-balles-consacrees.webp' not in s,
+            'obsolete_tiny_thunder_v2_not_used': 'assets/thunder-intro-v2.mp3' not in s,
+            'saint_nicolas_helsing_gold': "id==='saint_nicolas'&&isVanHelsing(target)" in s and 'grantSaintNicolasGold(target)' in s,
+            'christmas_draws_two_common_deck': "drawCards(x,2,'marche_noel')" in s and 'Aucune carte n’est prise au voisin' in s,
+            'helsing_christmas_two_objects': "recoverHelsingAmmo(x);recoverHelsingAmmo(x)" in s,
+            'helsing_search_feedback': 'tu ne trouves aucune fourniture à emporter cette fois' in s,
+            'bat_escape_present': 'Fuite en chauve-souris' in s,
+            'helsing_ammo_state': all(x in s for x in ['blessedBullets','silverBolts','gepettoStakes']),
           }
           print('CRITICAL_CHECKS:')
-          for k,v in checks.items(): print(' ',k,':', 'PASS' if v else 'FAIL')
-
-          modes=sorted(set(re.findall(r"secretMode\\s*===?\\s*['\"]([^'\"]+)",s)))
-          assigned=sorted(set(re.findall(r"secretMode\\s*[:=]\\s*['\"]([^'\"]+)",s)))
-          print('SECRET_MODES_COMPARED:',modes)
-          print('SECRET_MODES_ASSIGNED:',assigned)
-
-          # Static DOM IDs referenced via el('...') but absent in markup; often dynamic, report as warning only.
-          static_ids=set(hp.ids)
-          elrefs=set(re.findall(r"\\bel\\(['\"]([^'\"]+)['\"]\\)",s))
-          missing_ids=sorted(elrefs-static_ids)
-          print('EL_REFS_WITHOUT_STATIC_ID_WARNING:',missing_ids)
-
-          # Selected gameplay rule markers expected from current design
-          markers={
-            'dracula_gold_blood_rule': ('goldBlood' in s and 'Dracula' in s),
-            'saint_nicolas_present': ('Saint Nicolas' in s or 'saint_nicolas' in s.lower()),
-            'weihnachtsmarkt_present': ('Weihnacht' in s or 'Marché de Noël' in s),
-            'bat_escape_present': ('chauve-souris' in s.lower()),
-            'helsing_ammo_present': all(x in s for x in ['blessedBullets','silverBolts','gepettoStakes']),
-          }
-          print('GAMEPLAY_MARKERS:')
-          for k,v in markers.items(): print(' ',k,':','PASS' if v else 'FAIL')
-          print('=== END AUDIT ===')
+          for k,v in checks.items(): print(k, 'PASS' if v else 'FAIL')
+          print('=== END AUDIT V2 ===')
           PY
