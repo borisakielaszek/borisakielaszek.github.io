@@ -1,0 +1,39 @@
+name: Patch vampire story copy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-vampire-story-copy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update story wording
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('jeu-vampires-de-sarrebruck/index.html')
+          text = p.read_text(encoding='utf-8')
+          old = "Le jeu de cartes prolonge cet univers : on y retrouve les sept vampires, les deux clans et leurs querelles. Le livre raconte l’histoire de Draculito et des trois épreuves ; le jeu en fait une confrontation entre joueurs, au cours d’une longue nuit où chacun doit survivre."
+          new = "Le jeu de cartes prolonge cet univers : on y retrouve les sept vampires, les deux clans et leurs querelles. Il prend la forme d’une confrontation au cours d’une longue nuit où chacun doit survivre."
+          if old not in text:
+              raise SystemExit('Texte source introuvable')
+          text = text.replace(old, new, 1)
+          p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit game copy
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Du livre au jeu wording"
+            git push
+          fi
