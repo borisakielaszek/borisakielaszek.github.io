@@ -2016,7 +2016,7 @@ function secretPowersHTML(p){
  ['Défense et contre-attaque','defense',['van_helsing_rosary','van_helsing_mirror']],
  ['Régénération','regen',['van_helsing_elixir','van_helsing_medkit']]
  ];
- return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum · Aucune carte de vampire</div>'+
+ return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum</div>'+
  '<div class="helsing-ammo-summary" aria-label="Réserve de munitions" aria-live="polite">'+
  [['carreaux-argent','Carreaux à tête d’argent',p.silverBolts],['balles-consacrees','Balles d’argent consacrées',p.blessedBullets],['pieux-bois','Pieux en bois',p.gepettoStakes]].map(([asset,label,count])=>'<figure class="helsing-ammo-item"><img src="assets/van-helsing-'+asset+'-valide.webp?v=20261023" alt="'+label+'"><figcaption>'+label+'<b>'+count+'</b></figcaption></figure>').join('')+'</div>'+
  groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
@@ -3044,7 +3044,7 @@ async function resolveImmediate(p,id,{skipScene=true,drawReason=null}={}){
  if(!S||S.gameOver||!S.players.includes(p)||!p.alive)return;
  if(!skipScene)await showImmediateScene(p,id);
  if(S!==game||game.gameOver)return;
- if(id==='marche_noel'){log('Marché de Noël : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus. Aucune carte n’est prise au voisin.','important');for(const x of alivePlayers().slice()){if(S!==game||game.gameOver)break;if(!x.alive)continue;log(`${pName(x)} : pioche de 2 cartes dans la pioche commune (Marché de Noël).`,'important');await drawCards(x,2,'marche_noel');}return}
+ if(id==='marche_noel'){log('Marché de Noël : chaque vampire vivant pioche 2 cartes dans la pioche commune, puis défausse le surplus. Aucune carte n’est prise au voisin.','important');for(const x of alivePlayers().slice()){if(S!==game||game.gameOver)break;if(!x.alive)continue;if(isVanHelsing(x)){recoverHelsingAmmo(x);recoverHelsingAmmo(x);log('Marché de Noël : Van Helsing reçoit deux objets.','good');continue;}log(`${pName(x)} : pioche de 2 cartes dans la pioche commune (Marché de Noël).`,'important');await drawCards(x,2,'marche_noel');}return}
  if(id==='hexennacht'){await resolveHexennacht(p);return}
  if(id==='fossoyeur'){await loseBlood(p,1,cardName(id));return}
  if(id==='mortetrouille'){await resolveMortetrouille(p);return}
