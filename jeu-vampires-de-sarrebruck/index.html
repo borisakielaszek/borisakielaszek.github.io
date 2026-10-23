@@ -2012,7 +2012,7 @@ function secretModeForName(name){
  const key=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,' ').trim();
  return key==='dracula'?'dracula':key.replace(/ /g,'')==='vanhelsing'?'van_helsing':null;
 }
-function aiDifficulty(){return S?.secretMode==='dracula'?'easy':S?.difficulty||'normal'}
+function aiDifficulty(){return S?.difficulty||'normal'}
 function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function isVanHelsing(p){return !!(p?.human&&S?.secretMode==='van_helsing')}
 function helsingBalance(aiCount,difficulty='normal'){
