@@ -114,7 +114,7 @@ body{width:100%;min-width:0;overflow-x:hidden}
  .modal-card .immediate-scene-copy .scene-small,.modal-card .immediate-scene .tap-dismiss-note{font-size:1rem!important;line-height:1.4!important}
 }
 
-/* V5.65 — compact music control fixed in the upper-left corner. */
+/* V5.66 — single centered double-note music icon. */
 #musicToggle{
  position:fixed!important;
  top:max(10px,env(safe-area-inset-top))!important;
@@ -137,11 +137,13 @@ body{width:100%;min-width:0;overflow-x:hidden}
  z-index:90!important;
  overflow:hidden!important;
 }
+#musicToggle>*{display:none!important}
 #musicToggle::before{
- content:"♪";
+ content:"♫";
  display:block;
- font-size:25px!important;
+ font-size:24px!important;
  line-height:1!important;
  font-weight:800;
- transform:translateY(-1px);
+ transform:none!important;
+ margin:0!important;
 }
