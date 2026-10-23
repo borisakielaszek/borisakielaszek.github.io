@@ -1410,6 +1410,9 @@ body.game-active #gameScreen:not(.hidden){position:fixed!important;inset:0!impor
 </style><style id="helsing-compact-gear">
 body.van-helsing-mode .helsing-gear{gap:6px!important;text-align:center!important;align-items:center}
 body.van-helsing-mode .helsing-gear strong{font-size:clamp(.85rem,2.7vw,1.05rem)!important;line-height:1.25!important;text-align:center}
+</style><style id="helsing-unavailable-equipment">
+body.van-helsing-mode .helsing-gear.helsing-gear-unavailable{filter:grayscale(1);opacity:.48}
+body.van-helsing-mode .helsing-gear.helsing-gear-unavailable:hover,body.van-helsing-mode .helsing-gear.helsing-gear-unavailable:focus-visible{opacity:.75}
 </style></head>
 <body>
 <div id="app">
@@ -1971,13 +1974,32 @@ function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
  (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:(id==='van_helsing_dawn'||id==='van_helsing_goggles')?true:false));
 }
+function helsingGearUnavailableReason(p,id){
+ if(!isVanHelsing(p)||!p.alive||S.gameOver)return 'Cet équipement ne peut pas être utilisé dans une partie terminée.';
+ const ammo={van_helsing_bolt:['silverBolts','Aucun carreau disponible. Récupère un carreau pour réutiliser l’arbalète.'],van_helsing_bullet:['blessedBullets','Aucune balle disponible. Récupère une balle d’argent consacrée pour réutiliser le pistolet.'],van_helsing_stake:['gepettoStakes','Aucun pieu disponible. Récupère un pieu pour réutiliser Gepetto.']};
+ if(ammo[id]&&!(p[ammo[id][0]]>0))return ammo[id][1];
+ const spent={van_helsing_cross:'crucifixUsed',van_helsing_whip:'whipUsed',van_helsing_water:'holyWaterUsed'};
+ if(spent[id]&&p[spent[id]])return 'Déjà utilisé : cet équipement ne sert qu’une fois par partie.';
+ if(id==='van_helsing_rosary')return p.rosaryCharges>0?'':'Les 5 utilisations du chapelet sont épuisées.';
+ if(id==='van_helsing_mirror')return p.mirrorCharges>0?'':'Les 2 utilisations du miroir sont épuisées.';
+ if(id==='van_helsing_medkit'&&!(p.medkitUses>0))return 'Aucune sacoche disponible. Récupère une sacoche médicale pour pouvoir te soigner.';
+ if(id==='van_helsing_elixir'&&!(p.elixirDoses>0))return 'Toutes les doses de l’élixir ont été utilisées.';
+ if(id==='van_helsing_medkit'||id==='van_helsing_elixir'){
+   if(p.hp>=playerMaxHp(p))return 'Ta santé est déjà au maximum : aucun soin nécessaire.';
+   if(S.pool<=0)return 'La réserve commune ne contient plus de gouttes pour ce soin.';
+ }
+ if(!S.awaitingHuman||S.players[S.turnIndex]!==p)return 'Attends ton tour pour utiliser cet équipement.';
+ if(actionBusy)return 'Une autre action est en cours.';
+ return '';
+}
 async function showHelsingGearDetail(button){
  const id=button.dataset.gear,p=S?.players.find(x=>x.human);
  if(!isVanHelsing(p))return;
  const info=id==='van_helsing_rosary'||id==='van_helsing_mirror';
  const available=secretPowerAvailable(p,id);
+ const unavailableReason=helsingGearUnavailableReason(p,id);
  const extra=id==='van_helsing_goggles'?'Regarde toutes les cartes actuellement en main d’un adversaire. Réutilisable.':id==='van_helsing_bullet'?'Les balles sont en argent et consacrées. En défense : annule un loup-garou seul ; contre la meute, réduit la perte à 1 goutte. Chaque tir consomme une balle.':'';
- const ok=await openModal({title:button.querySelector('strong').textContent,content:'<div class="card-preview"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><div><p>'+button.dataset.stock+'</p><p>'+button.dataset.effect+'</p><p>'+extra+'</p>'+(info?'<p>Cette défense est proposée pendant une attaque adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>Indisponible actuellement : vérifie ton stock, tes gouttes et ton tour.</p>':'')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ const ok=await openModal({title:button.querySelector('strong').textContent,content:'<div class="card-preview"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><div><p>'+button.dataset.stock+'</p><p>'+button.dataset.effect+'</p><p>'+extra+'</p>'+(info?(unavailableReason?'<p>'+unavailableReason+'</p>':'')+'<p>Cette défense est proposée pendant une attaque adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>'+unavailableReason+'</p>':'')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
  if(!ok)return;
  if(id==='van_helsing_goggles')return useHelsingGoggles();
  if(id==='van_helsing_medkit')return useHelsingMedkit();
@@ -2007,8 +2029,9 @@ function secretPowersHTML(p){
  ];
 
  const tile=([button,id,title,stock,effect])=>{
+ const unavailable=helsingGearUnavailableReason(p,id);
  const art='<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="'+title+'" loading="lazy">';
- return '<button type="button" id="'+button+'" class="secret-power helsing-gear" data-gear="'+id+'" data-stock="'+stock+'" data-effect="'+effect+'" aria-label="'+title+'">'+art+'<strong>'+title+'</strong></button>';
+ return '<button type="button" id="'+button+'" class="secret-power helsing-gear'+(unavailable?' helsing-gear-unavailable':'')+'" data-gear="'+id+'" data-stock="'+stock+'" data-effect="'+effect+'" aria-label="'+title+'">'+art+'<strong>'+title+'</strong></button>';
  };
  const groups=[
  ['Observation','observation',['van_helsing_goggles']],
