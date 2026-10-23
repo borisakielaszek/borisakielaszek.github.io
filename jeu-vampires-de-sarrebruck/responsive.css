@@ -1,47 +1,22 @@
 @import url('./responsive-base-v570.css?v=20261023-2008');
-
-/* V5.73 — approved French book mockup in the correct Origins position. */
+/* Display the complete approved book photograph. */
 #clanStoryScreen .story-cover{
- content:url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==")!important;
+ content:normal!important;
  display:block!important;
  width:min(92%,560px)!important;
  max-width:560px!important;
  height:auto!important;
- aspect-ratio:3/2!important;
+ aspect-ratio:auto!important;
  object-fit:contain!important;
  margin:30px auto 34px!important;
  padding:0!important;
- background-color:#151112!important;
- background-image:
-  url('./assets/origins-book-fr-1.webp'),
-  url('./assets/origins-book-fr-2.webp'),
-  url('./assets/origins-book-fr-3.webp'),
-  url('./assets/origins-book-fr-4.webp')!important;
- background-position:left top,right top,left bottom,right bottom!important;
- background-size:calc(50% + 1px) calc(50% + 1px),calc(50% + 1px) calc(50% + 1px),calc(50% + 1px) calc(50% + 1px),calc(50% + 1px) calc(50% + 1px)!important;
- background-repeat:no-repeat!important;
+ background:none!important;
  border:1px solid rgba(112,24,31,.86)!important;
  border-radius:7px!important;
  clip-path:none!important;
  transform:none!important;
- transform-origin:50% 50%!important;
- box-shadow:
-  0 0 0 1px rgba(222,207,177,.24),
-  0 0 0 5px rgba(12,8,9,.94),
-  0 0 0 6px rgba(108,22,29,.38),
-  0 18px 38px rgba(0,0,0,.52)!important;
- backface-visibility:visible!important;
+ box-shadow:0 0 0 5px rgba(12,8,9,.94),0 18px 38px rgba(0,0,0,.52)!important;
 }
-
 @media(max-width:650px){
- #clanStoryScreen .story-cover{
-  width:min(92%,560px)!important;
-  margin:24px auto 30px!important;
-  border-radius:6px!important;
-  box-shadow:
-   0 0 0 1px rgba(222,207,177,.22),
-   0 0 0 4px rgba(12,8,9,.94),
-   0 0 0 5px rgba(108,22,29,.34),
-   0 14px 28px rgba(0,0,0,.5)!important;
- }
+ #clanStoryScreen .story-cover{margin:24px auto 30px!important;}
 }
