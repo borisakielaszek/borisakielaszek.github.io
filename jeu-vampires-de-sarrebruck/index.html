@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261023-helsing-search-music">
+<meta name="game-build" content="20261023-round-music-icon">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1434,6 +1434,21 @@ body.game-active.music-controls-ready #musicToggle{display:none!important}
 body.music-controls-ready #musicToggle{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;border-radius:50%!important;background:linear-gradient(145deg,#a81524,#520710)!important;border:1px solid #d8b66d!important;color:#f7e1ae!important;font:900 20px Georgia,serif!important;line-height:28px!important;box-shadow:0 3px 9px #000a!important;right:54px!important}
 .music-muted{ text-decoration:line-through!important }
 </style>
+<style id="round-music-controls">
+body.music-controls-ready #musicToggle{
+ position:fixed!important;top:max(12px,env(safe-area-inset-top))!important;right:max(12px,env(safe-area-inset-right))!important;left:auto!important;bottom:auto!important;
+ width:44px!important;height:44px!important;min-width:44px!important;max-width:44px!important;min-height:44px!important;max-height:44px!important;
+ box-sizing:border-box!important;aspect-ratio:1/1!important;padding:0!important;margin:0!important;border-radius:50%!important;
+ align-items:center!important;justify-content:center!important;transform:none!important;line-height:1!important;
+ background:linear-gradient(145deg,#a81524,#520710)!important;color:#f7e1ae!important;opacity:1!important;
+}
+body.music-controls-ready:not(.game-active) #musicToggle{display:flex!important}
+body.game-active.music-controls-ready #musicToggle{display:none!important}
+#journalMusicToggle{box-sizing:border-box!important;width:30px!important;height:30px!important;min-width:30px!important;max-width:30px!important;min-height:30px!important;max-height:30px!important;padding:0!important;aspect-ratio:1/1!important;border-radius:50%!important;display:flex!important;align-items:center!important;justify-content:center!important}
+#musicToggle svg{width:28px!important;height:28px!important;display:block!important;flex:none!important}
+#journalMusicToggle svg{width:21px!important;height:21px!important;display:block!important;flex:none!important}
+#musicToggle.music-muted::after,#journalMusicToggle.music-muted::after{content:"";position:absolute;width:75%;height:2px;background:currentColor;transform:rotate(-45deg);box-shadow:0 0 2px #520710}
+</style>
 </head>
 <body>
 <div id="app">
@@ -1767,7 +1782,7 @@ function log(msg,type=''){
 }
 function toast(msg){const t=el('toast');t.textContent=msg;t.classList.remove('hidden');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.add('hidden'),2200)}
 function musicBtnLabel(){return '♪'}
-function refreshMusicButton(){const b=el('musicToggle');document.body.classList.toggle('music-controls-ready',!!el('introScreen')?.classList.contains('hidden'));for(const button of [b,el('journalMusicToggle')]){if(button){button.textContent=musicBtnLabel();button.setAttribute('aria-pressed',String(!musicEnabled));button.setAttribute('aria-label',musicEnabled?'Couper la musique':'Remettre la musique');button.title=musicEnabled?'Couper la musique':'Remettre la musique';button.classList.toggle('music-muted',!musicEnabled);}}}
+function refreshMusicButton(){const b=el('musicToggle');document.body.classList.toggle('music-controls-ready',!!el('introScreen')?.classList.contains('hidden'));for(const button of [b,el('journalMusicToggle')]){if(button){button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 17V5l10-2v12M10 8l10-2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="6.8" cy="17.8" rx="3.5" ry="2.7" fill="currentColor"/><ellipse cx="16.8" cy="15.8" rx="3.5" ry="2.7" fill="currentColor"/></svg>';button.setAttribute('aria-pressed',String(!musicEnabled));button.setAttribute('aria-label',musicEnabled?'Couper la musique':'Remettre la musique');button.title=musicEnabled?'Couper la musique':'Remettre la musique';button.classList.toggle('music-muted',!musicEnabled);}}}
 function currentMusic(){if(endgameMusicId)return el(endgameMusicId);return document.body.classList.contains('game-active')?el('gameMusic'):el('bgMusic')}
 function stopMusic(a,reset=false){if(!a)return;try{a.pause();if(reset)a.currentTime=0}catch(e){}}
 function stopAllMusic(reset=false){for(const id of ['bgMusic','gameMusic','victoryMusic','defeatMusic','helsingVictoryMusic','helsingDefeatMusic'])stopMusic(el(id),reset)}
