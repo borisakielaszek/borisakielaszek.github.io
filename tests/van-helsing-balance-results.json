@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-23",
+  "games": 600,
+  "games_per_ai_count_and_difficulty": 50,
+  "seed_offset": 900000,
+  "errors": 0,
+  "scope": "Real JavaScript gameLoop, aiTurn, combat, draws and immediate effects; automated hunter policy; mocked DOM, input dialogs, media and delays. No visual/mobile-browser assurance. Win rates describe this policy and sample, not human players.",
+  "invariants": [
+    "Game finishes within 800 turns and 5 seconds per simulation",
+    "Hunter never receives vampire hand cards",
+    "Nonnegative integer stocks and supply caps",
+    "HP and alive status agree",
+    "Blood conserved",
+    "All 74 action cards conserved",
+    "AI hand size limits",
+    "Selected AI difficulty honored"
+  ],
+  "summary": [
+    {
+      "ais": 1,
+      "difficulty": "easy",
+      "games": 50,
+      "wins": 50,
+      "errors": 0,
+      "avgTurns": 7,
+      "actual": "easy"
+    },
+    {
+      "ais": 1,
+      "difficulty": "normal",
+      "games": 50,
+      "wins": 49,
+      "errors": 0,
+      "avgTurns": 14,
+      "actual": "normal"
+    },
+    {
+      "ais": 1,
+      "difficulty": "hard",
+      "games": 50,
+      "wins": 44,
+      "errors": 0,
+      "avgTurns": 15,
+      "actual": "hard"
+    },
+    {
+      "ais": 2,
+      "difficulty": "easy",
+      "games": 50,
+      "wins": 50,
+      "errors": 0,
+      "avgTurns": 13,
+      "actual": "easy"
+    },
+    {
+      "ais": 2,
+      "difficulty": "normal",
+      "games": 50,
+      "wins": 46,
+      "errors": 0,
+      "avgTurns": 21,
+      "actual": "normal"
+    },
+    {
+      "ais": 2,
+      "difficulty": "hard",
+      "games": 50,
+      "wins": 27,
+      "errors": 0,
+      "avgTurns": 21,
+      "actual": "hard"
+    },
+    {
+      "ais": 3,
+      "difficulty": "easy",
+      "games": 50,
+      "wins": 50,
+      "errors": 0,
+      "avgTurns": 20,
+      "actual": "easy"
+    },
+    {
+      "ais": 3,
+      "difficulty": "normal",
+      "games": 50,
+      "wins": 48,
+      "errors": 0,
+      "avgTurns": 22,
+      "actual": "normal"
+    },
+    {
+      "ais": 3,
+      "difficulty": "hard",
+      "games": 50,
+      "wins": 37,
+      "errors": 0,
+      "avgTurns": 22,
+      "actual": "hard"
+    },
+    {
+      "ais": 4,
+      "difficulty": "easy",
+      "games": 50,
+      "wins": 50,
+      "errors": 0,
+      "avgTurns": 22,
+      "actual": "easy"
+    },
+    {
+      "ais": 4,
+      "difficulty": "normal",
+      "games": 50,
+      "wins": 47,
+      "errors": 0,
+      "avgTurns": 23,
+      "actual": "normal"
+    },
+    {
+      "ais": 4,
+      "difficulty": "hard",
+      "games": 50,
+      "wins": 35,
+      "errors": 0,
+      "avgTurns": 23,
+      "actual": "hard"
+    }
+  ],
+  "game_source_sha256": "9b85887057f57a8ecbf1eb4056300abcbb31b08523bd2995371079ee6293a9a3",
+  "commands": [
+    "node tests/van-helsing-balance.cjs",
+    "node tests/van-helsing-simulation.cjs jeu-vampires-de-sarrebruck/index.html 50 results.json 900000"
+  ]
+}
