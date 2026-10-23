@@ -147,3 +147,6 @@ body{width:100%;min-width:0;overflow-x:hidden}
  transform:none!important;
  margin:0!important;
 }
+
+/* V5.67 — Van Helsing searches for supplies automatically; remove the manual portrait button. */
+#humanStage > button{display:none!important}
