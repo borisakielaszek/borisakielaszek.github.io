@@ -1,0 +1,57 @@
+name: Fix Vampire Victory Sound
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-vampire-victory-sound.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make endgame sound selection profile-based
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('jeu-vampires-de-sarrebruck/index.html')
+          s=p.read_text(encoding='utf-8')
+
+          old_func="function playEndgameMusic(id){stopAllMusic(true);if(S?.secretMode==='van_helsing')id=id==='victoryMusic'?'helsingVictoryMusic':'helsingDefeatMusic';endgameMusicId=id;"
+          new_func="function playEndgameMusic(id){stopAllMusic(true);endgameMusicId=id;"
+          if old_func not in s:
+              raise SystemExit('Expected playEndgameMusic function not found')
+          s=s.replace(old_func,new_func,1)
+
+          old_defeat=" playEndgameMusic('defeatMusic');\n const defeatArt=isVanHelsing(p)?"
+          new_defeat=" playEndgameMusic(isVanHelsing(p)?'helsingDefeatMusic':'defeatMusic');\n const defeatArt=isVanHelsing(p)?"
+          if old_defeat not in s:
+              raise SystemExit('Expected defeat sound call not found')
+          s=s.replace(old_defeat,new_defeat,1)
+
+          old_victory=" if(humanWin){\n   playEndgameMusic('victoryMusic');\n   const hunterVictory=isVanHelsing(winner);"
+          new_victory=" if(humanWin){\n   const hunterVictory=isVanHelsing(winner);\n   playEndgameMusic(hunterVictory?'helsingVictoryMusic':'victoryMusic');"
+          if old_victory not in s:
+              raise SystemExit('Expected victory sound block not found')
+          s=s.replace(old_victory,new_victory,1)
+
+          p.write_text(s,encoding='utf-8')
+          print("OK: all vampire winners, including Dracula, use victoryMusic (Evil Laugh)")
+          print("OK: Van Helsing winner uses helsingVictoryMusic")
+          print("OK: Van Helsing defeat uses helsingDefeatMusic; vampire defeats use defeatMusic")
+          PY
+      - name: Remove temporary diagnostic files
+        run: |
+          rm -f .github/workflows/diagnose-vampire-endgame.yml
+          rm -f .github/vampire-endgame-diagnostic.txt
+          rm -f .github/workflows/fix-vampire-victory-sound.yml
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Fix victory laugh for Dracula and all vampire winners"
+          git push
