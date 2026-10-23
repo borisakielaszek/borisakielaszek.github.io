@@ -2483,6 +2483,7 @@ function endHumanTurn(){if(humanTurnResolve)humanTurnResolve()}
 function attackBlockReason(attacker,id){
  const opponents=alivePlayers().filter(t=>t!==attacker&&t.alive);
  if(!opponents.length)return 'Aucun adversaire vivant ne peut être ciblé.';
+ if(['poche_perimee','cercueil'].includes(id)&&opponents.every(t=>isVanHelsing(t)||(id==='poche_perimee'&&t.vampire==='ermanno')))return opponents.some(isVanHelsing)?'Van Helsing est humain : cette carte de vampire est sans effet sur lui. Aucune cible valide.':'Ermanno est immunisé contre la Poche périmée.';
  if(id==='aube'&&opponents.every(isVanHelsing))return 'Le soleil ne blesse pas Van Helsing : il est humain.';
  if((id==='lycanthrope'||id==='meute')&&opponents.every(t=>t.vampire==='rudiger'))return 'Rüdiger est immunisé contre les attaques de lycanthropes.';
  if(id==='hypnose'){
@@ -2511,7 +2512,7 @@ function attackUnavailableLabel(attacker,id){
 }
 function validAttackTargets(attacker,id){
  let targets=alivePlayers().filter(t=>t!==attacker&&t.alive);
- if(id==='aube')targets=targets.filter(t=>!isVanHelsing(t));
+ if(['aube','poche_perimee','cercueil'].includes(id))targets=targets.filter(t=>!isVanHelsing(t));
  if(id==='hypnose')targets=targets.filter(t=>t.vampire!=='elisabetta'&&(t.hand.length||t.witches));
  if(id==='lycanthrope'||id==='meute')targets=targets.filter(t=>t.vampire!=='rudiger');
  if(isHunter(id))targets=targets.filter(t=>t.vampire!=='ilsa'&&!isVanHelsing(t));
@@ -2574,7 +2575,7 @@ async function executeAttack(attacker,id,{free=false,forcedTarget=null,forcedTar
    if(!normal.length)return false;
  }
  let candidates=validAttackTargets(attacker,id);
- if((isHunter(id)||id==='aube')&&forcedTarget&&!candidates.includes(forcedTarget))return false;
+ if((isHunter(id)||['aube','poche_perimee','cercueil'].includes(id))&&forcedTarget&&!candidates.includes(forcedTarget))return false;
  if(!candidates.length){log(attackBlockReason(attacker,id)||'Aucune cible valide.');return false;}
  let target=forcedTarget||(attacker.human?await choosePlayer(`Cible de ${cardName(id)}`,candidates,true):aiTarget(attacker,candidates,id));if(!target){toast(attackBlockReason(attacker,id)||'Aucune cible choisie.');return false;}
  if(!attacker.human)await showAttackReveal(attacker,target,id);
@@ -2816,6 +2817,7 @@ function aiChooseDefense(t,a,id,eligible){
 
 async function resolveAttackInstance(attacker,target,id,{uncounterable=false,allowDeadAttacker=false}={}){
  if((!attacker.alive&&!allowDeadAttacker)||!target.alive)return;
+ if(['poche_perimee','cercueil'].includes(id)&&isVanHelsing(target)){log('Van Helsing est humain : cette carte de vampire est sans effet sur lui.','good');return;}
  if(id==='aube'&&isVanHelsing(target)){log('Van Helsing est humain : la lumière du soleil ne lui fait aucun mal.','good');return;}
  if(isHunter(id)&&isVanHelsing(target)){
   log('Les chasseurs humains reconnaissent Van Helsing et renoncent à l’attaquer.','good');
@@ -2898,7 +2900,7 @@ async function resolveAttackInstance(attacker,target,id,{uncounterable=false,all
 async function applyAttackEffect(attacker,target,id,{damageOverride=null}={}){
  const summary={damage:0,discarded:[],eliminated:false};
  if(!target.alive)return summary;
- if((isHunter(id)||id==='aube')&&isVanHelsing(target))return summary;
+ if((isHunter(id)||['aube','poche_perimee','cercueil'].includes(id))&&isVanHelsing(target))return summary;
  if(id==='van_helsing_dawn'){
    summary.discarded=await discardRandomOrChosen(target,2,'L’Aube du jour : défausse 2 cartes.');
    return summary;
