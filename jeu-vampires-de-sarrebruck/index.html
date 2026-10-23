@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261022-origines-jeu-cartes">
+<meta name="game-build" content="20261023-arsenal-munitions-validees">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1399,12 +1399,12 @@ body.game-active{overflow:hidden!important;overscroll-behavior:none}
 body.game-active #startScreen,body.game-active #introScreen{display:none!important}
 body.game-active #gameScreen:not(.hidden){position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:0!important;margin:0!important}
 </style>
-<style id="helsing-weapon-ammunition-pairs">
-.helsing-weapon-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;width:100%}
-.helsing-weapon-pair figure{margin:0;min-width:0}
-.helsing-weapon-pair figcaption{font-size:12px;line-height:1.3;text-align:center;padding:5px 0;overflow-wrap:anywhere}
-.helsing-weapon-pair .helsing-gear-image{width:100%;height:170px;object-fit:contain}
-@media(max-width:650px){.helsing-category-attack .helsing-gear:has(.helsing-weapon-pair){grid-column:1/-1}.helsing-weapon-pair .helsing-gear-image{height:160px}}
+<style id="helsing-illustrated-ammunition">
+.helsing-ammo-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.helsing-ammo-item{margin:0;min-width:0;overflow:hidden;border:1px solid #9e8546;border-radius:10px;background:#101d1b;color:#ffe4ac}
+.helsing-ammo-item img{display:block;width:100%;aspect-ratio:2/3;object-fit:contain;background:#090e14}
+.helsing-ammo-item figcaption{padding:8px 4px;text-align:center;font-size:clamp(.72rem,2.8vw,1rem);line-height:1.3;overflow-wrap:anywhere}
+.helsing-ammo-item b{display:block;font-size:1.5rem;margin-top:5px;color:#fff0d3}
 </style></head>
 <body>
 <div id="app">
@@ -1970,8 +1970,7 @@ function secretPowersHTML(p){
  ];
 
  const tile=([button,id,title,stock,effect])=>{
- const ammo=id==='van_helsing_bullet'?{img:'assets/van-helsing-balles-consacrees.webp',name:'Balles consacrées',count:p.blessedBullets}:id==='van_helsing_bolt'?{img:'assets/van-helsing-carreaux-argent.webp',name:'Carreaux à pointe d’argent',count:p.silverBolts}:null;
- const art=ammo?'<div class="helsing-weapon-pair"><figure><img class="helsing-gear-image" src="'+imgCard(id)+'" alt="'+title+'" loading="lazy"><figcaption>Arme</figcaption></figure><figure><img class="helsing-gear-image" src="'+ammo.img+'" alt="'+ammo.name+'" loading="lazy"><figcaption>'+ammo.name+' · '+ammo.count+'</figcaption></figure></div>':'<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="" loading="lazy">';
+ const art='<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="'+title+'" loading="lazy">';
  return '<button type="button" id="'+button+'" class="secret-power helsing-gear" '+((id==='van_helsing_rosary'||id==='van_helsing_mirror')||secretPowerAvailable(p,id)?'':'disabled')+'>'+art+'<strong>'+title+'</strong><span class="helsing-stock">'+stock+'</span><small>'+effect+'</small></button>';
  };
  const groups=[
@@ -1980,7 +1979,8 @@ function secretPowersHTML(p){
  ['Régénération','regen',['van_helsing_elixir','van_helsing_medkit']]
  ];
  return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum · Aucune carte de vampire</div>'+
- '<div class="helsing-ammo-summary" aria-live="polite"><span>Carreaux : <b>'+p.silverBolts+'</b></span><span>Balles : <b>'+p.blessedBullets+'</b></span><span>Pieux : <b>'+p.gepettoStakes+'</b></span></div>'+
+ '<div class="helsing-ammo-summary" aria-label="Réserve de munitions" aria-live="polite">'+
+ [['carreaux-argent','Carreaux à tête d’argent',p.silverBolts],['balles-consacrees','Balles consacrées',p.blessedBullets],['pieux-bois','Pieux en bois',p.gepettoStakes]].map(([asset,label,count])=>'<figure class="helsing-ammo-item"><img src="assets/van-helsing-'+asset+'-valide.webp?v=20261023" alt="'+label+'"><figcaption>'+label+'<b>'+count+'</b></figcaption></figure>').join('')+'</div>'+
  groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
  '<p class="tiny">Une arme ou un soin utilisé remplace ton action. En fin de tour : 45 % un carreau, 30 % une balle consacrée, 15 % un pieu, 10 % une sacoche médicale. Les attaques peuvent être défendues.</p>'+
  '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'>Passer l’action et chercher du matériel</button>';
