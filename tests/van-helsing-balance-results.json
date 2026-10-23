@@ -1,116 +1,152 @@
 {
   "date": "2026-10-23",
-  "games": 600,
-  "games_per_ai_count_and_difficulty": 50,
-  "seed_offset": 900000,
+  "target": "Approximately 50% hunter wins for each AI count, evaluated over all three difficulty levels",
+  "games": 3600,
+  "games_per_ai_count_and_difficulty": 300,
+  "seed_offset": 35000000,
+  "calibration_seed_offset": 4000000,
   "errors": 0,
-  "scope": "Real JavaScript gameLoop, aiTurn, combat, draws and immediate effects; automated hunter policy; mocked DOM, input dialogs, media and delays. No visual/mobile-browser assurance. Win rates describe this policy and sample, not human players.",
+  "scope": "Real gameLoop, AI, combat, draws and immediate effects. Automated tactical hunter, mocked DOM, dialogs/media/delays. Does not test browser rendering or guarantee human win rates. Validation seeds differ from tuning seeds.",
+  "changes": [
+    "Keep Van Helsing at 10 HP",
+    "Lighter initial loadout by AI count",
+    "Supply success probability depends on AI count and selected difficulty",
+    "Supplies may include rare elixir; Christmas still grants two supplies",
+    "Vampire target prioritization acknowledges the hunter using public information only",
+    "Resupply stays enabled after lantern is exhausted",
+    "Complete Christmas hand-limit cleanup even if game ends during a batch draw"
+  ],
   "invariants": [
-    "Game finishes within 800 turns and 5 seconds per simulation",
-    "Hunter never receives vampire hand cards",
-    "Nonnegative integer stocks and supply caps",
-    "HP and alive status agree",
-    "Blood conserved",
+    "Finish within 800 turns and 5 seconds per simulation",
+    "Hunter has no vampire cards",
+    "Stocks are integer and nonnegative, do not exceed caps",
+    "HP/alive status and blood conservation",
     "All 74 action cards conserved",
-    "AI hand size limits",
-    "Selected AI difficulty honored"
+    "AI hand limits",
+    "Difficulty selected is used"
+  ],
+  "by_ai_count": [
+    {
+      "ais": 1,
+      "games": 900,
+      "hunter_wins": 435,
+      "win_rate": 0.48333333333333334
+    },
+    {
+      "ais": 2,
+      "games": 900,
+      "hunter_wins": 434,
+      "win_rate": 0.4822222222222222
+    },
+    {
+      "ais": 3,
+      "games": 900,
+      "hunter_wins": 473,
+      "win_rate": 0.5255555555555556
+    },
+    {
+      "ais": 4,
+      "games": 900,
+      "hunter_wins": 448,
+      "win_rate": 0.49777777777777776
+    }
   ],
   "summary": [
     {
       "ais": 1,
       "difficulty": "easy",
-      "games": 50,
-      "wins": 50,
+      "games": 300,
+      "wins": 160,
       "errors": 0,
-      "avgTurns": 7,
+      "avgTurns": 27,
       "actual": "easy"
     },
     {
       "ais": 1,
       "difficulty": "normal",
-      "games": 50,
-      "wins": 49,
+      "games": 300,
+      "wins": 130,
       "errors": 0,
-      "avgTurns": 14,
+      "avgTurns": 25,
       "actual": "normal"
     },
     {
       "ais": 1,
       "difficulty": "hard",
-      "games": 50,
-      "wins": 44,
+      "games": 300,
+      "wins": 145,
       "errors": 0,
-      "avgTurns": 15,
+      "avgTurns": 23,
       "actual": "hard"
     },
     {
       "ais": 2,
       "difficulty": "easy",
-      "games": 50,
-      "wins": 50,
+      "games": 300,
+      "wins": 133,
       "errors": 0,
-      "avgTurns": 13,
+      "avgTurns": 27,
       "actual": "easy"
     },
     {
       "ais": 2,
       "difficulty": "normal",
-      "games": 50,
-      "wins": 46,
+      "games": 300,
+      "wins": 174,
       "errors": 0,
-      "avgTurns": 21,
+      "avgTurns": 23,
       "actual": "normal"
     },
     {
       "ais": 2,
       "difficulty": "hard",
-      "games": 50,
-      "wins": 27,
+      "games": 300,
+      "wins": 127,
       "errors": 0,
-      "avgTurns": 21,
+      "avgTurns": 23,
       "actual": "hard"
     },
     {
       "ais": 3,
       "difficulty": "easy",
-      "games": 50,
-      "wins": 50,
+      "games": 300,
+      "wins": 165,
       "errors": 0,
-      "avgTurns": 20,
+      "avgTurns": 24,
       "actual": "easy"
     },
     {
       "ais": 3,
       "difficulty": "normal",
-      "games": 50,
-      "wins": 48,
+      "games": 300,
+      "wins": 151,
       "errors": 0,
-      "avgTurns": 22,
+      "avgTurns": 23,
       "actual": "normal"
     },
     {
       "ais": 3,
       "difficulty": "hard",
-      "games": 50,
-      "wins": 37,
+      "games": 300,
+      "wins": 157,
       "errors": 0,
-      "avgTurns": 22,
+      "avgTurns": 21,
       "actual": "hard"
     },
     {
       "ais": 4,
       "difficulty": "easy",
-      "games": 50,
-      "wins": 50,
+      "games": 300,
+      "wins": 137,
       "errors": 0,
-      "avgTurns": 22,
+      "avgTurns": 23,
       "actual": "easy"
     },
     {
       "ais": 4,
       "difficulty": "normal",
-      "games": 50,
-      "wins": 47,
+      "games": 300,
+      "wins": 156,
       "errors": 0,
       "avgTurns": 23,
       "actual": "normal"
@@ -118,16 +154,16 @@
     {
       "ais": 4,
       "difficulty": "hard",
-      "games": 50,
-      "wins": 35,
+      "games": 300,
+      "wins": 155,
       "errors": 0,
-      "avgTurns": 23,
+      "avgTurns": 21,
       "actual": "hard"
     }
   ],
-  "game_source_sha256": "9b85887057f57a8ecbf1eb4056300abcbb31b08523bd2995371079ee6293a9a3",
+  "game_source_sha256": "d69b2354847504adb7641193e1636831afed082c4cd727acbb1a4334a2bca653",
   "commands": [
     "node tests/van-helsing-balance.cjs",
-    "node tests/van-helsing-simulation.cjs jeu-vampires-de-sarrebruck/index.html 50 results.json 900000"
+    "node tests/van-helsing-simulation.cjs jeu-vampires-de-sarrebruck/index.html 300 results.json 35000000"
   ]
 }

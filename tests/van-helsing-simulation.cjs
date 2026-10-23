@@ -1,12 +1,14 @@
 const fs=require('fs'),vm=require('vm');
 const path=require('path');const input=process.argv[2]||path.join(__dirname,'../jeu-vampires-de-sarrebruck/index.html');let raw=fs.readFileSync(input,'utf8');if(input.endsWith('.html'))raw=[...raw.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(x=>x[1]).sort((a,b)=>b.length-a.length)[0];const source=raw.replace(/init\(\);\s*wireUI\(\);\s*$/,'').replace('const sleep=ms=>new Promise(r=>setTimeout(r,ms));','let sleep=async()=>{};');
+const compiledGame=new vm.Script(source,{filename:'game-engine.js'});
 const repeats=Number(process.argv[3]||10),results=[];
 function seeded(seed){let x=seed>>>0;return ()=>{x+=0x6D2B79F5;let t=x;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
-async function run(ais,diff,seed){
+async function run(ais,diff,seed,override=null){
  const nodes=new Map(),node=id=>{if(!nodes.has(id))nodes.set(id,{value:id==='playerCount'?String(ais+1):id==='vampireChoice'?'random':id==='playerName0'?'Van Helsing':diff,classList:{add(){},remove(){},contains(){return false}},querySelector(){return null},querySelectorAll(){return []},textContent:'',disabled:false});return nodes.get(id)};
  const math=Object.create(Math);math.random=seeded(seed);
- const c={simLog:[],console,Math:math,setTimeout,clearTimeout,queueMicrotask,requestAnimationFrame:f=>f(),document:{getElementById:node,body:{classList:{add(){},remove(){},contains(){return false}}}},window:{addEventListener(){},scrollTo(){}},navigator:{}};vm.createContext(c);
+ const c={balanceOverride:override,simLog:[],console,Math:math,setTimeout,clearTimeout,queueMicrotask,requestAnimationFrame:f=>f(),document:{getElementById:node,body:{classList:{add(){},remove(){},contains(){return false}}}},window:{addEventListener(){},scrollTo(){}},navigator:{}};vm.createContext(c);
  const script=`
+ if(balanceOverride){const originalBalance=helsingBalance;helsingBalance=(n,d)=>({...originalBalance(n,d),...balanceOverride});}
  (async()=>{
  let turns=0,humanTurns=0,scheduled=false,loopPromise,error=null,totalBlood=0;const history=[];const used={};
  log=(msg)=>{simLog.push(msg);history.push(msg);if(history.length>12)history.shift()};
@@ -29,7 +31,7 @@ async function run(ais,diff,seed){
  opts.sort((x,y)=>y.score-x.score);choice=opts[0]?.id;
  }
  humanTurns++;used[choice||'resupply']=(used[choice||'resupply']||0)+1;
- if(choice==='elixir')await useHelsingElixir();else if(choice==='medkit')await useHelsingMedkit();else if(choice)await useSecretPower(choice);else{await finishAction(p,true);endHumanTurn()}
+ if(choice==='elixir')await useHelsingElixir();else if(choice==='medkit')await useHelsingMedkit();else if(choice)await useSecretPower(choice);else await helsingResupply();
  if(S.awaitingHuman&&!S.gameOver&&!actionBusy&&humanTurnResolve)endHumanTurn();
  }
  render=()=>{if(S?.awaitingHuman&&!scheduled&&!actionBusy){scheduled=true;queueMicrotask(async()=>{try{if(S?.awaitingHuman&&!actionBusy&&humanTurnResolve)await hunterTurn()}catch(e){error=e;S.gameOver=true;endHumanTurn()}finally{scheduled=false}})}};
@@ -38,7 +40,8 @@ async function run(ais,diff,seed){
  await startGame();totalBlood=S.pool+S.players.reduce((n,t)=>n+t.hp,0);await loopPromise;if(error)throw error;invariant();
  return {ais:${ais},difficulty:'${diff}',seed:${seed},winner:S.winner?.human?'hunter':S.winner?'vampire':'draw',turns,humanTurns,used,actualDifficulty:aiDifficulty(),history};
  })()`;
- let timer;try{return await Promise.race([vm.runInContext(source+script,c),new Promise((_,rej)=>{timer=setTimeout(()=>rej(Error('Timeout')),5000)})])}catch(e){return{ais,difficulty:diff,seed,error:e.stack,history:c.simLog.slice(-15),cardDiff:vm.runInContext("Object.entries(CARDS).map(([id,c])=>({id,expected:c.qty,actual:[...S.deck,...S.discard,...S.players.flatMap(p=>p.hand),...S.players.filter(p=>p.witches).map(()=> 'sorcieres')].filter(x=>x===id).length})).filter(x=>x.actual!==x.expected)",c)}}finally{clearTimeout(timer)}
+ let timer;try{compiledGame.runInContext(c);return await Promise.race([vm.runInContext(script,c),new Promise((_,rej)=>{timer=setTimeout(()=>rej(Error('Timeout')),5000)})])}catch(e){return{ais,difficulty:diff,seed,error:e.stack,history:c.simLog.slice(-15),cardDiff:vm.runInContext("Object.entries(CARDS).map(([id,c])=>({id,expected:c.qty,actual:[...S.deck,...S.discard,...S.players.flatMap(p=>p.hand),...S.players.filter(p=>p.witches).map(()=> 'sorcieres')].filter(x=>x===id).length})).filter(x=>x.actual!==x.expected)",c)}}finally{clearTimeout(timer)}
 }
-(async()=>{for(const ais of [1,2,3,4])for(const diff of ['easy','normal','hard'])for(let k=0;k<repeats;k++)results.push(await run(ais,diff,Number(process.argv[5]||0)+9973+k*131+ais*100003));
+module.exports={run};
+if(require.main===module)(async()=>{for(const ais of [1,2,3,4])for(const diff of ['easy','normal','hard'])for(let k=0;k<repeats;k++)results.push(await run(ais,diff,Number(process.argv[5]||0)+9973+k*131+ais*100003));
 const summary=[];for(const ais of [1,2,3,4])for(const difficulty of ['easy','normal','hard']){const a=results.filter(r=>r.ais===ais&&r.difficulty===difficulty);summary.push({ais,difficulty,games:a.length,wins:a.filter(r=>r.winner==='hunter').length,errors:a.filter(r=>r.error).length,avgTurns:Math.round(a.reduce((n,r)=>n+(r.turns||0),0)/a.length),actual:a.find(r=>!r.error)?.actualDifficulty})}fs.writeFileSync(process.argv[4]||'van-helsing-simulation-results.json',JSON.stringify({summary,results},null,2));console.log(JSON.stringify(summary,null,2));const errors=results.filter(r=>r.error);if(errors.length){console.log('ERRORS',JSON.stringify(errors.slice(0,8)));process.exitCode=1;}})();

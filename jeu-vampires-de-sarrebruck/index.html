@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261023-helsing-balanced">
+<meta name="game-build" content="20261023-helsing-half-chance">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1974,18 +1974,17 @@ function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function isVanHelsing(p){return !!(p?.human&&S?.secretMode==='van_helsing')}
 function helsingBalance(aiCount,difficulty='normal'){
  const n=Math.max(1,Math.min(4,Math.floor(aiCount)||1)),d=['easy','normal','hard'].includes(difficulty)?difficulty:'normal';
- const easy=d==='easy',hard=d==='hard';
+ const rates={"easy": [0.2, 0.35, 0.5, 0.05], "normal": [0.2, 0.65, 0.95, 0.85], "hard": [0.3, 0.5, 0.95, 0.8]};
  return {difficulty:d,aiCount:n,
- initial:{silverBolts:easy?n+1:Math.ceil(n/2)+(hard?0:1),blessedBullets:easy?Math.ceil(n/2)+1:hard?(n>=3?1:0):1,gepettoStakes:easy||(!hard&&n>=3)?1:0,medkitUses:easy?2:hard?0:1,elixirDoses:easy?2:0,rosaryCharges:easy?3:hard?0:1,mirrorCharges:easy?2:0},
- crossLimit:easy||n>=(hard?3:2)?1:0,whipLimit:easy||n>=(hard?3:2)?1:0,waterLimit:easy||n>=(hard?4:3)?1:0,dawnLimit:easy?3:hard?1:2,
- weights:easy?[40,25,10,25]:hard?[65,20,5,10]:[50,25,10,15],
- caps:{silverBolts:6+n,blessedBullets:3+Math.ceil(n/2),gepettoStakes:2,medkitUses:easy?3:2},
- extraPerOpponent:easy?.12:hard?.08:.10};
+ initial:{silverBolts:Math.ceil(n/2),blessedBullets:d==='hard'&&n===4?1:0,gepettoStakes:0,medkitUses:0,elixirDoses:0,rosaryCharges:d==='easy'||n===4?1:0,mirrorCharges:0},
+ crossLimit:n>=4?1:0,whipLimit:n>=3?1:0,waterLimit:n>=4?1:0,dawnLimit:1,
+ weights:[55,25,10,9,1],caps:{silverBolts:6+n,blessedBullets:3+Math.ceil(n/2),gepettoStakes:2,medkitUses:2,elixirDoses:1},
+ hunterFocus:.5+Math.max(0,n-2)*.05,supplyChance:rates[d][n-1],extraPerOpponent:0};
 }
 function currentHelsingBalance(){return helsingBalance((S?.playerCount||2)-1,S?.difficulty)}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?(p.dawnUses||0)<(p.dawnLimit||currentHelsingBalance().dawnLimit):id==='van_helsing_goggles'?true:false));
+ (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?(p.dawnUses||0)<(p.dawnLimit||currentHelsingBalance().dawnLimit):(id==='van_helsing_goggles'||id==='van_helsing_resupply')?true:false));
 }
 function helsingGearUnavailableReason(p,id){
  if(!isVanHelsing(p)||!p.alive||S.gameOver)return 'Cet équipement ne peut pas être utilisé dans une partie terminée.';
@@ -2063,8 +2062,8 @@ function secretPowersHTML(p){
  '<div class="helsing-ammo-summary" aria-label="Réserve de munitions" aria-live="polite">'+
  [['carreaux-argent','Carreaux à tête d’argent',p.silverBolts],['balles-consacrees','Balles d’argent consacrées',p.blessedBullets],['pieux-bois','Pieux en bois',p.gepettoStakes]].map(([asset,label,count])=>'<figure class="helsing-ammo-item"><img src="assets/van-helsing-'+asset+'-valide.webp?v=20261023" alt="'+label+'"><figcaption>'+label+'<b>'+count+'</b></figcaption></figure>').join('')+'</div>'+
  groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
- '<p class="tiny">Fournitures : '+currentHelsingBalance().weights.map((w,i)=>w+' % '+['carreau','balle','pieu','sacoche'][i]).join(' · ')+'. Stocks plafonnés ; les objets pleins sont exclus du tirage. Un objet par fin de tour, avec '+Math.round(Math.max(0,secretPowerTargets(S,p).length-1)*currentHelsingBalance().extraPerOpponent*100)+' % de chance d’un second objet face aux adversaires encore vivants.</p>'+
- '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_dawn')?'':'disabled')+'>Passer l’action et chercher du matériel</button>';
+ '<p class="tiny">Fin de tour : '+Math.round(currentHelsingBalance().supplyChance*100)+' % de chance de trouver un objet. Répartition des objets trouvés : '+currentHelsingBalance().weights.map((w,i)=>w+' % '+['carreau','balle','pieu','sacoche','élixir'][i]).join(' · ')+'. Noël donne toujours deux objets si la réserve n’est pas pleine.</p>'+
+ '<button type="button" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_resupply')?'':'disabled')+'>Passer l’action et chercher du matériel</button>';
 
 }
 async function grantHelsingBroom(drawer,id,drawReason){
@@ -2116,7 +2115,7 @@ async function chooseSecretPowerTarget(game,p,id){
    const dawn=id==='van_helsing_dawn';
    const confirmed=await openModal({
      title:cardName(id),
-     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>${dawn?Math.max(0,p.dawnLimit-p.dawnUses)+' utilisation(s) restante(s). ':'Une seule utilisation par partie. '}Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,
+     content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Attaque collective</div><p>${attackPreviewText(p,id)}</p><p>${targets.length} adversaire(s) vivant(s) seront touchés. Chacun peut se défendre.</p><p>${dawn?Math.max(0,p.dawnLimit-p.dawnUses)+' utilisation(s) restante(s). ':'Une seule utilisation par partie. '}Tu peux ensuite trouver une munition ou une sacoche médicale.</p></div></div>`,
      buttons:[{label:dawn?'Libérer la clarté':'Frapper tous les adversaires',value:true,className:'secret-power'},{label:'Retour à l’équipement',value:false}],closable:true
    });
    return S===game&&!game.gameOver&&confirmed===true&&secretPowerTargets(game,p).length>0?true:null;
@@ -2125,7 +2124,7 @@ async function chooseSecretPowerTarget(game,p,id){
  const portraits=targets.map(t=>`<button type="button" class="choice-card" data-secret-target="${t.id}" aria-label="Viser ${VAMPIRES[t.vampire].name}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('');
  const promise=openModal({
    title:cardName(id),
-   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':id==='van_helsing_bullet'?p.blessedBullets+' balle(s) restante(s).':id==='van_helsing_stake'?p.gepettoStakes+' pieu(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div class="card-detail-side"><div class="scene-kicker">✦ Pouvoir de Van Helsing</div><p>${attackPreviewText(p,id)}</p><p>Tu peux ensuite trouver une munition ou une sacoche médicale.</p><p>${id==='van_helsing_bolt'?p.silverBolts+' carreau(x) restant(s).':id==='van_helsing_bullet'?p.blessedBullets+' balle(s) restante(s).':id==='van_helsing_stake'?p.gepettoStakes+' pieu(x) restant(s).':'Une seule utilisation par partie.'}</p></div></div><div class="defense-choice-title">${single?'Ton unique adversaire :':'Choisis un adversaire de cette partie :'}</div><div class="choice-grid">${portraits}</div>`,
    buttons:[{label:'Retour à l’équipement',value:null}],closable:true
  });
  for(const button of el('modalContent').querySelectorAll('[data-secret-target]')){
@@ -2143,7 +2142,7 @@ async function chooseHolyWaterTargets(game,p,targets){
  if(limit===1)selected.add(targets[0].id);
  const promise=openModal({
    title:cardName('van_helsing_water'),
-   content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_water')}" alt="Vaporisateur d’eau bénite de Gluckenburne l’Ancien"><div class="card-detail-side"><p>${attackPreviewText(p,'van_helsing_water')}</p><p>Une utilisation par partie. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div><p>${limit===1?'Ton unique adversaire est sélectionné.':'Sélectionne deux adversaires différents.'}</p><div class="choice-grid">${targets.map(t=>`<button type="button" class="choice-card ${selected.has(t.id)?'selected':''}" data-water-target="${t.id}" aria-pressed="${selected.has(t.id)}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('')}</div><button type="button" id="confirmHolyWater" class="secret-power" ${selected.size===limit?'':'disabled'}>Vaporiser sur ${limit} adversaire(s)</button>`,
+   content:`<div class="card-preview secret-power-preview"><img src="${imgCard('van_helsing_water')}" alt="Vaporisateur d’eau bénite de Gluckenburne l’Ancien"><div class="card-detail-side"><p>${attackPreviewText(p,'van_helsing_water')}</p><p>Une utilisation par partie. Tu peux ensuite trouver une munition ou une sacoche médicale.</p></div></div><p>${limit===1?'Ton unique adversaire est sélectionné.':'Sélectionne deux adversaires différents.'}</p><div class="choice-grid">${targets.map(t=>`<button type="button" class="choice-card ${selected.has(t.id)?'selected':''}" data-water-target="${t.id}" aria-pressed="${selected.has(t.id)}"><img src="${imgVamp(t)}" alt=""><b>${VAMPIRES[t.vampire].name} (IA)</b><small>🩸 ${t.hp} · 🂠 ${t.hand.length}</small></button>`).join('')}</div><button type="button" id="confirmHolyWater" class="secret-power" ${selected.size===limit?'':'disabled'}>Vaporiser sur ${limit} adversaire(s)</button>`,
    buttons:[{label:'Retour à l’équipement',value:null}],closable:true
  });
  const confirm=el('confirmHolyWater');
@@ -2348,7 +2347,7 @@ async function drawCards(p,n,reason='normal'){
  const batch=reason==='marche_noel';
  if(batch)p.deferredHandLimits=(p.deferredHandLimits||0)+1;
  try{for(let i=0;i<n&&p.alive&&S===game&&!game.gameOver;i++)await drawOneToHand(p,reason);}
- finally{if(batch){p.deferredHandLimits--;if(S===game&&!game.gameOver)await enforceHandLimit(p);}}
+ finally{if(batch){p.deferredHandLimits--;if(S===game){if(game.gameOver){while(p.alive&&p.hand.length>maxHand(p))removeHandIndex(p,aiWorstCardIndex(p),true);}else await enforceHandLimit(p);}}}
 }
 async function enforceHandLimit(p){const game=S;if(!game||game.gameOver||!game.players.includes(p)||p.deferredHandLimits>0)return;while(S===game&&!game.gameOver&&p.alive&&p.hand.length>maxHand(p)){let idx;if(p.human)idx=await chooseCardFromHand(p,`Main maximale : ${maxHand(p)} cartes — choisis une carte à défausser.`);else idx=aiWorstCardIndex(p);if(S!==game||game.gameOver)return;const id=removeHandIndex(p,idx,true);log(`${pName(p)} défausse ${cardName(id)} pour respecter sa limite de main.`)}}
 async function discardRandomOrChosen(p,n,reason=''){
@@ -2556,19 +2555,18 @@ async function finishAction(p,drawAfter){
 }
 function recoverHelsingAmmo(p,roll=Math.random()){
  if(!isVanHelsing(p)||!p.alive||S.gameOver)return null;
- const config=currentHelsingBalance(),fields=['silverBolts','blessedBullets','gepettoStakes','medkitUses'];
+ const config=currentHelsingBalance(),fields=['silverBolts','blessedBullets','gepettoStakes','medkitUses','elixirDoses'];
  const options=fields.map((field,i)=>({field,weight:config.weights[i]})).filter(x=>(p[x.field]||0)<config.caps[x.field]);
  if(!options.length){log('Ta réserve de fournitures est pleine.');return null;}
  const total=options.reduce((n,x)=>n+x.weight,0);let r=Math.max(0,Math.min(.999999,roll))*total;
  let field=options[options.length-1].field;for(const option of options){r-=option.weight;if(r<0){field=option.field;break;}}
  p[field]=(p[field]||0)+1;
- const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle d’argent consacrée':field==='gepettoStakes'?'un pieu Gepetto':'une sacoche médicale';
+ const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle d’argent consacrée':field==='gepettoStakes'?'un pieu Gepetto':field==='medkitUses'?'une sacoche médicale':'une dose d’élixir';
  log('Tu récupères '+label+'.','good');render();return field;
 }
-function recoverHelsingTurnSupplies(p){
- recoverHelsingAmmo(p);
- const opponents=secretPowerTargets(S,p).length,probability=Math.max(0,opponents-1)*currentHelsingBalance().extraPerOpponent;
- if(p.alive&&!S.gameOver&&probability>0&&Math.random()<probability)recoverHelsingAmmo(p);
+function recoverHelsingTurnSupplies(p,roll=Math.random()){
+ if(roll<currentHelsingBalance().supplyChance)recoverHelsingAmmo(p);
+ else log('Cette fois, tu ne trouves aucune fourniture.','important');
 }
 async function useHelsingGoggles(){
  const game=S,p=game?.players.find(x=>x.human);
@@ -2591,7 +2589,7 @@ async function useHelsingElixir(){
  actionBusy=true;render();let used=false;
  try{
   const amount=Math.min(2,playerMaxHp(p)-p.hp,game.pool);
-  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère jusqu’à 2 gouttes, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.elixirDoses} / ${p.initialElixirDoses} doses restantes. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Boire une dose',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
+  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère jusqu’à 2 gouttes, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.elixirDoses} / ${p.initialElixirDoses} doses restantes. Tu peux ensuite trouver une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Boire une dose',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
   if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.elixirDoses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
   p.elixirDoses--;used=true;closeHand();
   await gainBlood(p,2,cardName(id));
@@ -2604,7 +2602,7 @@ async function useHelsingMedkit(){
  actionBusy=true;render();let used=false;
  try{
   const amount=Math.min(1,playerMaxHp(p)-p.hp,game.pool);
-  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère 1 goutte, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.medkitUses} soin restant. Tu récupères ensuite au hasard une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Utiliser la sacoche',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
+  const ok=await openModal({title:cardName(id),content:`<div class="card-preview"><img src="${imgCard(id)}" alt="${cardName(id)}"><div><p>Récupère 1 goutte, sans dépasser 10.</p><p>Tu peux récupérer <strong>${amount} goutte(s)</strong> maintenant.</p><p>${p.medkitUses} soin restant. Tu peux ensuite trouver une munition ou une sacoche médicale.</p></div></div>`,buttons:[{label:'Utiliser la sacoche',value:true,className:'good'},{label:'Retour',value:false}],closable:true});
   if(!ok||S!==game||game.gameOver||!p.alive||!game.awaitingHuman||game.players[game.turnIndex]!==p||!(p.medkitUses>0)||p.hp>=playerMaxHp(p)||game.pool<=0)return;
   p.medkitUses--;used=true;closeHand();
   await gainBlood(p,1,cardName(id));
@@ -2612,12 +2610,12 @@ async function useHelsingMedkit(){
  }finally{if(S===game){actionBusy=false;render();if(used)endHumanTurn();}}
 }
 async function helsingResupply(){
- const p=S?.players.find(x=>x.human);
- if(!secretPowerAvailable(p,'van_helsing_dawn'))return;
- const ok=await openModal({title:'Chercher des munitions',text:'Passer ton action pour récupérer une munition au hasard en fin de tour ?',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
- if(!ok||!secretPowerAvailable(p,'van_helsing_dawn'))return;
+ const game=S,p=game?.players.find(x=>x.human);
+ if(!secretPowerAvailable(p,'van_helsing_resupply'))return;
+ const ok=await openModal({title:'Chercher du matériel',text:'Chercher des munitions ou des soins ? La recherche peut être infructueuse.',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
+ if(!ok||S!==game||!secretPowerAvailable(p,'van_helsing_resupply'))return;
  actionBusy=true;
- try{closeHand();await finishAction(p,true);}finally{actionBusy=false;render();endHumanTurn();}
+ try{closeHand();await finishAction(p,true);}finally{if(S===game){actionBusy=false;render();endHumanTurn();}}
 }
 function endHumanTurn(){if(humanTurnResolve)humanTurnResolve()}
 
@@ -3264,6 +3262,7 @@ function aiTarget(attacker,cands,attackId=null){
  const sensible=pool.filter(t=>!aiKnownBadTarget(t,attackId));
  if(sensible.length)pool=sensible;
  let chosen;
+ if(S?.secretMode==='van_helsing'&&attackId){const hunter=pool.find(isVanHelsing);if(hunter&&pool.length>1&&randomUnit()<currentHelsingBalance().hunterFocus){rememberAiTarget(hunter);return hunter;}}
  if(diff==='easy')chosen=pool[Math.floor(randomUnit()*pool.length)];
  else if(diff==='hard'){
    const scores=pool.map(t=>({t,score:aiPublicTargetScore(attacker,t,attackId)}));
@@ -3583,4 +3582,5 @@ wireUI();
 
 </body>
 </html>
+
 
