@@ -1407,6 +1407,9 @@ body.game-active #gameScreen:not(.hidden){position:fixed!important;inset:0!impor
 .helsing-ammo-item img{display:block;width:100%;aspect-ratio:2/3;object-fit:contain;background:#090e14}
 .helsing-ammo-item figcaption{padding:8px 4px;text-align:center;font-size:clamp(.72rem,2.8vw,1rem);line-height:1.3;overflow-wrap:anywhere}
 .helsing-ammo-item b{display:block;font-size:1.5rem;margin-top:5px;color:#fff0d3}
+</style><style id="helsing-compact-gear">
+body.van-helsing-mode .helsing-gear{gap:6px!important;text-align:center!important;align-items:center}
+body.van-helsing-mode .helsing-gear strong{font-size:clamp(.85rem,2.7vw,1.05rem)!important;line-height:1.25!important;text-align:center}
 </style></head>
 <body>
 <div id="app">
@@ -1649,6 +1652,7 @@ const CARDS={
  van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
  van_helsing_bullet:{name:'Pistolet à balles consacrées',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_stake:{name:'Gepetto — Pieu mécanique italien à percussion pneumatique',img:'assets/van-helsing-pieu-gepetto.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_water:{name:'Eau bénite de Gluckenburne l’Ancien',img:'assets/van-helsing-eau-benite-gluckenburne.webp',qty:0,kind:'attack',secretPower:true},
@@ -1857,6 +1861,7 @@ function render(){
      el('elixirBtn')?.addEventListener('click',useHelsingElixir);
      el('blessedBulletBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bullet'));
      el('helsingResupplyBtn')?.addEventListener('click',helsingResupply);
+     el('gogglesBtn')?.addEventListener('click',useHelsingGoggles);
      el('silverBoltBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_bolt'));
      el('crucifixBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_cross'));
      el('consecratedWhipBtn')?.addEventListener('click',()=>useSecretPower('van_helsing_whip'));
@@ -1964,7 +1969,20 @@ function isDraculaPlayer(p){return !!p?.human&&S?.secretMode==='dracula'}
 function isVanHelsing(p){return !!(p?.human&&S?.secretMode==='van_helsing')}
 function secretPowerAvailable(p,id){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&p?.human&&p.alive&&S.awaitingHuman&&S.players[S.turnIndex]===p&&!actionBusy&&
- (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:id==='van_helsing_dawn'?true:false));
+ (id==='van_helsing_medkit'?(p.medkitUses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_elixir'?(p.elixirDoses||0)>0&&p.hp<playerMaxHp(p)&&S.pool>0:id==='van_helsing_bullet'?p.blessedBullets>0:id==='van_helsing_bolt'?p.silverBolts>0:id==='van_helsing_cross'?!p.crucifixUsed:id==='van_helsing_whip'?!p.whipUsed:id==='van_helsing_water'?!p.holyWaterUsed:id==='van_helsing_stake'?p.gepettoStakes>0:(id==='van_helsing_dawn'||id==='van_helsing_goggles')?true:false));
+}
+async function showHelsingGearDetail(button){
+ const id=button.dataset.gear,p=S?.players.find(x=>x.human);
+ if(!isVanHelsing(p))return;
+ const info=id==='van_helsing_rosary'||id==='van_helsing_mirror';
+ const available=secretPowerAvailable(p,id);
+ const extra=id==='van_helsing_goggles'?'Regarde toutes les cartes actuellement en main d’un adversaire. Réutilisable. Remplace ton action : aucune attaque ce tour.':id==='van_helsing_bullet'?'Les balles sont en argent et consacrées. En défense : annule un loup-garou seul ; contre la meute, réduit la perte à 1 goutte. Chaque tir consomme une balle.':'';
+ const ok=await openModal({title:button.querySelector('strong').textContent,content:'<div class="card-preview"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><div><p>'+button.dataset.stock+'</p><p>'+button.dataset.effect+'</p><p>'+extra+'</p>'+(info?'<p>Cette défense est proposée pendant une attaque adaptée. Elle ne consomme pas ton action.</p>':!available?'<p>Indisponible actuellement : vérifie ton stock, tes gouttes et ton tour.</p>':'<p>Utiliser cet objet remplace ton action.</p>')+'</div></div>',buttons:[...(!info&&available?[{label:'Utiliser',value:true,className:'good'}]:[]),{label:'Retour à l’équipement',value:false}],closable:true});
+ if(!ok)return;
+ if(id==='van_helsing_goggles')return useHelsingGoggles();
+ if(id==='van_helsing_medkit')return useHelsingMedkit();
+ if(id==='van_helsing_elixir')return useHelsingElixir();
+ return useSecretPower(id);
 }
 function secretPowersHTML(p){
  if(!p?.human||!S?.secretMode)return '';
@@ -1974,6 +1992,7 @@ function secretPowersHTML(p){
 }
 
  const gear=[
+ ['gogglesBtn','van_helsing_goggles','Lunettes steampunk','Réutilisables','Voir la main d’un adversaire · remplace ton action'],
  ['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda',(p.mirrorCharges||0)+' / 2 utilisations','Annule une attaque de vampire défendable · −1 goutte à l’attaquant · Sans effet sur les loups-garous'],
  ['medkitBtn','van_helsing_medkit','Sacoche de soins',(p.medkitUses||0)+' soin restant','Rend 1 goutte · maximum 10'],
  ['elixirBtn','van_helsing_elixir','Élixir de survie de Herr Doktor Gurckenstein',(p.elixirDoses||0)+' / 2 doses','Rend jusqu’à 2 gouttes · maximum 10'],
@@ -1989,9 +2008,10 @@ function secretPowersHTML(p){
 
  const tile=([button,id,title,stock,effect])=>{
  const art='<img class="helsing-gear-image" src="'+imgCard(id)+'" alt="'+title+'" loading="lazy">';
- return '<button type="button" id="'+button+'" class="secret-power helsing-gear" '+((id==='van_helsing_rosary'||id==='van_helsing_mirror')||secretPowerAvailable(p,id)?'':'disabled')+'>'+art+'<strong>'+title+'</strong><span class="helsing-stock">'+stock+'</span><small>'+effect+'</small></button>';
+ return '<button type="button" id="'+button+'" class="secret-power helsing-gear" data-gear="'+id+'" data-stock="'+stock+'" data-effect="'+effect+'" aria-label="'+title+'">'+art+'<strong>'+title+'</strong></button>';
  };
  const groups=[
+ ['Observation','observation',['van_helsing_goggles']],
  ['Attaque','attack',['van_helsing_bolt','van_helsing_bullet','van_helsing_stake','van_helsing_cross','van_helsing_whip','van_helsing_water','van_helsing_dawn']],
  ['Défense et contre-attaque','defense',['van_helsing_rosary','van_helsing_mirror']],
  ['Régénération','regen',['van_helsing_elixir','van_helsing_medkit']]
@@ -2472,6 +2492,21 @@ function recoverHelsingAmmo(p,roll=Math.random()){
  p[field]=(p[field]||0)+1;
  const label=field==='silverBolts'?'un carreau d’argent':field==='blessedBullets'?'une balle consacrée':field==='gepettoStakes'?'un pieu Gepetto':'une sacoche médicale (+1 goutte à utiliser)';
  log('Fin de ton tour : tu récupères '+label+'.','good');render();
+}
+async function useHelsingGoggles(){
+ const game=S,p=game?.players.find(x=>x.human);
+ if(!secretPowerAvailable(p,'van_helsing_goggles'))return;
+ actionBusy=true;render();let used=false;
+ try{
+   const targets=secretPowerTargets(game,p);
+   const target=await choosePlayer('Observer la main de quel adversaire ?',targets,true);
+   if(S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
+   const ok=await openModal({title:'Lunettes steampunk',text:'Observer '+pName(target)+' utilise ton action du tour. Tu ne pourras pas attaquer ce tour.',buttons:[{label:'Observer sa main',value:true},{label:'Retour',value:false}],closable:true});
+   if(!ok||S!==game||game.gameOver||!p.alive||!secretPowerTargets(game,p).includes(target))return;
+   used=true;closeHand();
+   await openModal({title:'Main de '+pName(target),content:target.hand.length?'<div class="choice-grid">'+target.hand.map(id=>'<div class="choice-card"><img src="'+imgCard(id)+'" alt="'+cardName(id)+'"><b>'+cardName(id)+'</b></div>').join('')+'</div>':'<p>Cet adversaire ne possède aucune carte.</p>',buttons:[{label:'Terminer mon action',value:true}]});
+   if(S===game&&!game.gameOver)await finishAction(p,true);
+ }finally{if(S===game){actionBusy=false;render();if(used)endHumanTurn();}}
 }
 async function useHelsingElixir(){
  const game=S,p=game?.players.find(x=>x.human),id='van_helsing_elixir';
@@ -3351,6 +3386,7 @@ function closeHand(){el('humanPanel').classList.add('hidden')}
 function cycleFeaturedOpponent(){if(!S)return;const enemies=S.players.filter(p=>!p.human&&p.alive);if(enemies.length<2)return;let i=enemies.findIndex(p=>p.id===S.featuredOpponentId);S.featuredOpponentId=enemies[(i+1+enemies.length)%enemies.length].id;render()}
 
 function wireUI(){
+ document.addEventListener('click',e=>{const gear=e.target.closest('[data-gear]');if(!gear||!isVanHelsing(S?.players.find(x=>x.human)))return;e.preventDefault();e.stopImmediatePropagation();showHelsingGearDetail(gear);},true);
  renderPlayerNameFields();
  const introImg=document.querySelector('.intro-art-final img');
  if(introImg){
