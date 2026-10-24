@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261024-helsing-equipment">
+<meta name="game-build" content="20261024-helsing-house-v3">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -1904,7 +1904,7 @@ function render(){
    const hb=el('humanInfoBar');if(hb)hb.innerHTML=playerInfoBarHTML(h,true);
    const playable=S.awaitingHuman&&!actionBusy&&h.alive;
    const search=el('helsingBoardSearchBtn');
-   if(search){search.classList.toggle('hidden',!isVanHelsing(h)||!h.alive||S.gameOver);search.disabled=!secretPowerAvailable(h,'van_helsing_resupply');}
+   if(search){search.classList.add('hidden');search.disabled=true;}
    const handCardHTML=(cid,i)=>{const kind=CARDS[cid]?.kind;const altUse=(h.vampire==='rudiger'&&(cid==='lycanthrope'||cid==='meute'))||(h.vampire==='ermanno'&&cid==='poche_perimee');const blocked=playable&&(kind==='attack'||kind==='hybrid')&&!canPlayAttack(h,cid)&&!altUse;const badge=blocked?`<div class="card-unavailable-badge">${attackUnavailableLabel(h,cid)}</div>`:'';return `<div class="hand-card ${playable?'playable':''} ${blocked?'attack-unavailable':''}" data-index="${i}"><div class="hand-card-image-wrap"><img src="${imgCard(cid)}" alt="${cardName(cid)}">${badge}</div><div class="cardtag">${cardName(cid)}</div></div>`;};
    const attackCards=[],regenCards=[],defenseCards=[],otherCards=[];
    h.hand.forEach((cid,i)=>{const kind=CARDS[cid]?.kind;if(kind==='attack'||kind==='hybrid')attackCards.push([cid,i]);else if(kind==='regen')regenCards.push([cid,i]);else if(kind==='defense')defenseCards.push([cid,i]);else otherCards.push([cid,i]);});
@@ -2632,7 +2632,7 @@ function recoverHelsingAmmo(p,roll=Math.random()){
  if(!isVanHelsing(p)||!p.alive||S.gameOver)return null;
  const config=currentHelsingBalance(),fields=['silverBolts','blessedBullets','gepettoStakes','medkitUses','elixirDoses'];
  const options=fields.map((field,i)=>({field,weight:config.weights[i]})).filter(x=>(p[x.field]||0)<config.caps[x.field]);
- if(!options.length){log('Ta réserve de fournitures est pleine.');return null;}
+ if(!options.length){log('Ta réserve de munitions et d’objets est pleine.');return null;}
  const total=options.reduce((n,x)=>n+x.weight,0);let r=Math.max(0,Math.min(.999999,roll))*total;
  let field=options[options.length-1].field;for(const option of options){r-=option.weight;if(r<0){field=option.field;break;}}
  p[field]=(p[field]||0)+1;
@@ -2655,8 +2655,8 @@ async function recoverHelsingTurnSupplies(p,roll=Math.random(),{guaranteed=false
  elixirDoses:{label:'une dose d’élixir de survie',image:imgCard('van_helsing_elixir')}
  };
  const found=finds[field];
- const text=found?'Au coin d’une rue, tu as trouvé '+found.label+'. Cet objet rejoint tes réserves.':'Tu fouilles les environs, mais tu ne trouves aucune fourniture à emporter cette fois.';
- if(!found)log('Cette fois, tu ne trouves aucune fourniture.','important');
+ const text=found?'Au coin d’une rue, tu as trouvé '+found.label+'. Cet objet rejoint tes réserves.':'Tu fouilles les environs, mais tu ne trouves rien à emporter cette fois.';
+ if(!found)log('Cette fois, tu ne trouves rien à emporter.','important');
  if(S!==game||game.gameOver)return;
  await openModal({title:found?'Une trouvaille dans les parages !':'Recherche dans les environs',text,
  content:found?'<div class="card-preview"><img src="'+found.image+'" alt="'+found.label+'"></div>':'',
