@@ -1,0 +1,33 @@
+name: Fix Vampires profile banner
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-vampires-banner.yml'
+permissions:
+  contents: write
+jobs:
+  fix-banner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Switch profile banner to SVG
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = '/assets/vampires-sarrebruck-banner-final.webp?v=20261023-mobilefix2'
+          new = '/assets/vampires-sarrebruck-banner.svg?v=20261024-sharp'
+          if old not in s:
+              raise SystemExit('Expected banner reference not found')
+          p.write_text(s.replace(old, new), encoding='utf-8')
+          PY
+          rm -f .github/workflows/fix-vampires-banner.yml
+      - name: Commit update
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/fix-vampires-banner.yml
+          git commit -m 'Use sharp SVG banner on profile page'
+          git push
