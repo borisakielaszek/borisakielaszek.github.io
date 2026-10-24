@@ -53,39 +53,3 @@
 #gameScreen button[aria-label*="fournitures" i]{
  display:none!important;
 }
-
-/* Intro: cover the title/text baked into the artwork, then keep the live HTML above it. */
-#introScreen .intro-art-final{
- position:relative!important;
- isolation:isolate!important;
-}
-#introScreen .intro-art-final > img{
- position:relative!important;
- z-index:0!important;
-}
-#introScreen .intro-art-final::after{
- content:"";
- position:absolute!important;
- z-index:5!important;
- pointer-events:none!important;
- left:20%!important;
- right:20%!important;
- top:4%!important;
- height:47%!important;
- border-radius:24px!important;
- background:radial-gradient(ellipse at center,rgba(5,4,5,.98) 0%,rgba(5,4,5,.94) 55%,rgba(5,4,5,.72) 78%,rgba(5,4,5,0) 100%)!important;
-}
-#introScreen .intro-art-final > :not(img){
- position:relative!important;
- z-index:10!important;
-}
-@media(max-width:767px){
- #introScreen .intro-art-final::after{
-  left:4%!important;
-  right:4%!important;
-  top:2%!important;
-  height:50%!important;
-  border-radius:16px!important;
-  background:radial-gradient(ellipse at center,rgba(5,4,5,.98) 0%,rgba(5,4,5,.95) 60%,rgba(5,4,5,.78) 84%,rgba(5,4,5,0) 100%)!important;
- }
-}
