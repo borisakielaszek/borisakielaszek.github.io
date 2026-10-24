@@ -1451,6 +1451,19 @@ body.game-active.music-controls-ready #musicToggle{display:none!important}
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6154988429348431"
      crossorigin="anonymous"></script>
+
+<style id="v575-helsing-search-loadout">
+#humanPanel .helsing-search-action,
+.card-drawer .helsing-search-action,
+.helsing-search-action{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:min(100%,520px)!important;
+  margin:12px auto 18px!important;
+}
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -2038,8 +2051,8 @@ function helsingGearUnavailableReason(p,id){
  if(id==='van_helsing_dawn'&&(p.dawnUses||0)>=p.dawnLimit)return 'La lanterne a épuisé ses utilisations pour cette partie.';
  const spent={van_helsing_cross:'crucifixUsed',van_helsing_water:'holyWaterUsed'};
  if(spent[id]&&p[spent[id]])return 'Déjà utilisé : cet équipement ne sert qu’une fois par partie.';
- if(id==='van_helsing_rosary')return p.rosaryCharges>0?'':p.initialRosaryCharges===0?'Chapelet non fourni avec cet équipement de départ.':'Le chapelet n’a plus d’utilisation disponible.';
- if(id==='van_helsing_mirror')return p.mirrorCharges>0?'':p.initialMirrorCharges===0?'Miroir non fourni avec cet équipement de départ.':'Le miroir n’a plus d’utilisation disponible.';
+ if(id==='van_helsing_rosary')return '';
+ if(id==='van_helsing_mirror')return '';
  if(id==='van_helsing_medkit'&&!(p.medkitUses>0))return 'Aucune sacoche disponible. Récupère une sacoche médicale pour pouvoir te soigner.';
  if(id==='van_helsing_elixir'&&!(p.elixirDoses>0))return 'Aucune dose d’élixir disponible dans cet équipement.';
  if(id==='van_helsing_medkit'||id==='van_helsing_elixir'){
@@ -2104,7 +2117,7 @@ function secretPowersHTML(p){
  return '<div class="secret-mode-info"><strong>Équipement de Van Helsing</strong><br>10 gouttes maximum</div>'+
  '<div class="helsing-ammo-summary" aria-label="Réserve de munitions" aria-live="polite">'+
  [['carreaux-argent','Carreaux à tête d’argent',p.silverBolts],['balles-consacrees','Balles d’argent consacrées',p.blessedBullets],['pieux-bois','Pieux en bois',p.gepettoStakes]].map(([asset,label,count])=>'<figure class="helsing-ammo-item"><img src="assets/van-helsing-'+asset+'-valide.webp?v=20261023" alt="'+label+'"><figcaption>'+label+'<b>'+count+'</b></figcaption></figure>').join('')+'</div>'+
- '<button type="button" class="helsing-search-action" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_resupply')?'':'disabled')+'>Rechercher des munitions — termine le tour</button>'+
+ '<button type="button" class="helsing-search-action" id="helsingResupplyBtn" '+(secretPowerAvailable(p,'van_helsing_resupply')?'':'disabled')+'>Rechercher des munitions</button>'+
  groups.map(([title,kind,ids])=>'<section class="helsing-category helsing-category-'+kind+'"><h2>'+title+'</h2><div class="secret-power-grid">'+ids.map(id=>gear.find(g=>g[1]===id)).filter(Boolean).map(tile).join('')+'</div></section>').join('')+
 
  '';
@@ -2129,12 +2142,12 @@ function canUseSilverPistol(target,attacker,id,uncounterable=false){
 function canUseRosary(target,attacker,id,uncounterable=false){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&target?.human&&target.alive&&
  S.players.includes(target)&&S.players.includes(attacker)&&attacker!==target&&!attacker.human&&
- (target.rosaryCharges||0)>0&&!uncounterable&&!isWolf(id)&&!CARDS[id]?.unblockable);
+ !uncounterable&&!isWolf(id)&&!CARDS[id]?.unblockable);
 }
 function canUseMirror(target,attacker,id,uncounterable=false){
  return !!(S&&!S.gameOver&&S.secretMode==='van_helsing'&&target?.human&&target.alive&&
  S.players.includes(target)&&S.players.includes(attacker)&&attacker!==target&&!attacker.human&&
- (target.mirrorCharges||0)>0&&!uncounterable&&!isWolf(id)&&!CARDS[id]?.unblockable);
+ !uncounterable&&!isWolf(id)&&!CARDS[id]?.unblockable);
 }
 function showMirrorInfo(){
  const p=S?.players.find(x=>x.human);
@@ -2287,7 +2300,7 @@ async function startGame(){
  const secretMode=secretModeForName(humanName);
  const human=players[0];
  if(secretMode==='van_helsing'){Object.defineProperty(VAMPIRES,'van_helsing',{value:{name:'Van Helsing',maxHp:10,family:'human',img:'assets/van-helsing-portrait-steampunk.webp'},configurable:true});
- human.vampire='van_helsing';const balance=helsingBalance(count-1,el('difficultyChoice').value);Object.assign(human,balance.initial);human.initialRosaryCharges=human.rosaryCharges;human.initialMirrorCharges=human.mirrorCharges;human.initialElixirDoses=human.elixirDoses;human.dawnLimit=balance.dawnLimit;human.crossLimit=balance.crossLimit;human.whipLimit=balance.whipLimit;human.waterLimit=balance.waterLimit;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.initialSilverBolts=human.silverBolts;human.crucifixUsed=!balance.crossLimit;human.whipUsed=!balance.whipLimit;human.holyWaterUsed=!balance.waterLimit;human.gepettoUsed=false;human.dawnUses=0;}
+ human.vampire='van_helsing';const balance=helsingBalance(count-1,el('difficultyChoice').value);Object.assign(human,balance.initial);human.silverBolts=Math.max(3,human.silverBolts||0);human.blessedBullets=Math.max(2,human.blessedBullets||0);human.initialRosaryCharges=human.rosaryCharges;human.initialMirrorCharges=human.mirrorCharges;human.initialElixirDoses=human.elixirDoses;human.dawnLimit=balance.dawnLimit;human.crossLimit=balance.crossLimit;human.whipLimit=balance.whipLimit;human.waterLimit=balance.waterLimit;human.maxHp=10;human.profileName='Van Helsing';human.portrait='assets/van-helsing-portrait-steampunk.webp';human.initialSilverBolts=human.silverBolts;human.crucifixUsed=!balance.crossLimit;human.whipUsed=!balance.whipLimit;human.holyWaterUsed=!balance.waterLimit;human.gepettoUsed=false;human.dawnUses=0;}
  const humanStartIndex=Math.max(0,players.findIndex(p=>p.human));
  S={players,playerCount:count,opponentIds:players.filter(p=>!p.human).map(p=>p.id),deck:[],discard:[],pool:26-players.reduce((s,p)=>s+p.hp,0),turnIndex:humanStartIndex,log:[],awaitingHuman:false,gameOver:false,winner:null,mortDepth:0,lastAction:'',featuredOpponentId:null,aiTargetHistory:[],difficulty:el('difficultyChoice').value,secretMode};
  if(secretMode==='van_helsing')human.hp=10;
@@ -2541,8 +2554,8 @@ function defenseCopy(id,incoming){
  if(id==='van_helsing_broom')return 'Évite une attaque de vampire. Usage unique. Balai offert par une aimable sorcière lors de la Hexennacht.';
  if(id==='van_helsing_armed_broom')return 'Évite une attaque de vampire et lui inflige 3 gouttes de dégâts. Usage unique. Balai offert par les Sorcières d’Oeting.';
  if(id==='van_helsing_silver_defense')return 'Consomme 1 balle d’argent consacrée, sans utiliser ton action. Annule le loup-garou solitaire ; contre la meute, tu perds 1 goutte au lieu de 2.';
- if(id==='van_helsing_mirror')return 'Annule cette attaque défendable et retire 1 goutte à l’attaquant, horrifié de ne pas voir son reflet. Utilisations limitées selon la difficulté.';
- if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Consomme 1 utilisation disponible, sans défausser de carte ni utiliser ton action du tour.';
+ if(id==='van_helsing_mirror')return 'Annule cette attaque défendable et retire 1 goutte à l’attaquant, horrifié de ne pas voir son reflet. Utilisations illimitées.';
+ if(id==='van_helsing_rosary')return 'Présente le chapelet au vampire : son attaque est entièrement annulée. Utilisations illimitées, sans défausser de carte ni utiliser ton action du tour.';
  if(id==='fuite_chauve') return `Transforme-toi en chauve-souris et <strong>esquive complètement l’attaque</strong>.`;
  if(id==='fuite_warndt') return `Disparais dans la forêt du Warndt et <strong>échappe à l’attaque</strong>.`;
  if(id==='tablettes') return `Neutralise l’effet avec tes comprimés d’hémoglobine.`;
@@ -2693,7 +2706,7 @@ async function useHelsingMedkit(){
 async function helsingResupply(){
  const game=S,p=game?.players.find(x=>x.human);
  if(!secretPowerAvailable(p,'van_helsing_resupply'))return;
- const ok=await openModal({title:'Rechercher des munitions',text:'Tu renonces à ton action pour chercher un objet garanti. Sans aucune munition, tu trouves un carreau d’argent. Cette recherche termine ton tour.',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
+ const ok=await openModal({title:'Rechercher des munitions',text:'Tu consacres ton action à fouiller les environs. Cette recherche termine ton tour.',buttons:[{label:'Chercher',value:true},{label:'Retour',value:false}],closable:true});
  if(!ok||S!==game||!secretPowerAvailable(p,'van_helsing_resupply'))return;
  actionBusy=true;
  try{closeHand();await recoverHelsingTurnSupplies(p,0,{guaranteed:true});if(S===game&&!game.gameOver)await finishAction(p,false);}finally{if(S===game){actionBusy=false;render();endHumanTurn();}}
