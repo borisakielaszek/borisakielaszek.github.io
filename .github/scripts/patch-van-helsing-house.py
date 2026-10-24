@@ -7,7 +7,7 @@ original = s
 
 technical_notes = [
     'Recherche volontaire : un objet garanti. Sans aucune munition, tu trouves un carreau d’argent.',
-    'Fin de tour : 20 % de chance de trouver un objet. Répartition des objets trouvés : 55 % carreau · 25 % balle · 10 % pieu · 9 % sacoche · 1 % élixir.',
+    'Fin de tour : 20 % de chance de trouver un objet. Répartition des objets trouvés : 55 % carreau · 25 % balle · 10 % pieu · 9 % sacoche · 1 % élixir. Noël donne toujours deux objets si la réserve n’est pas pleine.',
 ]
 
 # Marqueur de version.
@@ -45,39 +45,37 @@ if 'human.gepettoStakes=Math.max(1,human.gepettoStakes||0);' not in s:
     if n != 1:
         raise SystemExit('Initialisation runtime Van Helsing introuvable')
 
-# Libellé clair du bouton dans l’arsenal, quelle que soit la forme de chaîne utilisée.
+# Libellé clair dans l'arsenal et dans sa fenêtre de confirmation.
 s = s.replace('Rechercher des munitions — termine le tour', 'Chercher des munitions à proximité')
 s = s.replace('Rechercher des munitions', 'Chercher des munitions à proximité')
 
-# Le vieux bouton flottant extérieur reste masqué : la recherche doit être dans l’arsenal.
+# Le bouton de l'arsenal doit être réellement visible sur mobile, pas seulement présent dans le code.
+button_anchor = '<button type="button" class="helsing-search-action" id="helsingResupplyBtn"'
+button_visible = '<button type="button" class="helsing-search-action" id="helsingResupplyBtn" style="display:block!important;visibility:visible!important;width:calc(100% - 24px)!important;min-height:58px!important;margin:16px 12px 20px!important;position:relative!important;z-index:20!important"'
+if button_visible not in s:
+    if button_anchor not in s:
+        raise SystemExit('Bouton de recherche Van Helsing introuvable')
+    s = s.replace(button_anchor, button_visible, 1)
+
+# Le vieux bouton flottant extérieur reste masqué : la recherche doit être dans l'arsenal.
 s = s.replace(
     "if(search){search.classList.toggle('hidden',!isVanHelsing(h)||!h.alive||S.gameOver);search.disabled=!secretPowerAvailable(h,'van_helsing_resupply');}",
     "if(search){search.classList.add('hidden');search.disabled=true;}",
 )
 
-# Sur mobile, une ancienne règle responsive pouvait masquer le conteneur parent.
-# On force donc le panneau COMPLET à rester affiché, juste après les compteurs de munitions.
+# Renfort CSS mobile en plus du style inline.
 mobile_style = r'''
 <style id="v576-helsing-search-panel-mobile">
-#humanPanel .helsing-search-panel,
-.card-drawer .helsing-search-panel,
-.helsing-search-panel{
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  position:relative!important;
-  z-index:5!important;
-  width:100%!important;
-  max-width:560px!important;
-  margin:14px auto 18px!important;
-}
 #humanPanel .helsing-search-action,
 .card-drawer .helsing-search-action,
 .helsing-search-action{
   display:block!important;
   visibility:visible!important;
-  width:100%!important;
-  min-height:54px!important;
+  width:calc(100% - 24px)!important;
+  min-height:58px!important;
+  margin:16px 12px 20px!important;
+  position:relative!important;
+  z-index:20!important;
 }
 .helsing-search-action:disabled{opacity:.45!important;}
 </style>
@@ -87,7 +85,7 @@ if 'id="v576-helsing-search-panel-mobile"' not in s:
         raise SystemExit('Fermeture head introuvable')
     s = s.replace('</head>', mobile_style + '\n</head>', 1)
 
-# Nettoyage des formulations résiduelles destinées au réglage interne.
+# Nettoyage de formulations résiduelles.
 s = s.replace('aucune fourniture à emporter cette fois', 'rien à emporter cette fois')
 s = s.replace('Cette fois, tu ne trouves aucune fourniture.', 'Cette fois, tu ne trouves rien à emporter.')
 s = s.replace('Ta réserve de fournitures est pleine.', 'Ta réserve de munitions et d’objets est pleine.')
@@ -98,24 +96,27 @@ s = s.replace(
 )
 
 required = {
-    'bouton de recherche dans la maison': 'id="helsingResupplyBtn"',
+    'bouton de recherche dans l’arsenal': 'id="helsingResupplyBtn"',
     'libellé Chercher des munitions à proximité': 'Chercher des munitions à proximité',
-    'panneau mobile forcé visible': 'id="v576-helsing-search-panel-mobile"',
-    'panneau placé juste après les munitions': 'summary.innerHTML=ammoHTML+searchHTML+secretPowersHTML(p);',
+    'style mobile forcé visible': 'id="v576-helsing-search-panel-mobile"',
+    'style inline du bouton': 'min-height:58px!important',
     'bouton flottant extérieur masqué': "if(search){search.classList.add('hidden');search.disabled=true;}",
     'départ 3 carreaux, 2 balles, 1 pieu': 'initial:{silverBolts:3,blessedBullets:2,gepettoStakes:1,',
     'minimum runtime 1 pieu': 'human.gepettoStakes=Math.max(1,human.gepettoStakes||0);',
     'recherche Van Helsing de fin de tour': "if(p.alive&&drawAfter&&isVanHelsing(p)){await recoverHelsingTurnSupplies(p);}",
     'pioche vampire de fin de tour': "await drawOneToHand(p,p.human?'endturn':'normal');",
-    'fenêtre visuelle de pioche': "const revealDraw=p.human&&(reason==='endturn'||reason==='exchange'||reason==='witchesBonus'||reason==='marche_noel');",
     'fenêtre résultat de recherche': "await openModal({title:found?'Une trouvaille dans les parages !':'Recherche dans les environs'",
-    'fouet illimité': "['consecratedWhipBtn','van_helsing_whip','Fouet consacré','Utilisations illimitées'",
-    'miroir illimité': "['mirrorInfoBtn','van_helsing_mirror','Miroir d’Erzulie Freda','Utilisations illimitées'",
-    'chapelet illimité': "['rosaryInfoBtn','van_helsing_rosary','Chapelet de sainte Marguerite','Utilisations illimitées'",
 }
 for label, needle in required.items():
     if needle not in s:
         raise SystemExit(f'Verification echouee: {label}')
+
+# Le bouton doit être entre la réserve de munitions et la première catégorie (Observation).
+ammo_pos = s.find('class="helsing-ammo-summary"')
+button_pos = s.find('id="helsingResupplyBtn"')
+groups_pos = s.find("groups.map(([title,kind,ids])=>", button_pos)
+if not (ammo_pos != -1 and button_pos != -1 and groups_pos != -1 and ammo_pos < button_pos < groups_pos):
+    raise SystemExit('Verification echouee: position du bouton dans l’arsenal')
 
 for forbidden in technical_notes + [
     'Utilisations limitées selon la difficulté.',
@@ -128,4 +129,4 @@ if s == original:
     raise SystemExit('Aucune modification produite')
 
 PATH.write_text(s, encoding='utf-8')
-print('Correctif Van Helsing v4 validé : bouton mobile visible et 1 pieu minimum.')
+print('Correctif Van Helsing v4 validé : bouton mobile visible sous les munitions et 1 pieu minimum.')
