@@ -45,10 +45,9 @@ if 'human.gepettoStakes=Math.max(1,human.gepettoStakes||0);' not in s:
     if n != 1:
         raise SystemExit('Initialisation runtime Van Helsing introuvable')
 
-# Libellé clair du bouton dans l’arsenal.
-s = s.replace("const searchText='Rechercher des munitions';", "const searchText='Chercher des munitions à proximité';")
-s = s.replace('>Rechercher des munitions — termine le tour</button>', '>Chercher des munitions à proximité</button>')
-s = s.replace('>Rechercher des munitions</button>', '>Chercher des munitions à proximité</button>')
+# Libellé clair du bouton dans l’arsenal, quelle que soit la forme de chaîne utilisée.
+s = s.replace('Rechercher des munitions — termine le tour', 'Chercher des munitions à proximité')
+s = s.replace('Rechercher des munitions', 'Chercher des munitions à proximité')
 
 # Le vieux bouton flottant extérieur reste masqué : la recherche doit être dans l’arsenal.
 s = s.replace(
@@ -100,7 +99,7 @@ s = s.replace(
 
 required = {
     'bouton de recherche dans la maison': 'id="helsingResupplyBtn"',
-    'libellé Chercher des munitions à proximité': "const searchText='Chercher des munitions à proximité';",
+    'libellé Chercher des munitions à proximité': 'Chercher des munitions à proximité',
     'panneau mobile forcé visible': 'id="v576-helsing-search-panel-mobile"',
     'panneau placé juste après les munitions': 'summary.innerHTML=ammoHTML+searchHTML+secretPowersHTML(p);',
     'bouton flottant extérieur masqué': "if(search){search.classList.add('hidden');search.disabled=true;}",
