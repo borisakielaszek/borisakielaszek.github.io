@@ -1,0 +1,29 @@
+name: Van Helsing house fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/van-helsing-house-fix.yml'
+      - '.github/scripts/patch-van-helsing-house.py'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch Van Helsing house
+        run: python3 .github/scripts/patch-van-helsing-house.py
+      - name: Commit Van Helsing house fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jeu-vampires-de-sarrebruck/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Fix Van Helsing house equipment and search flow"
+            git push
+          fi
