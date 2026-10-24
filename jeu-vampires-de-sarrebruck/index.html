@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261024-helsing-house-v4">
+<meta name="game-build" content="20261024-helsing-healing-v5">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Les Vampires de Sarrebruck — Le jeu</title>
 <meta name="description" content="Affrontez une nuit sanglante où tous les coups sont permis entre vampires">
@@ -2048,9 +2048,9 @@ function helsingBalance(aiCount,difficulty='normal'){
  const n=Math.max(1,Math.min(4,Math.floor(aiCount)||1)),d=['easy','normal','hard'].includes(difficulty)?difficulty:'normal';
  const rates={"easy": [0.2, 0.35, 0.5, 0.05], "normal": [0.2, 0.65, 0.95, 0.85], "hard": [0.3, 0.5, 0.95, 0.8]};
  return {difficulty:d,aiCount:n,
- initial:{silverBolts:3,blessedBullets:2,gepettoStakes:1,medkitUses:0,elixirDoses:0,rosaryCharges:1,mirrorCharges:1},
+ initial:{silverBolts:3,blessedBullets:2,gepettoStakes:1,medkitUses:1,elixirDoses:0,rosaryCharges:1,mirrorCharges:1},
  crossLimit:n>=4?1:0,whipLimit:1,waterLimit:n>=4?1:0,dawnLimit:1,
- weights:[55,25,10,9,1],caps:{silverBolts:6+n,blessedBullets:3+Math.ceil(n/2),gepettoStakes:2,medkitUses:2,elixirDoses:1},
+ weights:[53,25,10,10,2],caps:{silverBolts:6+n,blessedBullets:3+Math.ceil(n/2),gepettoStakes:2,medkitUses:2,elixirDoses:1},
  hunterFocus:.5+Math.max(0,n-2)*.05,supplyChance:rates[d][n-1],extraPerOpponent:0};
 }
 function currentHelsingBalance(){return helsingBalance((S?.playerCount||2)-1,S?.difficulty)}
