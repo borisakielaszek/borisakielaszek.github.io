@@ -99,3 +99,25 @@
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
 })();
+
+/* Germanize the static copyright overlay and accessibility labels. */
+(function(){
+  var title=document.getElementById('aboutRightsTitle');
+  var close=document.getElementById('aboutRightsClose');
+  var panel=document.getElementById('aboutRightsPanel');
+  var intro=document.getElementById('introScreen');
+  if(title) title.textContent='Über das Spiel & Urheberrecht';
+  if(close) close.setAttribute('aria-label','Schließen');
+  if(intro) intro.setAttribute('aria-label','Die Vampire von Saarbrücken');
+  if(panel){
+    var p=panel.querySelectorAll('p');
+    if(p[0]) p[0].innerHTML='<span class="rights-title">Die Vampire von Saarbrücken</span><br>Ein Spiel von <strong>Boris Akielaszek</strong>, inspiriert von der Welt des illustrierten Buches <em>Die Vampire von Saarbrücken</em>, das er gemeinsam mit <strong>Stella</strong> verfasst hat.';
+    if(p[1]) p[1].textContent='© 2026 Boris Akielaszek. Alle Rechte vorbehalten.';
+    if(p[2]) p[2].textContent='Texte, Illustrationen, Figuren, Karten, Spielregeln, grafische Elemente und der Originalcode dieses Spiels sind urheberrechtlich geschützt. Musik und Geräusche aus Drittquellen unterliegen den Rechten und Lizenzen ihrer jeweiligen Urheber.';
+    if(p[3]) p[3].textContent='Jede vollständige oder teilweise Vervielfältigung, Kopie, Änderung, Weitergabe, Extraktion oder Wiederverwendung des Spiels oder seiner Bestandteile zu kommerziellen Zwecken oder zur öffentlichen Verbreitung ist ohne vorherige Genehmigung untersagt.';
+    if(p[4]) p[4].textContent='Der Zugang zu diesem Spiel ist ausschließlich für den persönlichen und privaten Gebrauch bestimmt.';
+    if(p[5]) p[5].textContent='© 2026 Boris Akielaszek — Alle Rechte vorbehalten';
+  }
+  var menu=document.getElementById('aboutRightsMenuBtn');
+  if(menu) menu.textContent='Über das Spiel & Urheberrecht';
+})();
