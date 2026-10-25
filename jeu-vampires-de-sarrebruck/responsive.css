@@ -1,8 +1,10 @@
 @import url('./responsive-base-v570.css?v=20261023-2008');
 
 /* Language choice belongs to the language-specific site pages, not inside the game. */
-.game-language-switch,
-.language-switch{
+html body .game-language-switch,
+html body .language-switch,
+html body nav.language-switch,
+html body a.game-language-switch{
  display:none!important;
  visibility:hidden!important;
  pointer-events:none!important;
