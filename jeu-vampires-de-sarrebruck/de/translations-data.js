@@ -100,7 +100,7 @@
   const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const pattern = new RegExp(replacements.map(([fr]) => /^[A-Za-zÀ-ÿ]+$/.test(fr) ? '(?<![A-Za-zÀ-ÿ])'+escapeRegExp(fr)+'(?![A-Za-zÀ-ÿ])' : escapeRegExp(fr)).join('|'),'g');
   const exact = new Map(pairs);
-  const correctBrand = value => value.replace(/Die Vampir(?= von Saarbrücken)/g,'Die Vampire');
+  const correctBrand = value => value.replace(/Die Vampir(?= von Saarbrücken)/g,'Die Vampire').replace(/^(.*?) ist mit seinem Angriff auf gescheitert (.*?)\\.$/, (_, attacker, target) => 'Der Angriff von '+attacker+' auf '+(target === 'Du' ? 'dich' : target)+' ist gescheitert.');
   const translate = value => {
     if (!value) return value;
     const trimmed = value.trim();
@@ -140,7 +140,33 @@
     for (const el of [root,...root.querySelectorAll('*')]) translateAttributes(el);
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while(n=walker.nextNode()) translateNode(n);
   };
+  const localizeCombatArt = () => {
+    for (const image of document.querySelectorAll('.combat-result-card > img.combat-art')) {
+      const card = image.parentElement;
+      const failed = card.classList.contains('failed');
+      const art = document.createElement('section');
+      art.className = 'de-combat-art';
+      const heading = document.createElement('h2');
+      heading.textContent = failed ? 'Angriff gescheitert!' : 'Angriff erfolgreich!';
+      const scene = document.createElement('div');
+      scene.className = 'de-combat-picture';
+      image.alt = failed ? 'Abgewehrter Vampirangriff' : 'Erfolgreicher Vampirangriff';
+      card.insertBefore(art,image);
+      scene.appendChild(image);
+      art.append(heading,scene);
+    }
+  };
   const start=()=>{
+    const resultStyle=document.createElement('style');
+    resultStyle.textContent=`
+      .de-combat-art{overflow:hidden;border:2px solid #a62836;border-radius:18px;background:linear-gradient(#540815,#16080d);box-shadow:0 8px 28px #0008;margin:0 0 14px}
+      .de-combat-art h2{margin:0;padding:18px 12px;color:#fff1d5;text-align:center;font-family:Georgia,serif;font-size:clamp(22px,5vw,38px);line-height:1.15;text-shadow:0 2px 8px #000}
+      .de-combat-picture{position:relative;aspect-ratio:1.5;overflow:hidden}
+      .de-combat-picture img.combat-art{position:absolute!important;top:50%!important;left:0!important;width:100%!important;height:auto!important;max-height:none!important;max-width:none!important;transform:translateY(-48%)!important;margin:0!important;border:0!important;border-radius:0!important}
+    `;
+    document.head.appendChild(resultStyle);
+    localizeCombatArt();
+    new MutationObserver(localizeCombatArt).observe(document.body,{childList:true,subtree:true});
     document.documentElement.lang='de'; document.title='Die Vampire von Saarbrücken — Das Spiel';
     const heading=document.querySelector('.blood-title'); if(heading){heading.setAttribute('aria-label','Der blutige Kampf beginnt!');heading.innerHTML='<span class="de-blood-title">Der blutige Kampf beginnt!</span>';}
     const setupStyle=document.getElementById('germanSetupLayoutFix')||document.createElement('style');
