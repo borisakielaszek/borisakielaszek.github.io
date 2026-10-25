@@ -97,8 +97,7 @@
 .intro-art-final img{display:block;max-width:100%;max-height:100vh;width:auto;height:auto;object-fit:contain;filter:none;box-shadow:0 0 48px #000b}
 .intro-hit-button{position:absolute;z-index:4;left:50%;top:79.0%;transform:translate(-50%,-50%);width:min(68%,440px);height:11.0%;min-height:52px;border:0!important;background:transparent!important;color:transparent!important;box-shadow:none!important;border-radius:18px!important;cursor:pointer!important;-webkit-tap-highlight-color:transparent}
 .intro-hit-button:focus-visible{outline:3px solid #fff8!important;outline-offset:3px!important}
-.intro-hit-button:hover{transform:translate(-50%,-50%)!important}
-@media(max-aspect-ratio:2/3){.intro-art-final img{width:100%;height:auto;max-height:none}}
+.intro-hit-button:hover{transform:translate(-50%,-50%)!important}@media(max-aspect-ratio:2/3){.intro-art-final img{width:100%;height:auto;max-height:none}}
 @media(min-aspect-ratio:2/3){.intro-art-final img{height:100%;width:auto;max-width:none}}
 /* V5.6 : intro et menu sont deux écrans strictement séparés */
 .intro-screen.hidden{display:none!important}
@@ -197,8 +196,7 @@ body:not(.game-active) #musicToggle{display:none!important}
   .vamp-info-main strong{font-size:1.02rem!important}.vamp-info-main span{font-size:.78rem!important}.vamp-info-blood{font-size:1.08rem!important;padding:5px 9px!important}
   .action-stage{padding:7px 11px 28px!important}
   .action-turn{font-size:1.12rem!important;margin-bottom:5px!important}
-  .action-instruction{font-size:1.12rem!important;line-height:1.38!important}
-  .last-action{font-size:.82rem!important;margin-top:6px!important}
+  .action-instruction{font-size:1.12rem!important;line-height:1.38!important}  .last-action{font-size:.82rem!important;margin-top:6px!important}
 }
 
 
@@ -297,8 +295,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .defense-attack-copy{font-family:system-ui,sans-serif;color:#f2e7d9;font-size:1rem;line-height:1.45}
 .defense-attack-copy .attack-kicker{display:inline-block;margin-bottom:6px;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:#e1b37b}
 .defense-attack-copy .attack-title{font-family:Georgia,serif;font-size:clamp(1.2rem,5vw,1.6rem);font-weight:700;color:#fff2de;margin-bottom:8px}
-.defense-attack-copy .attack-main{font-size:clamp(1rem,4.3vw,1.12rem)}
-.defense-copy{font-size:1rem;line-height:1.42;color:#f2e7d8;margin-top:8px}
+.defense-attack-copy .attack-main{font-size:clamp(1rem,4.3vw,1.12rem)}.defense-copy{font-size:1rem;line-height:1.42;color:#f2e7d8;margin-top:8px}
 .immediate-scene{display:grid;grid-template-columns:minmax(130px,180px) 1fr;gap:16px;align-items:center}
 .immediate-scene img{width:100%;border-radius:16px;display:block;box-shadow:0 12px 30px #0008}
 .immediate-scene-copy{font-family:system-ui,sans-serif;color:#f2e7d9}
@@ -397,8 +394,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 </style>
 <style>
 @media(max-width:520px){
-  .board{padding-bottom:390px}
-  .human-panel{padding:7px 8px calc(7px + env(safe-area-inset-bottom));max-height:62vh}
+  .board{padding-bottom:390px}  .human-panel{padding:7px 8px calc(7px + env(safe-area-inset-bottom));max-height:62vh}
   .human-info{align-items:flex-start;gap:8px}
   .human-info .human-vamp-portrait{width:64px;height:76px;flex:0 0 64px}
   .human-powers{font-size:.68rem;line-height:1.22}
@@ -497,8 +493,7 @@ body:not(.game-active) #musicToggle{display:none!important}
 .card-preview{align-items:center!important}
 .card-detail-side{min-width:0}
 .action-copy{font-family:system-ui,sans-serif;border:1px solid #465065;border-radius:16px;padding:16px;background:linear-gradient(180deg,#151b27,#0c1018);box-shadow:0 12px 32px #0005}
-.action-copy.attack{border-color:#7d2834;background:linear-gradient(180deg,#241218,#110d13)}
-.action-copy.regen{border-color:#315c4b;background:linear-gradient(180deg,#12221d,#0c1411)}
+.action-copy.attack{border-color:#7d2834;background:linear-gradient(180deg,#241218,#110d13)}.action-copy.regen{border-color:#315c4b;background:linear-gradient(180deg,#12221d,#0c1411)}
 .action-kicker{font-size:.75rem;letter-spacing:.18em;font-weight:900;color:#d8bd8b;margin-bottom:8px}
 .action-main{font-size:clamp(1.08rem,4.7vw,1.36rem);line-height:1.46;color:#f5f1e8;font-weight:650}
 .action-main strong{color:#ffd8a1}
@@ -597,8 +592,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .action-tools{position:absolute;right:8px;bottom:6px;display:flex;gap:6px}.ghost-btn{padding:5px 8px;font-size:.68rem;border-color:#303747;background:#121722cc;color:#b7bdc9}
 .engine-hidden{display:none!important}.tap-hint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:system-ui,sans-serif;font-size:.72rem;color:#c5cedc;background:#05080dc4;border:1px solid #2c3a4f;border-radius:999px;padding:5px 10px;white-space:nowrap}
 .card-drawer{position:fixed;z-index:80;inset:0;background:linear-gradient(180deg,#111722fa,#07090efc);padding:calc(12px + env(safe-area-inset-top)) 10px calc(14px + env(safe-area-inset-bottom));overflow:auto;backdrop-filter:blur(14px)}
-.drawer-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:8px 4px 12px;background:#101620ee;font-size:1.25rem;border-bottom:1px solid #2d3440}.drawer-count{margin-left:8px;font-family:system-ui,sans-serif;font-size:.8rem;color:#aab2c0}.drawer-close{width:42px;height:42px;border-radius:50%;font-size:1.75rem;line-height:1;padding:0;background:#202733;border-color:#424c5d}
-.drawer-actions{display:flex;gap:8px;margin:10px 0}.drawer-actions button{flex:1;font-size:.82rem}
+.drawer-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:8px 4px 12px;background:#101620ee;font-size:1.25rem;border-bottom:1px solid #2d3440}.drawer-count{margin-left:8px;font-family:system-ui,sans-serif;font-size:.8rem;color:#aab2c0}.drawer-close{width:42px;height:42px;border-radius:50%;font-size:1.75rem;line-height:1;padding:0;background:#202733;border-color:#424c5d}.drawer-actions{display:flex;gap:8px;margin:10px 0}.drawer-actions button{flex:1;font-size:.82rem}
 .card-drawer .hand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;overflow:visible;padding:4px 2px 24px;max-width:720px;margin:0 auto}
 .card-drawer .hand-card{width:auto;min-width:0;cursor:pointer}.card-drawer .hand-card img{width:100%;height:auto;aspect-ratio:63/88;object-fit:cover;border-radius:9px;box-shadow:0 8px 18px #000;border:1px solid #495365}.card-drawer .hand-card.playable img{border-color:#d3b566;box-shadow:0 0 0 1px #d3b566,0 8px 18px #000}.card-drawer .cardtag{display:none}
 .card-preview{grid-template-columns:minmax(190px,42%) 1fr;gap:18px}.card-detail-side{font-family:system-ui,sans-serif;line-height:1.45}.type-pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#252d3a;border:1px solid #495467;color:#f1d9a8;font-size:.82rem;font-weight:800;margin-bottom:10px}.card-effect{color:#d7dbe3;font-size:.98rem}.play-question{font-family:Georgia,serif;color:#fff;font-size:1.15rem;margin:18px 0 0}.modal-buttons button{min-height:46px}
@@ -698,7 +692,6 @@ body:not(.game-active) #musicToggle{display:none!important}
 .modal-buttons .good{background:linear-gradient(180deg,#2e6a50,#214838)!important}
 @media(max-width:430px){.action-copy{padding:13px}.action-main{font-size:1.08rem}.defense-intro{font-size:.94rem}.choice-card .defense-copy{font-size:.7rem}}
 
-
 /* V5.11 — feedback tactile, bandeaux lisibles, prénoms et annonce de tour */
 button{touch-action:manipulation}
 button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filter:brightness(1.22)!important;box-shadow:inset 0 2px 10px #0009,0 0 0 2px #ffffff18!important}
@@ -797,8 +790,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .storm-flash::before{left:var(--bolt-x)!important;transition:left .02s linear!important}
 .storm-flash.flash{animation:stormFlashRapid .13s ease-out both!important}
 @keyframes stormFlashRapid{0%{opacity:0}14%{opacity:1}42%{opacity:.18}70%{opacity:.72}100%{opacity:0}}
-</style>
-<style>.intro-hit-button:hover,.intro-hit-button:active,.intro-hit-button.tap-pressed,.intro-hit-button.pressed{transform:none!important}</style>
+</style><style>.intro-hit-button:hover,.intro-hit-button:active,.intro-hit-button.tap-pressed,.intro-hit-button.pressed{transform:none!important}</style>
 
 <style>
 /* V5.41 — mort : portrait fissuré + crâne blanc incliné ; victoire inchangée */
@@ -897,8 +889,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
   animation:introUserBolt .34s steps(1,end) both;
 }
 .intro-user-lightning.sheet2{top:-3vh;width:min(104vw,1740px)}
-@keyframes introUserBolt{
-  0%{opacity:0}
+@keyframes introUserBolt{  0%{opacity:0}
   7%{opacity:1}
   28%{opacity:1}
   29%{opacity:.18}
@@ -997,8 +988,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
   line-height:1!important;
   box-shadow:0 3px 9px #000a,0 0 0 1px #4b171d88 inset!important;
 }
-.help-orb:hover,.help-orb:focus-visible{border-color:#f1d38d!important;outline:none!important}
-#gameLog.journal-live,.game-log.journal-live{
+.help-orb:hover,.help-orb:focus-visible{border-color:#f1d38d!important;outline:none!important}#gameLog.journal-live,.game-log.journal-live{
   position:absolute!important;
   top:44px!important;
   left:7px!important;
@@ -1097,8 +1087,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
   padding:12px!important;
   border:1px solid #5b2b31!important;
   border-radius:18px!important;
-  background:linear-gradient(180deg,#171118,#0c0d13)!important;
-  box-shadow:0 8px 24px #0006,inset 0 1px 0 #ffffff0b!important;
+  background:linear-gradient(180deg,#171118,#0c0d13)!important;  box-shadow:0 8px 24px #0006,inset 0 1px 0 #ffffff0b!important;
 }
 .drawer-help-title{
   display:block!important;
@@ -1197,8 +1186,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 @media(min-width:620px){.drawer-group-hand{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:430px){
   .drawer-help{padding:10px!important}
-  .drawer-help-title{font-size:.98rem!important}
-  .drawer-help .action-option{min-height:52px!important;padding:9px 11px!important}
+  .drawer-help-title{font-size:.98rem!important}  .drawer-help .action-option{min-height:52px!important;padding:9px 11px!important}
   .drawer-help .action-key{font-size:1.02rem!important}
   .drawer-help .action-detail{font-size:.86rem!important}
   .drawer-choice-title{font-size:1.2rem!important}
@@ -1297,8 +1285,7 @@ button:active,.tap-pressed{transform:translateY(2px) scale(.965)!important;filte
 .origin-figure figcaption{padding:12px 14px;color:#c9c1b5;font-family:system-ui,sans-serif;font-size:.98rem;line-height:1.5}
 .origin-figure figcaption strong{display:block;margin-bottom:6px;color:#f0dfc1;font-family:Georgia,serif;font-size:1.2rem}
 @media(max-width:650px){.origin-figure,.origin-figure.reverse{grid-template-columns:1fr;gap:8px;margin:20px 0}.origin-figure.reverse img,.origin-figure.reverse figcaption{grid-column:auto;grid-row:auto}.origin-figure img{max-height:340px;object-fit:contain;background:#08090d}.origin-figure figcaption{padding:8px 6px 10px}}
-.guide-step{font-family:system-ui,sans-serif;line-height:1.65;font-size:1.05rem}
-.guide-step h3{font-family:Georgia,serif;color:#e7c989;font-size:1.5rem}
+.guide-step{font-family:system-ui,sans-serif;line-height:1.65;font-size:1.05rem}.guide-step h3{font-family:Georgia,serif;color:#e7c989;font-size:1.5rem}
 .guide-step li{margin:12px 0}
 .vampire-introduction img{display:block;width:100%;max-height:38vh;object-fit:contain;border-radius:12px;margin:0 auto 16px}
 .vampire-introduction .power-line{padding:10px 0;line-height:1.55;border-bottom:1px solid #ffffff18}
@@ -1397,8 +1384,7 @@ body.van-helsing-mode .helsing-category .secret-power-grid{padding:10px}
 #imageViewer{touch-action:manipulation}
 #imageViewerImg{max-height:76dvh;cursor:pointer;-webkit-user-drag:none}
 </style>
-<style id="active-game-viewport">
-body.game-active{overflow:hidden!important;overscroll-behavior:none}
+<style id="active-game-viewport">body.game-active{overflow:hidden!important;overscroll-behavior:none}
 body.game-active #startScreen,body.game-active #introScreen{display:none!important}
 body.game-active #gameScreen:not(.hidden){position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;min-height:0!important;margin:0!important}
 </style>
@@ -1497,8 +1483,7 @@ odr5MSInBmxBTmw9J0B1iGpA9IlY98CwjiwZuikAIMoAAHvU8E81kUJPDwNK4xS0XAxuqHcI8oJOcfsh
           <option value="hard">Nuit sanglante (difficile)</option>
         </select>
       </label>
-      <label>Ton vampire
-        <select id="vampireChoice">
+      <label>Ton vampire        <select id="vampireChoice">
           <option value="random">Tirage aléatoire (règle normale)</option>
         </select>
       </label>
@@ -1511,7 +1496,7 @@ odr5MSInBmxBTmw9J0B1iGpA9IlY98CwjiwZuikAIMoAAHvU8E81kUJPDwNK4xS0XAxuqHcI8oJOcfsh
   <section id="clanStoryScreen" class="screen hidden" aria-labelledby="clanStoryTitle">
     <article class="clan-story">
       <h1 id="clanStoryTitle" tabindex="-1">Les origines du jeu de cartes</h1>
-      <img class="story-cover" src="assets/livre-origines-20261023.webp" width="1536" height="1024" alt="Le livre illustré Les Vampires de Sarrebruck">
+      <img class="story-cover" src="assets/livre-origines-20261023.webp?v=book-restored-20261025" width="1536" height="1024" alt="Le livre illustré Les Vampires de Sarrebruck">
       <p>Le jeu de cartes est né de l’univers de notre livre illustré, coécrit avec Stella. L’histoire se déroule à la frontière franco-allemande, où deux familles de vampires partagent un même héritage immortel, mais pas la même façon de vivre ni de se nourrir.</p>
       <figure class="origin-figure">
         <img src="assets/origines-deux-clans.webp" alt="Les familles de vampires réunies sous la pleine lune">
@@ -1597,8 +1582,7 @@ odr5MSInBmxBTmw9J0B1iGpA9IlY98CwjiwZuikAIMoAAHvU8E81kUJPDwNK4xS0XAxuqHcI8oJOcfsh
           <div class="action-section-title">🩸 Cartes de récupération</div>
           <div id="regenHand" class="hand drawer-group-hand"></div>
           <div class="human-actions drawer-actions drawer-regen-actions">
-            <button id="manfredBtn" class="secondary hidden">Pouvoir de Manfred +1 🩸</button>
-          </div>
+            <button id="manfredBtn" class="secondary hidden">Pouvoir de Manfred +1 🩸</button>          </div>
         </section>
         <section id="discardSection" class="action-card-section discard-section">
           <div class="action-section-title">↻ Défausser et piocher une nouvelle carte</div>
@@ -1697,8 +1681,7 @@ const pick=a=>a[Math.floor(randomUnit()*a.length)];
 const CARDS={
  van_helsing_mirror:{name:'Miroir d’Erzulie Freda',img:'assets/van-helsing-miroir-erzulie-freda.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_medkit:{name:'Sacoche de soins',img:'assets/van-helsing-sacoche-soins.webp',qty:0,kind:'regen',secretPower:true},
- van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true},
- van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
+ van_helsing_elixir:{name:'Élixir de survie de Herr Doktor Gurckenstein',img:'assets/van-helsing-elixir-gurckenstein.webp',qty:0,kind:'regen',secretPower:true}, van_helsing_rosary:{name:'Chapelet de sainte Marguerite du Habsterdick',img:'assets/van-helsing-chapelet-habsterdick.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_dawn:{name:'L’Aube du jour — capturée sur le mont Rose',img:'assets/van-helsing-aube-mont-rose-gare.webp',qty:0,kind:'attack',secretPower:true},
  van_helsing_silver_defense:{name:'Pistolet — défense à balle d’argent',img:'assets/van-helsing-pistolet-steampunk.webp',qty:0,kind:'defense',secretPower:true},
  van_helsing_goggles:{name:'Lunettes steampunk de Van Helsing',img:'assets/van-helsing-lunettes-steampunk.webp',qty:0,kind:'utility',secretPower:true},
@@ -3754,5 +3737,4 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/jeu-vampires-de-sarrebruck/de/translations.js?v=20261025-de9" defer></script>
 </body>
 </html>
-
 
