@@ -1,93 +1,76 @@
 (() => {
   'use strict';
-
-  let germanIntroOpened=false;
-
-  function removeGameLanguageSelectors(){
-    document.querySelectorAll('.game-language-switch,.language-switch').forEach(el=>el.remove());
+  let opened = false, context, thunderBuffer;
+  const base = '/jeu-vampires-de-sarrebruck/de/';
+  const removeSelectors = () => document.querySelectorAll('.game-language-switch,.language-switch').forEach(el => el.remove());
+  function audioContext() {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!context && Audio) context = new Audio();
+    return context;
   }
-
-  function openGermanSetup(event){
-    const introTarget=document.getElementById('introScreen');
-    if(!introTarget || (event?.target!==introTarget && !introTarget.contains(event?.target))) return;
-
-    if(event?.cancelable) event.preventDefault();
-    event?.stopImmediatePropagation?.();
-    event?.stopPropagation?.();
-
-    if(germanIntroOpened) return;
-    germanIntroOpened=true;
-
-    const intro=document.getElementById('introScreen');
-    const menu=document.getElementById('startScreen');
-    const btn=document.getElementById('enterNightBtn');
-    const hiss=document.getElementById('introHissSfx');
-    const music=document.getElementById('bgMusic');
-
-    if(btn){
-      btn.disabled=false;
-      btn.dataset.entered='1';
-      btn.classList.add('pressed');
-    }
-
-    try{if(typeof window.choiceStormBurst==='function')window.choiceStormBurst(true);}catch(_){}
-    if(hiss){
-      try{
-        hiss.currentTime=0;hiss.volume=.9;
-        const soundPromise=hiss.play();
-        if(soundPromise?.catch)soundPromise.catch(()=>{});
-      }catch(_){}
-    }
-
-    if(intro) intro.classList.add('hidden');
-    if(menu) menu.classList.remove('hidden');
-    window.scrollTo(0,0);
-
-    if(music){
-      try{
-        music.loop=true;
-        music.volume=.22;
-        const playPromise=music.play();
-        if(playPromise?.catch) playPromise.catch(()=>{});
-      }catch(_){}
-    }
-
-    try{
-      if(typeof refreshMusicButton==='function') refreshMusicButton();
-    }catch(_){}
-
-    window.setTimeout(()=>{
-      try{
-        if(typeof offerFirstNightGuide==='function') offerFirstNightGuide();
-      }catch(_){}
-    },120);
+  function thunder() {
+    try {
+      const ctx = audioContext(); if (!ctx) return;
+      ctx.resume().catch(() => {});
+      const source = ctx.createBufferSource();
+      if (thunderBuffer) source.buffer = thunderBuffer;
+      else {
+        // Immediate local fallback while the supplied thunder is still loading.
+        const buffer = ctx.createBuffer(1, ctx.sampleRate * 1.4, ctx.sampleRate);
+        const data = buffer.getChannelData(0); let rumble = 0;
+        for (let i = 0; i < data.length; i++) {
+          const noise = Math.random() * 2 - 1;
+          rumble = rumble * .94 + noise * .06;
+          data[i] = (rumble * 3 + noise * .22) * Math.exp(-5 * i / data.length);
+        }
+        source.buffer = buffer;
+      }
+      const gain = ctx.createGain(); gain.gain.value = .85;
+      source.connect(gain); gain.connect(ctx.destination); source.start();
+    } catch (_) {}
   }
-
-  function installGermanLaunchFix(){
-    removeGameLanguageSelectors();
-    const btn=document.getElementById('enterNightBtn');
-    if(btn){
-      btn.disabled=false;
-      btn.removeAttribute('disabled');
-      btn.setAttribute('aria-label','In die Nacht');
-    }
-    // Capture phase: this runs before the older intro handlers that wait for
-    // the thunder sound. The German launch no longer depends on audio events.
-    document.addEventListener('pointerup',openGermanSetup,true);
-    document.addEventListener('click',openGermanSetup,true);
+  function enter(event) {
+    const intro = document.getElementById('introScreen');
+    if (!intro || intro.classList.contains('hidden') || !intro.contains(event.target)) return;
+    event.preventDefault(); event.stopImmediatePropagation(); event.stopPropagation();
+    if (opened) return; opened = true;
+    const button = document.getElementById('enterNightBtn');
+    if (button) { button.dataset.entered = '1'; button.classList.add('pressed'); }
+    thunder();
+    // Paint the first strike on the current intro before revealing the menu.
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:radial-gradient(ellipse at 50% 10%,#ffffffcc,#b9d8ff66 40%,transparent 80%);';
+    const bolt = document.createElement('img');
+    bolt.src = base + 'assets/user-lightning-1.svg'; bolt.alt = '';
+    bolt.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;filter:drop-shadow(0 0 15px white)';
+    flash.appendChild(bolt); document.body.appendChild(flash);
+    flash.animate([{opacity:1},{opacity:.15,offset:.22},{opacity:.95,offset:.4},{opacity:0}],{duration:950,fill:'forwards'});
+    setTimeout(() => {
+      flash.remove(); intro.classList.add('hidden');
+      document.getElementById('startScreen')?.classList.remove('hidden');
+      window.scrollTo(0,0);
+      try { musicEnabled = true; musicStarted = true; } catch (_) {}
+      const music = document.getElementById('bgMusic');
+      if (music) { music.loop = true; music.volume = .22; music.play()?.catch(() => {}); }
+      try { refreshMusicButton(); } catch (_) {}
+      setTimeout(() => { try { offerFirstNightGuide(); } catch (_) {} },120);
+    },1100);
   }
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',installGermanLaunchFix,{once:true});
-  }else{
-    installGermanLaunchFix();
+  function init() {
+    removeSelectors();
+    const button = document.getElementById('enterNightBtn');
+    if (button) { button.disabled = false; button.removeAttribute('disabled'); button.setAttribute('aria-label','Betritt die Nacht'); }
+    for (const name of ['user-lightning-1.svg','user-lightning-2.svg']) { const img = new Image(); img.src = base + 'assets/' + name; }
+    try {
+      const ctx = audioContext();
+      const sound = document.getElementById('introHissSfx');
+      if (ctx && sound) fetch(sound.src).then(r => r.arrayBuffer()).then(b => ctx.decodeAudioData(b)).then(b => { thunderBuffer = b; }).catch(() => {});
+    } catch (_) {}
+    document.addEventListener('pointerup',enter,true);
+    document.addEventListener('click',enter,true);
   }
-
-  // Keep the complete German translation layer intact and load it with a new
-  // cache key so the current corrected version is requested on mobile.
-  const base=document.createElement('script');
-  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de12';
-  base.async=false;
-  base.onload=removeGameLanguageSelectors;
-  document.head.appendChild(base);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+  const script = document.createElement('script');
+  script.src = base + 'translations-data.js?v=20261025-de-audit-2';
+  document.head.appendChild(script);
 })();
