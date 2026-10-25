@@ -81,7 +81,7 @@
   // Keep the complete German translation layer intact and load it with a new
   // cache key so the current corrected version is requested on mobile.
   const base=document.createElement('script');
-  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de6';
+  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de8';
   base.async=false;
   base.onload=removeGameLanguageSelectors;
   document.head.appendChild(base);
