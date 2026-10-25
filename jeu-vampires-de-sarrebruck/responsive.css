@@ -1,4 +1,13 @@
 @import url('./responsive-base-v570.css?v=20261023-2008');
+
+/* Language choice belongs to the language-specific site pages, not inside the game. */
+.game-language-switch,
+.language-switch{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+
 /* Display the complete approved book photograph. */
 #clanStoryScreen .story-cover{
  content:normal!important;
