@@ -51,6 +51,6 @@ function enterOriginalNight(e){
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
   const script = document.createElement('script');
-  script.src = '/jeu-vampires-de-sarrebruck/de/translations-data.js?v=20261025-de-result5';
+  script.src = '/jeu-vampires-de-sarrebruck/de/translations-data.js?v=20261025-de-endings7';
   document.head.appendChild(script);
 })();
