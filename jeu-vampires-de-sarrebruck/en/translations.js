@@ -641,6 +641,11 @@
     if (heading) {
       heading.setAttribute('aria-label', 'Let the bloodbath begin!');
       heading.innerHTML = '<span class="english-blood-title">LET THE BLOODBATH BEGIN!</span>';
+      heading.style.setProperty('font-size', 'clamp(18px, 2.4vw, 34px)', 'important');
+      heading.style.setProperty('line-height', '1.05', 'important');
+      heading.style.setProperty('white-space', 'nowrap', 'important');
+      heading.style.setProperty('overflow', 'visible', 'important');
+      heading.style.setProperty('max-width', '100%', 'important');
     }
     translateElement(document.body);
     const observer = new MutationObserver(records => {
