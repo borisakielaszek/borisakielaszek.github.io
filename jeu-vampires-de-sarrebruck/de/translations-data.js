@@ -105,17 +105,32 @@
     return correctBrand(result);
   };
   const skip = el => /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|CODE)$/.test(el.tagName);
+  const selfTranslatedAttributes = new WeakMap();
   const translateAttributes = el => {
     if (!el || el.nodeType !== Node.ELEMENT_NODE || skip(el)) return;
     for (const attr of ['aria-label','alt','title','placeholder','value']) {
       if (!el.hasAttribute(attr)) continue;
-      const old = el.getAttribute(attr), next = translate(old);
-      if (old !== next) el.setAttribute(attr,next);
+      const old = el.getAttribute(attr);
+      let translated = selfTranslatedAttributes.get(el);
+      if (translated?.get(attr) === old) continue;
+      const next = translate(old);
+      if (old !== next) {
+        if (!translated) { translated = new Map(); selfTranslatedAttributes.set(el,translated); }
+        translated.set(attr,next);
+        el.setAttribute(attr,next);
+      }
     }
   };
+  const selfTranslatedText = new WeakMap();
   const translateNode = node => {
     if (!node?.nodeValue?.trim() || !node.parentElement || skip(node.parentElement)) return;
-    const next = translate(node.nodeValue); if (next !== node.nodeValue) node.nodeValue = next;
+    const old = node.nodeValue;
+    if (selfTranslatedText.get(node) === old) return;
+    const next = translate(old);
+    if (next !== old) {
+      selfTranslatedText.set(node,next);
+      node.nodeValue = next;
+    }
   };
   const translateElement = root => {
     if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
