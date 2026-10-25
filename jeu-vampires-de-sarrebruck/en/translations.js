@@ -640,7 +640,7 @@
     const heading = document.querySelector('.blood-title');
     if (heading) {
       heading.setAttribute('aria-label', 'Let the bloodbath begin!');
-      heading.innerHTML = '<span class="english-blood-title">LET THE BLOODBATH BEGIN!</span>';
+      heading.innerHTML = '<span class="english-blood-title" style="display:block;width:100%;max-width:100%;font-size:clamp(18px,2vw,26px)!important;line-height:1.05!important;white-space:normal!important;overflow-wrap:normal!important;text-align:center">LET THE<br>BLOODBATH<br>BEGIN!</span>';
       heading.style.setProperty('font-size', 'clamp(17px, 2vw, 28px)', 'important');
       heading.style.setProperty('line-height', '1.05', 'important');
       heading.style.setProperty('white-space', 'normal', 'important');
