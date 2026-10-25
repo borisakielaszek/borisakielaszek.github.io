@@ -30,8 +30,13 @@
       btn.classList.add('pressed');
     }
 
+    try{if(typeof window.choiceStormBurst==='function')window.choiceStormBurst(true);}catch(_){}
     if(hiss){
-      try{hiss.pause();hiss.currentTime=0;}catch(_){}
+      try{
+        hiss.currentTime=0;hiss.volume=.9;
+        const soundPromise=hiss.play();
+        if(soundPromise?.catch)soundPromise.catch(()=>{});
+      }catch(_){}
     }
 
     if(intro) intro.classList.add('hidden');
@@ -81,7 +86,7 @@
   // Keep the complete German translation layer intact and load it with a new
   // cache key so the current corrected version is requested on mobile.
   const base=document.createElement('script');
-  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de11';
+  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de12';
   base.async=false;
   base.onload=removeGameLanguageSelectors;
   document.head.appendChild(base);

@@ -139,7 +139,20 @@
   };
   const start=()=>{
     document.documentElement.lang='de'; document.title='Die Vampire von Saarbrücken — Das Spiel';
-    const heading=document.querySelector('.blood-title'); if(heading){heading.setAttribute('aria-label','Der blutige Kampf beginnt!');heading.innerHTML='<span style="display:block;width:100%;font-size:16px!important;line-height:1.05!important;white-space:normal!important;text-align:center">DER BLUTIGE<br>KAMPF<br>BEGINNT!</span>';}
+    const heading=document.querySelector('.blood-title'); if(heading){heading.setAttribute('aria-label','Der blutige Kampf beginnt!');heading.innerHTML='<span class="de-blood-title">Der blutige Kampf beginnt!</span>';}
+    const setupStyle=document.getElementById('germanSetupLayoutFix')||document.createElement('style');
+    setupStyle.id='germanSetupLayoutFix';
+    setupStyle.textContent=`
+      #startScreen.start-screen:not(.hidden){display:grid!important;width:min(100%,1520px);min-height:100vh;margin:0 auto;grid-template-columns:minmax(0,1.08fr) minmax(390px,.92fr)!important;gap:clamp(18px,3vw,48px)!important;padding:clamp(18px,3vw,40px)!important;align-items:center!important}
+      #startScreen .start-art{width:100%;max-width:720px;max-height:82vh;margin:auto;background:#090b10;overflow:hidden;border-radius:16px}
+      #startScreen .start-art img{display:block!important;width:100%!important;height:auto!important;max-height:82vh!important;object-fit:contain!important;object-position:center!important;border-radius:16px!important;box-shadow:0 24px 80px #000!important}
+      #startScreen .start-panel{width:100%;max-width:620px;margin:0 auto;padding:clamp(22px,3vw,40px)!important}
+      #startScreen .start-panel .blood-title{display:block!important;width:100%;margin:8px auto 20px!important;padding:0!important;line-height:1.1!important;text-align:center!important}
+      #startScreen .blood-title .de-blood-title{display:block;width:100%;font-size:clamp(1.65rem,3vw,2.5rem)!important;line-height:1.14!important;letter-spacing:.035em;color:#f7ead0;text-wrap:balance;white-space:normal;text-shadow:0 2px 9px #000}
+      #startScreen .start-panel h1{font-size:clamp(1.9rem,3.6vw,3.5rem);line-height:1.05}
+      @media(max-width:900px){#startScreen.start-screen:not(.hidden){grid-template-columns:minmax(0,1fr)!important;gap:14px!important;padding:16px!important}#startScreen .start-art{max-width:620px;max-height:32vh}#startScreen .start-art img{max-height:32vh!important}#startScreen .start-panel{max-width:620px;padding:18px!important}#startScreen .start-panel .blood-title{margin:0 auto 12px!important}#startScreen .blood-title .de-blood-title{font-size:clamp(1.35rem,6vw,2rem)!important}}
+    `;
+    if(!setupStyle.isConnected)document.head.appendChild(setupStyle);
     translateElement(document.body);
     new MutationObserver(records=>{for(const r of records){if(r.type==='characterData')translateNode(r.target);else if(r.type==='attributes')translateAttributes(r.target);else for(const n of r.addedNodes){if(n.nodeType===Node.TEXT_NODE)translateNode(n);else translateElement(n);}}}).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','alt','title','placeholder','value']});
   };

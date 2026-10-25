@@ -22,7 +22,8 @@
     const music=document.getElementById('bgMusic');
 
     if(btn){btn.disabled=false;btn.removeAttribute('disabled');btn.dataset.entered='1';}
-    if(hiss){try{hiss.pause();hiss.currentTime=0;}catch(_){}}
+    try{if(typeof window.choiceStormBurst==='function')window.choiceStormBurst(true);}catch(_){}
+    if(hiss){try{hiss.currentTime=0;hiss.volume=.9;const soundPromise=hiss.play();if(soundPromise?.catch)soundPromise.catch(()=>{});}catch(_){}}
     intro?.classList.add('hidden');
     menu?.classList.remove('hidden');
     window.scrollTo(0,0);
