@@ -56,7 +56,7 @@
     removeSelectors();
     const button = document.getElementById('enterNightBtn');
     if (button) { button.disabled = false; button.removeAttribute('disabled'); button.setAttribute('aria-label','Betritt die Nacht'); }
-    for (const name of ['user-lightning-1.svg','user-lightning-2.svg']) { const img = new Image(); img.src = base + 'assets/' + name; }
+    for (const name of ['user-lightning-1.svg','user-lightning-2.svg']) { const img = new Image(); img.src = '/jeu-vampires-de-sarrebruck/assets/' + name; }
     try {
       const ctx = audioContext();
       const sound = document.getElementById('introHissSfx');
