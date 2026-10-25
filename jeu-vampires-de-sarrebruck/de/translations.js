@@ -8,8 +8,8 @@
   }
 
   function openGermanSetup(event){
-    const target=event?.target?.closest?.('#enterNightBtn,.de-intro-brand');
-    if(!target) return;
+    const introTarget=document.getElementById('introScreen');
+    if(!introTarget || (event?.target!==introTarget && !introTarget.contains(event?.target))) return;
 
     if(event?.cancelable) event.preventDefault();
     event?.stopImmediatePropagation?.();
@@ -81,7 +81,7 @@
   // Keep the complete German translation layer intact and load it with a new
   // cache key so the current corrected version is requested on mobile.
   const base=document.createElement('script');
-  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de8';
+  base.src='/jeu-vampires-de-sarrebruck/de/translations-base.js?v=20261025-de9';
   base.async=false;
   base.onload=removeGameLanguageSelectors;
   document.head.appendChild(base);
