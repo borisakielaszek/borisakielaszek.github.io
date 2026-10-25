@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261025-de10">
+<meta name="game-build" content="20261025-de11">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/jeu-vampires-de-sarrebruck/">
 <title>Die Vampire von Saarbrücken — Das Spiel</title>
@@ -2425,7 +2425,7 @@ async function gameLoop(){
  while(S===game&&!game.gameOver){
    await maybeGameOver();if(S!==game||game.gameOver)break;
    let p=S.players[S.turnIndex];if(!p.alive){advanceTurn();continue}
-   logTurnStart(p);render();await showTurnNotice(p);
+   logTurnStart(p);render();if(!game.firstTurnNoticeSkipped){game.firstTurnNoticeSkipped=true;}else await showTurnNotice(p);
    if(p.skipTurns>0&&p.vampire!=='elisabetta'){p.skipTurns--;log(`${pName(p)} passe son tour.`,'important');render();await sleep(p.human?600:900);advanceTurn();continue}
    if(!isVanHelsing(p)&&p.hand.length<3){log(`${pName(p)} complète sa main jusqu’à 3 cartes.`);while(S===game&&!game.gameOver&&p.alive&&p.hand.length<3)await drawOneToHand(p);if(S!==game||game.gameOver)return;if(!p.alive){await maybeGameOver();if(S!==game||game.gameOver)return;advanceTurn();continue}}
    if(p.vampire==='manfred'&&!p.manfredUsed&&!p.human&&p.hp<playerMaxHp(p)&&S.pool>0&&(p.hp<=2||Math.random()<.22))await useManfred(p);
@@ -3716,7 +3716,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-<script src="/jeu-vampires-de-sarrebruck/de/translations.js?v=20261025-de10" defer></script>
+<script src="/jeu-vampires-de-sarrebruck/de/translations.js?v=20261025-de11" defer></script>
 </body>
 </html>
 
