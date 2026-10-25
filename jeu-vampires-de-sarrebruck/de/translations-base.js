@@ -3,7 +3,7 @@
 
   // Keep the complete German translation dictionary in its own immutable file.
   const translations=document.createElement('script');
-  translations.src='/jeu-vampires-de-sarrebruck/de/translations-data.js?v=20261025-de8';
+  translations.src='/jeu-vampires-de-sarrebruck/de/translations-data.js?v=20261025-de10';
   translations.async=false;
   document.head.appendChild(translations);
 

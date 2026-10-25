@@ -95,32 +95,38 @@
     ["La clarté de l’aube fait défausser 2 cartes à chaque vampire adverse.","Das Morgenlicht zwingt jeden gegnerischen Vampir, 2 Karten abzuwerfen."]
   );
   const exact = new Map(pairs);
+  const correctBrand = value => value.replace(/Die Vampir(?= von Saarbrücken)/g,'Die Vampire');
   const translate = value => {
     if (!value) return value;
     const trimmed = value.trim();
-    if (exact.has(trimmed)) return value.replace(trimmed, exact.get(trimmed));
+    if (exact.has(trimmed)) return correctBrand(value.replace(trimmed, exact.get(trimmed)));
     let result = value;
     for (const [fr,de] of replacements) result = result.split(fr).join(de);
-    return result;
+    return correctBrand(result);
   };
   const skip = el => /^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA|CODE)$/.test(el.tagName);
+  const translateAttributes = el => {
+    if (!el || el.nodeType !== Node.ELEMENT_NODE || skip(el)) return;
+    for (const attr of ['aria-label','alt','title','placeholder','value']) {
+      if (!el.hasAttribute(attr)) continue;
+      const old = el.getAttribute(attr), next = translate(old);
+      if (old !== next) el.setAttribute(attr,next);
+    }
+  };
   const translateNode = node => {
     if (!node?.nodeValue?.trim() || !node.parentElement || skip(node.parentElement)) return;
     const next = translate(node.nodeValue); if (next !== node.nodeValue) node.nodeValue = next;
   };
   const translateElement = root => {
     if (!root || root.nodeType !== Node.ELEMENT_NODE) return;
-    for (const el of [root,...root.querySelectorAll('*')]) {
-      if (skip(el)) continue;
-      for (const attr of ['aria-label','alt','title','placeholder','value']) if (el.hasAttribute(attr)) { const old=el.getAttribute(attr), next=translate(old); if(old!==next) el.setAttribute(attr,next); }
-    }
+    for (const el of [root,...root.querySelectorAll('*')]) translateAttributes(el);
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while(n=walker.nextNode()) translateNode(n);
   };
   const start=()=>{
     document.documentElement.lang='de'; document.title='Die Vampire von Saarbrücken — Das Spiel';
     const heading=document.querySelector('.blood-title'); if(heading){heading.setAttribute('aria-label','Der blutige Kampf beginnt!');heading.innerHTML='<span style="display:block;width:100%;font-size:16px!important;line-height:1.05!important;white-space:normal!important;text-align:center">DER BLUTIGE<br>KAMPF<br>BEGINNT!</span>';}
     translateElement(document.body);
-    new MutationObserver(records=>{for(const r of records){if(r.type==='characterData')translateNode(r.target);else if(r.type==='attributes')translateElement(r.target);else for(const n of r.addedNodes){if(n.nodeType===Node.TEXT_NODE)translateNode(n);else translateElement(n);}}}).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','alt','title','placeholder','value']});
+    new MutationObserver(records=>{for(const r of records){if(r.type==='characterData')translateNode(r.target);else if(r.type==='attributes')translateAttributes(r.target);else for(const n of r.addedNodes){if(n.nodeType===Node.TEXT_NODE)translateNode(n);else translateElement(n);}}}).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','alt','title','placeholder','value']});
   };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start,{once:true}); else start();
 })();
@@ -145,18 +151,4 @@
   }
   var menu=document.getElementById('aboutRightsMenuBtn');
   if(menu) menu.textContent='Über das Spiel & Urheberrecht';
-})();
-
-/* Keep the German brand name plural in translated accessibility labels and credits. */
-(function(){
-  function correctBrand(){
-    var fix=function(value){return value.replace(/Die Vampir(?= von Saarbrücken)/g,'Die Vampire');};
-    document.querySelectorAll('[aria-label],[alt],[title]').forEach(function(el){
-      ['aria-label','alt','title'].forEach(function(attr){var value=el.getAttribute(attr);if(value&&value.indexOf('Die Vampir von Saarbrücken')!==-1)el.setAttribute(attr,fix(value));});
-    });
-    var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
-    var node;while((node=walker.nextNode())){if(node.nodeValue.indexOf('Die Vampir von Saarbrücken')!==-1)node.nodeValue=fix(node.nodeValue);}
-  }
-  correctBrand();
-  new MutationObserver(correctBrand).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','alt','title']});
 })();
