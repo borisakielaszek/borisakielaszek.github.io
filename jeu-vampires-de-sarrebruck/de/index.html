@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261025-de9">
+<meta name="game-build" content="20261025-de10">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/jeu-vampires-de-sarrebruck/">
 <title>Die Vampire von Saarbrücken — Das Spiel</title>
@@ -3534,36 +3534,18 @@ function choiceStormBurst(immediate=false){
 
 function enterNight(e){
  if(e&&e.preventDefault)e.preventDefault();
- const intro=el('introScreen'), menu=el('startScreen'), a=el('bgMusic'), hiss=el('introHissSfx'), btn=el('enterNightBtn');
+ const intro=el('introScreen'),menu=el('startScreen'),a=el('bgMusic'),hiss=el('introHissSfx'),btn=el('enterNightBtn');
  if(btn?.dataset.entered==='1')return;
- if(btn){btn.dataset.entered='1';btn.disabled=true;btn.classList.add('pressed');}
- haptic(30);
+ if(btn){btn.dataset.entered='1';btn.disabled=false;btn.classList.add('pressed');}
+ if(hiss){try{hiss.pause();hiss.currentTime=0;}catch(_){}}
  musicEnabled=true;musicStarted=true;
- // V5.72 : tonnerre utilisateur coupé juste avant l’impact.
- // Les éclairs blancs restent sur la première page pendant l’effet.
- let stormStarted=false;
- const startIntroStorm=()=>{if(stormStarted)return;stormStarted=true;choiceStormBurst();};
- if(hiss)hiss.addEventListener('playing',startIntroStorm,{once:true});
- setTimeout(startIntroStorm,700);
- if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=1;const hp=hiss.play();if(hp&&hp.catch)hp.catch(startIntroStorm);}catch(_){}}
- // On amorce la musique du menu à volume nul dans le geste utilisateur pour préserver l'autoplay Android.
- if(a){try{a.loop=true;a.currentTime=0;a.volume=0;const mp=a.play();if(mp&&mp.catch)mp.catch(()=>{});}catch(_){} }
- let transitioned=false;
- const finishIntro=()=>{
-   if(transitioned)return;transitioned=true;
-   const flash=el('stormFlash');if(flash){flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt,.intro-user-lightning')].forEach(n=>n.remove());}
-   if(intro)intro.classList.add('hidden');
-   if(menu)menu.classList.remove('hidden');
-   window.scrollTo(0,0);
-   if(a&&musicEnabled){try{a.currentTime=0;a.volume=.22;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(_){} }
-   refreshMusicButton();
-   offerFirstNightGuide();
- };
- if(hiss){try{hiss.addEventListener('ended',finishIntro,{once:true});}catch(_){} }
- // Sécurité : le fichier monté dure environ 6,4 s ; l’événement ended reste prioritaire.
- setTimeout(finishIntro,7200);
+ if(intro)intro.classList.add('hidden');
+ if(menu)menu.classList.remove('hidden');
+ window.scrollTo(0,0);
+ if(a){try{a.loop=true;a.currentTime=0;a.volume=.22;const p=a.play();if(p&&p.catch)p.catch(()=>{});}catch(_){}}
+ refreshMusicButton();
+ window.setTimeout(()=>{try{if(typeof offerFirstNightGuide==='function')offerFirstNightGuide();}catch(_){}},120);
 }
-
 function openHand(){if(!S)return;el('humanPanel').classList.remove('hidden');render()}
 function closeHand(){el('humanPanel').classList.add('hidden')}
 function cycleFeaturedOpponent(){if(!S)return;const enemies=S.players.filter(p=>!p.human&&p.alive);if(enemies.length<2)return;let i=enemies.findIndex(p=>p.id===S.featuredOpponentId);S.featuredOpponentId=enemies[(i+1+enemies.length)%enemies.length].id;render()}
@@ -3734,7 +3716,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-<script src="/jeu-vampires-de-sarrebruck/de/translations.js?v=20261025-de9" defer></script>
+<script src="/jeu-vampires-de-sarrebruck/de/translations.js?v=20261025-de10" defer></script>
 </body>
 </html>
 
