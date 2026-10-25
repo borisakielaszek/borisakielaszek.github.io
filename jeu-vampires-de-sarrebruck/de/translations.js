@@ -37,16 +37,12 @@
     const button = document.getElementById('enterNightBtn');
     if (button) { button.dataset.entered = '1'; button.classList.add('pressed'); }
     thunder();
-    // Paint the first strike on the current intro before revealing the menu.
-    const flash = document.createElement('div');
-    flash.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;background:radial-gradient(ellipse at 50% 10%,#ffffffcc,#b9d8ff66 40%,transparent 80%);';
-    const bolt = document.createElement('img');
-    bolt.src = base + 'assets/user-lightning-1.svg'; bolt.alt = '';
-    bolt.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;filter:drop-shadow(0 0 15px white)';
-    flash.appendChild(bolt); document.body.appendChild(flash);
-    flash.animate([{opacity:1},{opacity:.15,offset:.22},{opacity:.95,offset:.4},{opacity:0}],{duration:950,fill:'forwards'});
+    // Reuse the exact six-strike animation and CSS shared with FR/EN.
+    if (typeof window.choiceStormBurst === 'function') window.choiceStormBurst();
+    const music = document.getElementById('bgMusic');
+    if (music) { music.loop = true; music.volume = 0; music.play()?.catch(() => {}); }
     setTimeout(() => {
-      flash.remove(); intro.classList.add('hidden');
+      intro.classList.add('hidden');
       document.getElementById('startScreen')?.classList.remove('hidden');
       window.scrollTo(0,0);
       try { musicEnabled = true; musicStarted = true; } catch (_) {}
@@ -54,7 +50,7 @@
       if (music) { music.loop = true; music.volume = .22; music.play()?.catch(() => {}); }
       try { refreshMusicButton(); } catch (_) {}
       setTimeout(() => { try { offerFirstNightGuide(); } catch (_) {} },120);
-    },1100);
+    },6500);
   }
   function init() {
     removeSelectors();
