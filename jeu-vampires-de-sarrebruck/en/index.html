@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="game-build" content="20261025-helsing-synced-en">
+<meta name="game-build" content="20261025-helsing-synced-en7">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <base href="/jeu-vampires-de-sarrebruck/">
 <title>The Vampires of Saarbrücken — The game</title>
@@ -3727,7 +3727,7 @@ var overlay=document.getElementById('aboutRightsOverlay');
 var close=document.getElementById('aboutRightsClose');
 if(!overlay||!close)return;
 var candidates=[].slice.call(document.querySelectorAll('button,a,[role="button"]'));
-var origin=candidates.find(function(el){var t=norm(el.textContent);return t==='les origines du jeu'||t.indexOf('les origines du jeu')!==-1;});
+var origin=document.getElementById('clanStoryBtn')||candidates.find(function(el){var t=norm(el.textContent);return t==='les origines du jeu'||t.indexOf('the origins of the card game')!==-1||t.indexOf('les origines du jeu')!==-1;});
 if(origin&&!document.getElementById('aboutRightsMenuBtn')){
 var btn=origin.cloneNode(true);
 btn.id='aboutRightsMenuBtn';
@@ -3751,7 +3751,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-<script src="/jeu-vampires-de-sarrebruck/en/translations.js?v=20261025-en6" defer></script>
+<script src="/jeu-vampires-de-sarrebruck/en/translations.js?v=20261025-en7" defer></script>
 </body>
 </html>
 
