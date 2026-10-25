@@ -2875,12 +2875,12 @@ function combatSuccessResultLines(target,attackId,defenseId,mode,effectSummary){
    lines.push(`<div class="loss">− ${discarded.length} carte${discarded.length>1?'s':''}</div>`);
    lines.push(`<div class="combat-result-discard">${discarded.map(cardName).join(' · ')}</div>`);
  }
- if(attackId==='hypnose'&&actualDamage===0)lines.push(`<div class="loss">Effet d’Hypnose appliqué</div>`);
- if(attackId==='saint_nicolas')lines.push(`<div class="loss">2 prochains tours à passer</div>`);
- if(mode==='partial'&&defenseId)lines.push(`<div class="combat-result-discard">Dégâts réduits par ${cardName(defenseId)}.</div>`);
- if(mode==='endured'&&defenseId)lines.push(`<div class="combat-result-discard">${cardName(defenseId)} est utilisée après l’attaque.</div>`);
- if(effectSummary&&effectSummary.eliminated)lines.push(`<div class="loss">☠ ${pName(target)} est éliminé</div>`);
- if(!lines.length)lines.push(`<div class="loss">Effet de la carte appliqué</div>`);
+ if(attackId==='hypnose'&&actualDamage===0)lines.push(`<div class="loss">Hypnosewirkung angewendet</div>`);
+ if(attackId==='saint_nicolas')lines.push(`<div class="loss">Die nächsten 2 Züge aussetzen</div>`);
+ if(mode==='partial'&&defenseId)lines.push(`<div class="combat-result-discard">Schaden verringert durch ${cardName(defenseId)}.</div>`);
+ if(mode==='endured'&&defenseId)lines.push(`<div class="combat-result-discard">${cardName(defenseId)} wird nach dem Angriff eingesetzt.</div>`);
+ if(effectSummary&&effectSummary.eliminated)lines.push(`<div class="loss">☠ ${pName(target)} ist ausgeschieden</div>`);
+ if(!lines.length)lines.push(`<div class="loss">Kartenwirkung angewendet</div>`);
  return lines.join('');
 }
 
@@ -2890,15 +2890,15 @@ async function showCombatResultCard({attacker,target,attackId,defenseId=null,mod
  let dynamic='';
  if(failed){
    const reason=combatFailureReason(target,attackId,defenseId,mode);
-   const context=`<div class="combat-result-context">${pName(attacker)} a échoué dans son attaque sur ${pName(target)}.</div>`;
+   const context=`<div class="combat-result-context">Der Angriff von ${pName(attacker)==='Du'?'dir':pName(attacker)} auf ${pName(target)==='Du'?'dich':pName(target)} ist gescheitert.</div>`;
    const defenseBlock=defenseId?`<div class="combat-defense-card"><img src="${imgCard(defenseId)}" alt="${cardName(defenseId)}"><div><div class="combat-defense-name">${cardName(defenseId)}</div></div></div>`:'';
    const extra=mode==='reflect'?`<div class="combat-result-discard">L’attaque est renvoyée vers ${pName(attacker)}.</div>`:'';
-   dynamic=`${context}<div class="combat-result-label">ATTAQUE ÉCHOUÉE</div><div class="combat-result-main">${reason}</div>${defenseBlock}${extra}`;
+   dynamic=`${context}<div class="combat-result-label">ANGRIFF GESCHEITERT</div><div class="combat-result-main">${reason}</div>${defenseBlock}${extra}`;
  }else{
-   const context=`<div class="combat-result-context">${pName(attacker)} a réussi son attaque sur ${pName(target)}.</div>`;
-   dynamic=`${context}<div class="combat-result-label">RÉSULTAT</div><div class="combat-result-lines">${combatSuccessResultLines(target,attackId,defenseId,mode,effectSummary)}</div>`;
+   const context=`<div class="combat-result-context">${pName(attacker)} ${pName(attacker)==='Du'?'hast':'hat'} ${pName(target)==='Du'?'dich':pName(target)} erfolgreich angegriffen.</div>`;
+   dynamic=`${context}<div class="combat-result-label">ERGEBNIS</div><div class="combat-result-lines">${combatSuccessResultLines(target,attackId,defenseId,mode,effectSummary)}</div>`;
  }
- const content=`<div class="combat-result-wrap"><div class="combat-result-card ${failed?'failed':'success'}"><img class="combat-art" src="${art}" alt="${failed?'Attaque échouée':'Attaque réussie'}"><div class="combat-dynamic">${dynamic}<div class="combat-result-note">Touche cette notification pour continuer</div></div></div></div>`;
+ const content=`<div class="combat-result-wrap"><div class="combat-result-card ${failed?'failed':'success'}"><img class="combat-art" src="${art}" alt="${failed?'Attaque échouée':'Attaque réussie'}"><div class="combat-dynamic">${dynamic}<div class="combat-result-note">Tippe auf diese Meldung, um fortzufahren.</div></div></div></div>`;
  playCombatSfx(!failed);
  await openTapDismissInfo({title:'',content});
 }
