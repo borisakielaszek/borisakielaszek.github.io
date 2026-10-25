@@ -121,3 +121,17 @@
   var menu=document.getElementById('aboutRightsMenuBtn');
   if(menu) menu.textContent='Über das Spiel & Urheberrecht';
 })();
+
+/* Keep the German brand name plural in translated accessibility labels and credits. */
+(function(){
+  function correctBrand(){
+    var fix=function(value){return value.replace(/Die Vampir(?= von Saarbrücken)/g,'Die Vampire');};
+    document.querySelectorAll('[aria-label],[alt],[title]').forEach(function(el){
+      ['aria-label','alt','title'].forEach(function(attr){var value=el.getAttribute(attr);if(value&&value.indexOf('Die Vampir von Saarbrücken')!==-1)el.setAttribute(attr,fix(value));});
+    });
+    var walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+    var node;while((node=walker.nextNode())){if(node.nodeValue.indexOf('Die Vampir von Saarbrücken')!==-1)node.nodeValue=fix(node.nodeValue);}
+  }
+  correctBrand();
+  new MutationObserver(correctBrand).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['aria-label','alt','title']});
+})();
