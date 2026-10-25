@@ -1,72 +1,56 @@
 (() => {
   'use strict';
-  let opened = false, context, thunderBuffer;
-  const base = '/jeu-vampires-de-sarrebruck/de/';
-  const removeSelectors = () => document.querySelectorAll('.game-language-switch,.language-switch').forEach(el => el.remove());
-  function audioContext() {
-    const Audio = window.AudioContext || window.webkitAudioContext;
-    if (!context && Audio) context = new Audio();
-    return context;
-  }
-  function thunder() {
-    try {
-      const ctx = audioContext(); if (!ctx) return;
-      ctx.resume().catch(() => {});
-      const source = ctx.createBufferSource();
-      if (thunderBuffer) source.buffer = thunderBuffer;
-      else {
-        // Immediate local fallback while the supplied thunder is still loading.
-        const buffer = ctx.createBuffer(1, ctx.sampleRate * 1.4, ctx.sampleRate);
-        const data = buffer.getChannelData(0); let rumble = 0;
-        for (let i = 0; i < data.length; i++) {
-          const noise = Math.random() * 2 - 1;
-          rumble = rumble * .94 + noise * .06;
-          data[i] = (rumble * 3 + noise * .22) * Math.exp(-5 * i / data.length);
-        }
-        source.buffer = buffer;
-      }
-      const gain = ctx.createGain(); gain.gain.value = .85;
-      source.connect(gain); gain.connect(ctx.destination); source.start();
-    } catch (_) {}
-  }
+  let opened = false;
   function enter(event) {
     const intro = document.getElementById('introScreen');
     if (!intro || intro.classList.contains('hidden') || !intro.contains(event.target)) return;
     event.preventDefault(); event.stopImmediatePropagation(); event.stopPropagation();
-    if (opened) return; opened = true;
-    const button = document.getElementById('enterNightBtn');
-    if (button) { button.dataset.entered = '1'; button.classList.add('pressed'); }
-    thunder();
-    // Reuse the exact six-strike animation and CSS shared with FR/EN.
-    if (typeof window.choiceStormBurst === 'function') window.choiceStormBurst();
-    const music = document.getElementById('bgMusic');
-    if (music) { music.loop = true; music.volume = 0; music.play()?.catch(() => {}); }
-    setTimeout(() => {
-      intro.classList.add('hidden');
-      document.getElementById('startScreen')?.classList.remove('hidden');
-      window.scrollTo(0,0);
-      try { musicEnabled = true; musicStarted = true; } catch (_) {}
-      const music = document.getElementById('bgMusic');
-      if (music) { music.loop = true; music.volume = .22; music.play()?.catch(() => {}); }
-      try { refreshMusicButton(); } catch (_) {}
-      setTimeout(() => { try { offerFirstNightGuide(); } catch (_) {} },120);
-    },6500);
+    if (opened) return;
+    opened = true;
+    enterOriginalNight(event);
   }
+function enterOriginalNight(e){
+ if(e&&e.preventDefault)e.preventDefault();
+ const intro=el('introScreen'), menu=el('startScreen'), a=el('bgMusic'), hiss=el('introHissSfx'), btn=el('enterNightBtn');
+ if(btn?.dataset.entered==='1')return;
+ if(btn){btn.dataset.entered='1';btn.disabled=true;btn.classList.add('pressed');}
+ haptic(30);
+ musicEnabled=true;musicStarted=true;
+ // V5.72 : tonnerre utilisateur coupé juste avant l’impact.
+ // Les éclairs blancs restent sur la première page pendant l’effet.
+ let stormStarted=false;
+ const startIntroStorm=()=>{if(stormStarted)return;stormStarted=true;choiceStormBurst();};
+ if(hiss)hiss.addEventListener('playing',startIntroStorm,{once:true});
+ setTimeout(startIntroStorm,700);
+ if(hiss){try{hiss.pause();hiss.currentTime=0;hiss.volume=1;const hp=hiss.play();if(hp&&hp.catch)hp.catch(startIntroStorm);}catch(_){}}
+ // On amorce la musique du menu à volume nul dans le geste utilisateur pour préserver l'autoplay Android.
+ if(a){try{a.loop=true;a.currentTime=0;a.volume=0;const mp=a.play();if(mp&&mp.catch)mp.catch(()=>{});}catch(_){} }
+ let transitioned=false;
+ const finishIntro=()=>{
+   if(transitioned)return;transitioned=true;
+   const flash=el('stormFlash');if(flash){flash.classList.remove('flash','choice-storm');[...flash.querySelectorAll('.storm-bolt,.intro-user-lightning')].forEach(n=>n.remove());}
+   if(intro)intro.classList.add('hidden');
+   if(menu)menu.classList.remove('hidden');
+   window.scrollTo(0,0);
+   if(a&&musicEnabled){try{a.currentTime=0;a.volume=.22;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{});}catch(_){} }
+   refreshMusicButton();
+   offerFirstNightGuide();
+ };
+ if(hiss){try{hiss.addEventListener('ended',finishIntro,{once:true});}catch(_){} }
+ // Sécurité : le fichier monté dure environ 6,4 s ; l’événement ended reste prioritaire.
+ setTimeout(finishIntro,7200);
+}
+
   function init() {
-    removeSelectors();
+    document.querySelectorAll('.game-language-switch,.language-switch').forEach(el => el.remove());
     const button = document.getElementById('enterNightBtn');
     if (button) { button.disabled = false; button.removeAttribute('disabled'); button.setAttribute('aria-label','Betritt die Nacht'); }
     for (const name of ['user-lightning-1.svg','user-lightning-2.svg']) { const img = new Image(); img.src = '/jeu-vampires-de-sarrebruck/assets/' + name; }
-    try {
-      const ctx = audioContext();
-      const sound = document.getElementById('introHissSfx');
-      if (ctx && sound) fetch(sound.src).then(r => r.arrayBuffer()).then(b => ctx.decodeAudioData(b)).then(b => { thunderBuffer = b; }).catch(() => {});
-    } catch (_) {}
     document.addEventListener('pointerup',enter,true);
     document.addEventListener('click',enter,true);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
   const script = document.createElement('script');
-  script.src = base + 'translations-data.js?v=20261025-de-audit-2';
+  script.src = '/jeu-vampires-de-sarrebruck/de/translations-data.js?v=20261025-de-result3';
   document.head.appendChild(script);
 })();
