@@ -257,6 +257,8 @@
     ['Ne passe jamais son tour.|Immunisée à l’Hypnose.|Lorsqu’elle joue Hypnose : peut voler 2 gouttes (1 à chacun de deux adversaires différents).|Main maximale : 7 cartes.', 'Never misses a turn.|Immune to Hypnosis.|When playing Hypnosis, may steal 2 drops (1 from each of two different opponents).|Maximum hand size: 7 cards.'],
     ['Impôts et taxes Del Rattello : prend 2 gouttes dans la réserve commune ; si elle est insuffisante, vole le complément. Ne paie pas l’impôt joué par un adversaire.|Poche de sang expirée : immunisé ; s’il la joue sur lui-même, +1 goutte.', 'Del Rattello Taxes and Duties: takes 2 drops from the shared pool; if there are not enough, steals the difference. Does not pay an opponent’s tax.|Expired Blood Bag: immune; playing it on himself gives +1 drop.'],
     ['Cumule les bonus des deux familles.|Lever du jour : +1 goutte.', 'Combines the bonuses of both families.|Daybreak: +1 drop.'],
+    ['Vigueur de la jeunesse : joue avec 6 gouttes.', 'Youthful Vigor: starts with 6 blood drops.'],
+    ['Lever du jour : +1 goutte.', 'Daybreak: +1 blood drop.'],
     ['Château de Sarrebruck : +3 gouttes au lieu de +2.', 'Saarbrücken Castle: +3 drops instead of +2.'],
     ['Les IA te ménagent.', 'The AIs go easy on you.'],
     ['Équipement de Van Helsing', 'Van Helsing’s equipment'],
