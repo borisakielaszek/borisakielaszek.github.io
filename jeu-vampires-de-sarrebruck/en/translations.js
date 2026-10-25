@@ -641,11 +641,13 @@
     if (heading) {
       heading.setAttribute('aria-label', 'Let the bloodbath begin!');
       heading.innerHTML = '<span class="english-blood-title">LET THE BLOODBATH BEGIN!</span>';
-      heading.style.setProperty('font-size', 'clamp(18px, 2.4vw, 34px)', 'important');
+      heading.style.setProperty('font-size', 'clamp(17px, 2vw, 28px)', 'important');
       heading.style.setProperty('line-height', '1.05', 'important');
-      heading.style.setProperty('white-space', 'nowrap', 'important');
+      heading.style.setProperty('white-space', 'normal', 'important');
       heading.style.setProperty('overflow', 'visible', 'important');
       heading.style.setProperty('max-width', '100%', 'important');
+      heading.style.setProperty('width', '100%', 'important');
+      heading.style.setProperty('overflow-wrap', 'normal', 'important');
     }
     translateElement(document.body);
     const observer = new MutationObserver(records => {
