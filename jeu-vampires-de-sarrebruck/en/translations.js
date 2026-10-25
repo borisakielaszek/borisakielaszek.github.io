@@ -6,6 +6,9 @@
     ['Affrontez une nuit sanglante où tous les coups sont permis entre vampires', 'Face a blood-soaked night where anything goes between vampires.'],
     ['🔊 Musique', '🔊 Music'],
     ['Couper ou remettre la musique', 'Turn the music off or on'],
+    ['Couper la musique', 'Turn the music off'],
+    ['Remettre la musique', 'Turn the music on'],
+    [' ou ', ' or '],
     ['Entrer dans la nuit', 'Enter the night'],
     ['Nombre total de joueurs', 'Total number of players'],
     ['joueurs (1 humain + 1 IA)', 'players (1 human + 1 AI)'],
@@ -640,6 +643,33 @@
       heading.innerHTML = '<span class="english-blood-title">LET THE BLOODBATH BEGIN!</span>';
     }
     translateElement(document.body);
+    const localizeIntroArt = () => {
+      const stage = document.querySelector('.intro-art-final');
+      const image = stage?.querySelector('img');
+      const button = document.getElementById('enterNightBtn');
+      if (!stage || !image || !button) return;
+      let title = stage.querySelector('.english-intro-title');
+      if (!title) {
+        title = document.createElement('div');
+        title.className = 'english-intro-title';
+        title.setAttribute('aria-hidden', 'true');
+        title.innerHTML = '<span>THE VAMPIRES</span><span>OF SAARBRÜCKEN</span>';
+        stage.appendChild(title);
+      }
+      const r = image.getBoundingClientRect();
+      const s = stage.getBoundingClientRect();
+      title.style.left = `${r.left - s.left + r.width * .12}px`;
+      title.style.top = `${r.top - s.top + r.height * .535}px`;
+      title.style.width = `${r.width * .76}px`;
+      title.style.height = `${r.height * .195}px`;
+    };
+    const introStyle = document.createElement('style');
+    introStyle.textContent = `.english-intro-title{position:absolute;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.06em;box-sizing:border-box;padding:.12em .2em;border:2px solid #b99a5c;border-radius:10px;background:linear-gradient(180deg,rgba(8,7,8,.97),rgba(32,6,10,.98));color:#f2d89b;text-align:center;font-family:Georgia,'Times New Roman',serif;font-weight:900;letter-spacing:.06em;line-height:.95;text-shadow:0 2px 4px #000,0 0 12px #8e1020;pointer-events:none;font-size:clamp(17px,4.2vw,38px)}#enterNightBtn{z-index:5!important;color:transparent!important;font-size:0!important;background:linear-gradient(180deg,#a51d2c,#650713)!important;border:2px solid #d0ad68!important;box-shadow:inset 0 0 12px #e0b36a55,0 2px 12px #000b!important}#enterNightBtn::after{content:'Enter the night';color:#f5e2bc;font:900 clamp(16px,3.8vw,30px)/1 Georgia,'Times New Roman',serif;text-shadow:0 2px 3px #300}`;
+    document.head.appendChild(introStyle);
+    localizeIntroArt();
+    const introImage = document.querySelector('.intro-art-final img');
+    if (introImage && !introImage.complete) introImage.addEventListener('load', localizeIntroArt, {once: true});
+    window.addEventListener('resize', localizeIntroArt);
     const observer = new MutationObserver(records => {
       for (const record of records) {
         if (record.type === 'characterData') translateNode(record.target);
