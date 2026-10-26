@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const REV = '20261026-en-fix-1';
+  const REV = '20261026-en-fix-2';
   let started = false;
 
   function loadBaseTranslations() {
@@ -51,6 +51,7 @@
       .combat-visual-localized img,
       .combat-result-card .combat-visual-localized img.combat-art{width:100%!important;height:100%!important;display:block;object-fit:cover!important;object-position:50% 51%!important;max-height:none!important;margin:0!important;border-radius:0!important}
       .combat-visual-localized .combat-visual-heading{position:absolute;inset:10px 14px auto;text-align:center;z-index:2;font-family:Georgia,'Times New Roman',serif;font-size:clamp(28px,8vw,54px);font-weight:900;line-height:1;color:#fff;text-shadow:0 3px 8px #000,0 0 16px #000;pointer-events:none}
+      img[data-en-daybreak-fixed="1"]{display:block!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;object-position:center!important;aspect-ratio:auto!important}
     `;
     document.head.appendChild(style);
   }
@@ -83,9 +84,17 @@
     const imgs = root.matches && root.matches('img') ? [root] : Array.from(root.querySelectorAll ? root.querySelectorAll('img') : []);
     imgs.forEach((img) => {
       const src = img.getAttribute('src') || '';
-      if (!src.includes('daybreak-franco-german-garden-en.png') && !src.includes('50dce702b58f8bd97256.webp')) return;
+      const isDaybreak = src.includes('daybreak-franco-german-garden-en.png') || src.includes('50dce702b58f8bd97256.webp');
+      if (!isDaybreak) return;
       const wanted = 'assets/daybreak-franco-german-garden-en.png?v=' + REV;
       if (src !== wanted) img.setAttribute('src', wanted);
+      img.setAttribute('data-en-daybreak-fixed', '1');
+      img.style.setProperty('width', '100%', 'important');
+      img.style.setProperty('height', 'auto', 'important');
+      img.style.setProperty('max-height', 'none', 'important');
+      img.style.setProperty('object-fit', 'contain', 'important');
+      img.style.setProperty('object-position', 'center', 'important');
+      img.style.setProperty('aspect-ratio', 'auto', 'important');
     });
   }
 
